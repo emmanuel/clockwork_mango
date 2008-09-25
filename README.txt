@@ -1,19 +1,23 @@
-= clockwork
+= Clockwork
 
 * http://clockwork.rubyforge.org
 
 == DESCRIPTION:
 
-Clockwork provides an implementation of Temporal Expressions, as described 
-(roughly) by Martin Fowler in his paper "Recurring Events for Calendars" 
-(http://martinfowler.com/apsupp/recurring.pdf).
+Briefly, Clockwork simplifies the process of describing many types of 
+recurrence: think Cron expressions in plain English, but that's not all!
+
+Clockwork provides an implementation of Temporal Expressions, (roughly) as 
+described by Martin Fowler in his paper "Recurring Events for Calendars" 
+(http://martinfowler.com/apsupp/recurring.pdf). The implementation itself 
+differs significantly from the one that Fowler describes there.
 
 == FEATURES/PROBLEMS:
 
 * Describe event recurrence with a simple DSL.
-* Simple, clean, well-specified codebase.
-* Unified implementation for Precisioned Dates, Date and Time Ranges,
-  and recurrence.
+* Simple, clean, well-specified codebase (TODO).
+* Unified implementation for recurrence, Precisioned Dates, and 
+  Date/Time/DateTime Ranges.
 
 == SYNOPSIS:
 
@@ -46,24 +50,25 @@ plural forms).
   christmas = Clockwork.schedule { december & mday(25) }
 
 Some additional methods are available to deal with particular types of dates: 
-#mweek (week of the month), #wday_ordinal (ordinal occurrence of 
+#mweek (week of the month), #wday_in_month (ordinal occurrence of 
 weekday in month, eg. Thanksgiving in the US: the 3rd thursday of November).
 
-  art_walk = Clockwork.schedule { thursday & wday_ordinal(1) }
-  thanksgiving = Clockwork.schedule { november & thursday & wday_ordinal(3) }
+  art_walk = Clockwork.schedule { thursday & wday_in_month(1) }
+  thanksgiving = Clockwork.schedule { november & thursday & wday_in_month(3) }
 
-Times of day and time ranges can be specified with the #at and #from methods, which 
-accept hours, minutes and optionally seconds as integers in 24 hour format:
+Times of day and time ranges can be specified with the #at and #from methods, 
+which accept hours, minutes and optionally seconds as arrays of integers in 
+24 hour format (hour, minute[, second]):
 
-  work_week = Clockwork.schedule { from(915..1745) & wday(1..5) }
-  back_to_work = Clockwork.schedule { at(915) & mondays }
+  work_week = Clockwork.schedule { from([9,15]..[17,45]) & wday(1..5) }
+  back_to_work = Clockwork.schedule { at([9,15]) & mondays }
 
 As mentioned, expressions can be composed as needed, but be aware of 
 precedence when building complex expressions:
 
   class_time = Clockwork.schedule do
-    ((mondays | wednesdays | thursdays) & from(1900..2130)) |
-      (sundays & from(1200..1330))
+    ((mondays | wednesdays | thursdays) & from([19,00]..[21,30])) |
+      (sundays & from([12,00]..[13,30]))
   end
 
 So, what do you do with these objects? Clockwork::Expression objects provide 

@@ -2,6 +2,7 @@ History.txt
 Manifest.txt
 README.txt
 Rakefile
+TODO.txt
 lib/clockwork.rb
 lib/clockwork/expression.rb
 lib/clockwork/assertion.rb
@@ -9,7 +10,8 @@ lib/clockwork/compound.rb
 lib/clockwork/dsl.rb
 lib/clockwork/core_ext.rb
 lib/clockwork/core_ext/day_precision.rb
-lib/clockwork/core_ext/wday_in_month.rb
+lib/clockwork/core_ext/second_precision.rb
+lib/clockwork/core_ext/human_date_values.rb
 spec/spec_helper.rb
 spec/assertion_spec.rb
 spec/expression_spec.rb

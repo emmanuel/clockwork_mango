@@ -23,8 +23,33 @@ module Clockwork
       end
     end
     
-    %w[year yweek yday month mday wday wday_in_month hour min sec usec].each do |attribute|
-      define_arity_one_expression_builder(attribute, attribute)
+    %w[year month mday wday hour min sec usec 
+      yweek yday wday_in_month].each do |attribute|
+        define_arity_one_expression_builder(attribute, attribute)
+    end
+    
+    def at(time_array)
+      hh, mm, ss = time_array
+      if !(0..23).include?(hh)
+        raise ArgumentError, "invalid hour specified (#{hh})"
+      elsif !mm.nil? and !(0..59).include?(mm)
+        raise ArgumentError, "invalid minute specified (#{mm})"
+      elsif !ss.nil? and !(0..59).include?(ss)
+        raise ArgumentError, "invalid second specified (#{ss})"
+      end
+      
+      if mm.nil?
+        hour(hh)
+      elsif ss.nil?
+        hour(hh) & min(mm)
+      else
+        hour(hh) & min(mm) & sec(ss)
+      end
+    end
+    
+    def from(time_range)
+      raise NotImplementedError, "TODO"
+      # TODO: unroll time_range into Union expressions
     end
   end # module Dsl
 end # module Clockwork
