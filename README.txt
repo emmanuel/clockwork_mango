@@ -37,23 +37,25 @@ they can be composed into (arbitrarily complex) expressions using the set
 operations #&, #|, and #-.
 
   now = Time.now
+  # yeah, this breaks on Jan 1... but you get the picture
   yesterday = Clockwork.schedule do
-    year(now.year) & month(now.month) & mday(now.mday - 1)
+    year(now.year) & yday(now.yday - 1)
   end
   work_time = Clockwork.schedule { hour(9..17) & wday(1..5) }
-  weekend = Clockwork.schedule { wday(0) | wday(6) }
+  not_work = Clockwork.schedule { wday(0) | wday(6) | (wday(1..5) - hour(9..17)) }
 
-Named shortcuts for weekdays and months are provided (in both singular and 
-plural forms).
+Named shortcuts for weekdays and months are provided (currently only singular 
+forms, but plurals are coming soon).
 
   mon_wed_fri = Clockwork.schedule { mondays | wednesdays | fridays }
   christmas = Clockwork.schedule { december & mday(25) }
 
 Some additional methods are available to deal with particular types of dates: 
-#mweek (week of the month), #wday_in_month (ordinal occurrence of 
-weekday in month, eg. Thanksgiving in the US: the 3rd thursday of November).
+#yweek (week of the year, similar to DateTime#cweek), #wday_in_month (ordinal 
+occurrence of weekday in month, eg. Thanksgiving in the US: the 3rd thursday 
+of November).
 
-  art_walk = Clockwork.schedule { thursday & wday_in_month(1) }
+  seattle_art_walk = Clockwork.schedule { thursday & wday_in_month(1) }
   thanksgiving = Clockwork.schedule { november & thursday & wday_in_month(3) }
 
 Times of day and time ranges can be specified with the #at and #from methods, 
@@ -74,22 +76,23 @@ precedence when building complex expressions:
 So, what do you do with these objects? Clockwork::Expression objects provide 
 a #=== method to test inclusion of a Date, Time, DateTime, or other similar 
 object. Any object that quacks like a Time object can be tested: attributes 
-#year, #month, #mday, #hour, #min, #sec, as well as #wday, #yday (ordinal day 
-of the year), #yweek (ordinal week of the year) and the previously mentioned 
-attributes can be tested for.
+#year, #month, #mday, #hour, #min, #sec, as well as the previously mentioned 
+additional attributes can be tested for.
 
   loop do
     case Time.now
     when class_time
       # do something appropriate
     end
-
+    
+    # you need Extlib or ActiveSupport for this to work
     sleep 15.minutes
   end
 
 == REQUIREMENTS:
 
-* FIX (list of requirements)
+* Possible future dependency on English from facets for pluralization 
+  inflector, though not really necessary, so probably will avoid it.
 
 == INSTALL:
 
