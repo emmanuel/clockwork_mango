@@ -10,6 +10,9 @@ describe Clockwork::Assertion do
     @sec   = 15
     @usec  = 500
     @time  = Time.local(@year, @month, @mday, @hour, @min, @sec, @usec)
+    @yday  = 268
+    @yweek = 3
+    @wday  = 3
   end
   
   it "should match on correct year" do
