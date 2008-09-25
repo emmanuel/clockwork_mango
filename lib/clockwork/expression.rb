@@ -1,5 +1,9 @@
 module Clockwork
   class Expression
+    def attributes
+      []
+    end
+
     def ===(other)
       raise NoMethodError, "subclasses must define '==='"
     end
