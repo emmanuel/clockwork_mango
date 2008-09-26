@@ -28,7 +28,3 @@ module Clockwork
     end # module HumanDateValues
   end # module CoreExt
 end # module Clockwork
-
-[::Date, ::Time, ::DateTime].each do |klass|
-  klass.send(:include, Clockwork::CoreExt::HumanDateValues)
-end

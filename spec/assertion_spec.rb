@@ -1,10 +1,17 @@
 require File.dirname(__FILE__) + "/spec_helper"
 
 describe Clockwork::Assertion do
-  TIME_ATTRS = [:year, :month, :mday, :hour, :min, :sec, :usec]
-  DATE_ATTRS = TIME_ATTRS - [:hour, :min, :sec, :usec]
+  DATE_ATTRIBUTES = [:year, :month, :mday]
+  DATETIME_ATTRS  = DATE_ATTRIBUTES + [:hour, :min, :sec]
+  TIME_ATTRIBUTES = DATETIME_ATTRS + [:usec]
   
-  ATTRIBUTES = {
+  DERIVED_ATTRS = [:yday, :wday]
+  DAY_PRECISION_UNITS     = DATE_ATTRIBUTES + DERIVED_ATTRS
+  SECOND_PRECISION_UNITS  = DATETIME_ATTRS + DERIVED_ATTRS
+  USECOND_PRECISION_UNITS = TIME_ATTRIBUTES + DERIVED_ATTRS
+  
+  # Wed Sep 24 18:30:15 -0700 2008, 500 usec
+  VALUES = {
     :year  => 2008,
     :month => 9,
     :mday  => 24,
@@ -18,37 +25,155 @@ describe Clockwork::Assertion do
   }
   
   before :all do
-    @time = Time.local(*TIME_ATTRS.map { |a| ATTRIBUTES[a] })
-    @date = Date.new(*DATE_ATTRS.map { |a| ATTRIBUTES[a] })
+    @time = Time.local(*TIME_ATTRIBUTES.map { |a| VALUES[a] })
+    @datetime = DateTime.new(*DATETIME_ATTRS.map { |a| VALUES[a] })
+    @date = Date.new(*DATE_ATTRIBUTES.map { |a| VALUES[a] })
   end
   
-  ATTRIBUTES.each do |attribute, value|
-    it "should match Time objects on asserted #{attribute} integer value" do
-      Clockwork::Assertion.new(attribute, value).should === @time
+  describe "DAY_PRECISION_UNITS" do
+    DAY_PRECISION_UNITS.each do |attr|
+      value = VALUES[attr]
+      random = rand(99)
+      
+      it "should match Time objects on asserted #{attr} integer value" do
+        Clockwork::Assertion.new(attr, value).should === @time
+      end
+      
+      it "should match Date objects on asserted #{attr} integer value" do
+        Clockwork::Assertion.new(attr, value).should === @date
+      end
+      
+      it "should match DateTime objects on asserted #{attr} integer value" do
+        Clockwork::Assertion.new(attr, value).should === @datetime
+      end
+      
+      it "should match Time objects on asserted #{attr} range value" do
+        Clockwork::Assertion.new(attr, (value - 1)..(value + 1)).should === @time
+      end
+      
+      it "should match Date objects on asserted #{attr} range value" do
+        Clockwork::Assertion.new(attr, (value - 1)..(value + 1)).should === @date
+      end
+      
+      it "should match DateTime objects on asserted #{attr} range value" do
+        Clockwork::Assertion.new(attr, (value - 1)..(value + 1)).should === @datetime
+      end
+      
+      it "should not match Time objects on any other #{attr} value" do
+        Clockwork::Assertion.new(attr, value - 1).should_not === @time
+        Clockwork::Assertion.new(attr, value + 1).should_not === @time
+        Clockwork::Assertion.new(attr, value + random).should_not === @time
+      end
+      
+      it "should not match Date objects on any other #{attr} value" do
+        Clockwork::Assertion.new(attr, value - 1).should_not === @date
+        Clockwork::Assertion.new(attr, value + 1).should_not === @date
+        Clockwork::Assertion.new(attr, value + random).should_not === @date
+      end
+      
+      it "should not match DateTime objects on any other #{attr} value" do
+        Clockwork::Assertion.new(attr, value - 1).should_not === @datetime
+        Clockwork::Assertion.new(attr, value + 1).should_not === @datetime
+        Clockwork::Assertion.new(attr, value + random).should_not === @datetime
+      end
     end
-    
-    it "should match Date objects on asserted #{attribute} integer value" do
-      Clockwork::Assertion.new(attribute, value).should === @date
+  end # describe DAY_PRECISION_UNITS
+  
+  describe "SECOND_PRECISION_UNITS" do
+    (SECOND_PRECISION_UNITS - DAY_PRECISION_UNITS).each do |attr|
+      value = VALUES[attr]
+      random = rand(99)
+      
+      it "should match Time objects on asserted #{attr} integer value" do
+        Clockwork::Assertion.new(attr, value).should === @time
+      end
+      
+      it "should match DateTime objects on asserted #{attr} integer value" do
+        Clockwork::Assertion.new(attr, value).should === @datetime
+      end
+      
+      it "should match Date objects on asserted #{attr} integer value" do
+        Clockwork::Assertion.new(attr, value).should === @date
+      end
+      
+      it "should match Time objects on asserted #{attr} range value" do
+        Clockwork::Assertion.new(attr, (value - 1)..(value + 1)).should === @time
+      end
+      
+      it "should match DateTime objects on asserted #{attr} range value" do
+        Clockwork::Assertion.new(attr, (value - 1)..(value + 1)).should === @datetime
+      end
+      
+      it "should match Date objects on asserted #{attr} range value" do
+        Clockwork::Assertion.new(attr, (value - 1)..(value + 1)).should === @date
+      end
+      
+      it "should not match Time objects on any other #{attr} value" do
+        Clockwork::Assertion.new(attr, value - 1).should_not === @time
+        Clockwork::Assertion.new(attr, value + 1).should_not === @time
+        Clockwork::Assertion.new(attr, value + random).should_not === @time
+      end
+      
+      it "should not match DateTime objects on any other #{attr} value" do
+        Clockwork::Assertion.new(attr, value - 1).should_not === @datetime
+        Clockwork::Assertion.new(attr, value + 1).should_not === @datetime
+        Clockwork::Assertion.new(attr, value + random).should_not === @datetime
+      end
+      
+      it "should match Date objects on any other #{attr} value" do
+        Clockwork::Assertion.new(attr, value - 1).should === @date
+        Clockwork::Assertion.new(attr, value + 1).should === @date
+        Clockwork::Assertion.new(attr, value + random).should === @date
+      end
     end
-    
-    it "should match Time objects on asserted #{attribute} range value" do
-      Clockwork::Assertion.new(attribute, (value - 1)..(value + 1)).should === @time
-    end
-    
-    it "should match Date objects on asserted #{attribute} range value" do
-      Clockwork::Assertion.new(attribute, (value - 1)..(value + 1)).should === @date
-    end
-    
-    it "should not match Time objects on any other #{attribute} value" do
-      Clockwork::Assertion.new(attribute, value - 1).should_not === @time
-      Clockwork::Assertion.new(attribute, value + 1).should_not === @time
-      Clockwork::Assertion.new(attribute, value + rand(999)).should_not === @time
-    end
-    
-    it "should not match Date objects on any other #{attribute} value" do
-      Clockwork::Assertion.new(attribute, value - 1).should_not === @date
-      Clockwork::Assertion.new(attribute, value + 1).should_not === @date
-      Clockwork::Assertion.new(attribute, value + rand(999)).should_not === @date
+  end # describe SECOND_PRECISION_UNITS
+  
+  describe "USECOND_PRECISION_UNITS" do
+    (USECOND_PRECISION_UNITS - SECOND_PRECISION_UNITS).each do |attr|
+      value = VALUES[attr]
+      random = rand(99)
+      
+      it "should match Time objects on asserted #{attr} integer value" do
+        Clockwork::Assertion.new(attr, value).should === @time
+      end
+      
+      it "should match DateTime objects on asserted #{attr} integer value" do
+        Clockwork::Assertion.new(attr, value).should === @datetime
+      end
+      
+      it "should match Date objects on asserted #{attr} integer value" do
+        Clockwork::Assertion.new(attr, value).should === @date
+      end
+      
+      it "should match Time objects on asserted #{attr} range value" do
+        Clockwork::Assertion.new(attr, (value - 1)..(value + 1)).should === @time
+      end
+      
+      it "should match DateTime objects on asserted #{attr} range value" do
+        Clockwork::Assertion.new(attr, (value - 1)..(value + 1)).should === @datetime
+      end
+      
+      it "should match Date objects on asserted #{attr} range value" do
+        Clockwork::Assertion.new(attr, (value - 1)..(value + 1)).should === @date
+      end
+      
+      it "should not match Time objects on any other #{attr} value" do
+        Clockwork::Assertion.new(attr, value - 1).should_not === @time
+        Clockwork::Assertion.new(attr, value + 1).should_not === @time
+        Clockwork::Assertion.new(attr, value + random).should_not === @time
+      end
+      
+      it "should match DateTime objects on any other #{attr} value" do
+        Clockwork::Assertion.new(attr, value - 1).should === @datetime
+        Clockwork::Assertion.new(attr, value + 1).should === @datetime
+        Clockwork::Assertion.new(attr, value + random).should === @datetime
+      end
+      
+      it "should match Date objects on any other #{attr} value" do
+        Clockwork::Assertion.new(attr, value - 1).should === @date
+        Clockwork::Assertion.new(attr, value + 1).should === @date
+        Clockwork::Assertion.new(attr, value + random).should === @date
+      end
     end
   end
 end

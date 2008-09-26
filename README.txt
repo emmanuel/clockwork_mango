@@ -15,62 +15,62 @@ differs significantly from the one that Fowler describes there.
 == FEATURES/PROBLEMS:
 
 * Describe event recurrence with a simple DSL.
-* Simple, clean, well-specified codebase (TODO).
+* Simple, clean, well-specified (TODO) codebase.
 * Unified implementation for recurrence, Precisioned Dates, and 
-  Date/Time/DateTime Ranges.
+  Date/DateTime/Time Ranges.
 
 == SYNOPSIS:
 
-The main interface is the Clockwork.schedule method, which accepts a block 
+The main interface is the Clockwork method, which accepts a block 
 that defines the returned Clockwork::Expression object. The most basic 
 Expression matches on a single attribute (an Assertion). Assertion builder 
 methods are named after the attribute they assert, and accept integers or 
 ranges.
 
-  mondays = Clockwork.schedule { wday(1) }
-  weekdays = Clockwork.schedule { wday(1..5) }
-  nine_to_five = Clockwork.schedule { hour(9..17) }
-  this_year = Clockwork.schedule { year(Time.now.year) }
+  mondays      = Clockwork { |c| c.wday(1) }
+  weekdays     = Clockwork { |c| c.wday(1..5) }
+  nine_to_five = Clockwork { |c| c.hour(9..17) }
+  this_year    = Clockwork { |c| c.year(Time.now.year) }
 
 Single value assertions and ranges are not terribly useful on their own, so 
 they can be composed into (arbitrarily complex) expressions using the set 
 operations #&, #|, and #-.
 
   now = Time.now
-  # yeah, this breaks on Jan 1... but you get the picture
-  yesterday = Clockwork.schedule do
-    year(now.year) & yday(now.yday - 1)
+  # this breaks on Jan 1... but you get the picture
+  yesterday = Clockwork { |c| c.year(now.year) & c.yday(now.yday - 1) }
+  work_time = Clockwork { |c| c.hour(9..17) & c.wday(1..5) }
+  not_work  = Clockwork do |c|
+    c.wday(0) | c.wday(6) | (c.wday(1..5) - c.hour(9..17))
   end
-  work_time = Clockwork.schedule { hour(9..17) & wday(1..5) }
-  not_work = Clockwork.schedule { wday(0) | wday(6) | (wday(1..5) - hour(9..17)) }
 
 Named shortcuts for weekdays and months are provided (currently only singular 
 forms, but plurals are coming soon).
 
-  mon_wed_fri = Clockwork.schedule { mondays | wednesdays | fridays }
-  christmas = Clockwork.schedule { december & mday(25) }
+  mon_wed_fri = Clockwork { |c| c.mondays | c.wednesdays | c.fridays }
+  christmas   = Clockwork { |c| c.december & c.mday(25) }
 
 Some additional methods are available to deal with particular types of dates: 
 #yweek (week of the year, similar to DateTime#cweek), #wday_in_month (ordinal 
 occurrence of weekday in month, eg. Thanksgiving in the US: the 3rd thursday 
 of November).
 
-  seattle_art_walk = Clockwork.schedule { thursday & wday_in_month(1) }
-  thanksgiving = Clockwork.schedule { november & thursday & wday_in_month(3) }
+  seattle_art_walk = Clockwork { |c| c.thursday & c.wday_in_month(1) }
+  thanksgiving = Clockwork { |c| c.november & c.thursday & c.wday_in_month(3) }
 
 Times of day and time ranges can be specified with the #at and #from methods, 
 which accept hours, minutes and optionally seconds as arrays of integers in 
 24 hour format (hour, minute[, second]):
 
-  work_week = Clockwork.schedule { from([9,15]..[17,45]) & wday(1..5) }
-  back_to_work = Clockwork.schedule { at([9,15]) & mondays }
+  work_week = Clockwork { |c| c.from([9,15]..[17,45]) & c.wday(1..5) }
+  back_to_work = Clockwork { |c| c.at([9,15]) & c.mondays }
 
 As mentioned, expressions can be composed as needed, but be aware of 
 precedence when building complex expressions:
 
-  class_time = Clockwork.schedule do
-    ((mondays | wednesdays | thursdays) & from([19,00]..[21,30])) |
-      (sundays & from([12,00]..[13,30]))
+  class_time = Clockwork do |c|
+    ((c.mondays | c.wednesdays | c.thursdays) & c.from([19,00]..[21,30])) |
+      (c.sundays & c.from([12,00]..[13,30]))
   end
 
 So, what do you do with these objects? Clockwork::Expression objects provide 
