@@ -1,11 +1,11 @@
 module Clockwork
   class Expression
-    def attributes
-      []
-    end
-
     def ===(other)
-      raise NoMethodError, "subclasses must define '==='"
+      raise NoMethodError, "subclasses must define #==="
+    end
+    
+    def attributes
+      raise NoMethodError, "subclasses must define #attributes"
     end
     
     def &(expression)

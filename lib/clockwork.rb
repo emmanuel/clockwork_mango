@@ -13,12 +13,12 @@ module Clockwork
   LIBDIR = Pathname(__FILE__).dirname.expand_path + "clockwork"
 end # module Clockwork
 
-def Clockwork
-  yield(Clockwork::Dsl)
-end
-
 require Clockwork::LIBDIR + "expression"
 require Clockwork::LIBDIR + "assertion"
 require Clockwork::LIBDIR + "compound"
 require Clockwork::LIBDIR + "dsl"
 require Clockwork::LIBDIR + "core_ext"
+
+def Clockwork
+  yield(Clockwork::Dsl)
+end

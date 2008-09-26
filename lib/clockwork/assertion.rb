@@ -12,7 +12,7 @@ module Clockwork
     end
     
     def attributes
-      [attribute]
+      [@attribute]
     end
     
     def ===(other)
