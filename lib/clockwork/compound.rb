@@ -1,7 +1,7 @@
 module Clockwork
   class Compound < Expression
     def initialize(left, right)
-      @expressions = left, right
+      @expressions = [left, right]
     end
     
     def attributes
