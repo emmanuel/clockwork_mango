@@ -2,6 +2,7 @@
 * Implement and test Clockwork::Dsl#from
 * Implement and test Clockwork::CoreExt::HumanDateValues#*_reverse methods
 * Figure out a better way to override Date#hour, #min, #sec, #usec and 
-  DateTime#usec
+  DateTime#usec (Clockwork::CoreExt::DayPrecision is *ugly*)
 * Test and implement Runt compatibility constructors: PDate, REDay, REMonth, 
   DIMonth, TimeRange(?), etc.
+* Support lunar calendar (longer term)

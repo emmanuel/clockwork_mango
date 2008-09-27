@@ -34,7 +34,11 @@ ranges.
 
 Single value assertions and ranges are not terribly useful on their own, so 
 they can be composed into (arbitrarily complex) expressions using the set 
-operations #&, #|, and #-.
+operations &, |, and -. 
+ * Intersections (created with "&") match when _all_ of their members match. 
+ * Unions (created with "|") match when _any_ of their members match.
+ * Differences (created with "-") match when the first Expression (receiver) 
+   matches, and the second expression (argument) does not.
 
   now = Time.now
   # this breaks on Jan 1... but you get the picture
@@ -76,23 +80,35 @@ precedence when building complex expressions:
 So, what do you do with these objects? Clockwork::Expression objects provide 
 a #=== method to test inclusion of a Date, Time, DateTime, or other similar 
 object. Any object that quacks like a Time object can be tested: attributes 
-#year, #month, #mday, #hour, #min, #sec, as well as the previously mentioned 
-additional attributes can be tested for.
+#year, #month, #mday, #hour, #min, #sec, and #usec, as well as the previously 
+mentioned additional attributes can be tested for. 
+
+One possible usage is a scheduler:
 
   loop do
     case Time.now
-    when class_time
-      # do something appropriate
+    when christmas    : # give presents
+    when thanksgiving : # eat turkey
+    when my_birthday  : # receive cards
+    when class_time   : # wake up from my nap
+    else
+      # nothing happening right now
     end
     
     # you need Extlib or ActiveSupport for this to work
     sleep 15.minutes
   end
 
+Remember that expressions (Christmas, Thanksgiving, my birthday, etc.) will 
+report true for every Time object that they match; in the above example, 
+the "when christmas" clause would fire repeatedly throughout the day 
+(whenever tested). You have to take any necessary steps to prevent multiple 
+executions of your code.
+
+
 == REQUIREMENTS:
 
-* Possible future dependency on English from facets for pluralization 
-  inflector, though not really necessary, so probably will avoid it.
+* Ruby. Only tested on MRI 1.8.6 and 1.8.7.
 
 == INSTALL:
 
