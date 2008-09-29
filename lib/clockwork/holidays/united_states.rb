@@ -1,6 +1,6 @@
 require "clockwork"
 module Holidays
-  module UnitiedStates
+  module UnitedStates
     NEW_YEARS_DAY = Clockwork {|c| c.january & c.mday(1) } # January 1
     MARTIN_LUTHER_KING_JR_DAY = Clockwork {|c| c.january & c.monday & c.wday_in_month(3) } # January 21 (3rd Monday of January, traditionally Jan. 15)
     GROUNDHOG_DAY = Clockwork {|c| c.february & c.mday(2) } # February 2
