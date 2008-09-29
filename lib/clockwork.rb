@@ -9,10 +9,10 @@ module Clockwork
     STRING = [MAJOR, MINOR, TINY].join('.')
     self
   end # module VERSION
-  
-  LIBDIR = Pathname(__FILE__).dirname.expand_path
-  $LOAD_PATH << LIBDIR unless $LOAD_PATH.include?(LIBDIR)
 end # module Clockwork
+
+lib_dir = Pathname(__FILE__).dirname.expand_path
+$LOAD_PATH << lib_dir unless $LOAD_PATH.include?(lib_dir)
 
 require "clockwork/expression"
 require "clockwork/assertion"
