@@ -130,14 +130,14 @@ module Clockwork
       INTERNATIONAL_HUMAN_SOLIDARITY_DAY = Clockwork{|c| c.december & c.mday(20)} #  recognized by the UN
 
 
-      INTERNATIONAL_PEACE_WEEK = Clockwork {|c|} #* 4th week of September -
-      WORLD_MARITIME_DAY = Clockwork {|c|} #* During last week of September - , recognized by the UN
-      WORLD_HABITAT_DAY = Clockwork {|c|}#* First Monday of October - , recognized by the UN
-      WORLD_DAY_OF_REMEMBRANCE_FOR_ROAD_TRAFFIC_VICTIMS = Clockwork {|c|} #* Third Sunday of November - , recognized by the UN
-      INTERNATIONAL_DAY_FOR_NATURAL_DISASTER_REDUCTION = Clockwork {|c|} #* Second Wednesday of October - , recognized by the UN
-      INTERNATIONAL_DAY_OF_COOPERATIVES = Clockwork {|c|} #* 1st Saturday of July - , recognized by the UN
-      WORLD_ASTHMA_DAY = Clockwork {|c|} #* 1st Tuesday of May -
-      WORLD_FAIR_TRADE_DAY = Clockwork {|c|} #* 2nd Saturday of May -
+      INTERNATIONAL_PEACE_WEEK = Clockwork { |c| c.september & c.mweek(4) } #* 4th week of September -
+      WORLD_MARITIME_DAY = Clockwork { |c| c.september & c.mweek(-1) } #* During last week of September - , recognized by the UN
+      WORLD_HABITAT_DAY = Clockwork { |c| c.october & c.monday & c.wday_in_month(1) }#* First Monday of October - , recognized by the UN
+      WORLD_DAY_OF_REMEMBRANCE_FOR_ROAD_TRAFFIC_VICTIMS = Clockwork { |c| c.november & c.sunday & c.wday_in_month(3) } #* Third Sunday of November - , recognized by the UN
+      INTERNATIONAL_DAY_FOR_NATURAL_DISASTER_REDUCTION = Clockwork { |c| c.october & c.wednesday & c.wday_in_month(2) } #* Second Wednesday of October - , recognized by the UN
+      INTERNATIONAL_DAY_OF_COOPERATIVES = Clockwork { |c| c.july & c.saturday & c.wday_in_month(1) } #* 1st Saturday of July - , recognized by the UN
+      WORLD_ASTHMA_DAY = Clockwork { |c| c.may & c.tuesday & c.wday_in_month(1) } #* 1st Tuesday of May -
+      WORLD_FAIR_TRADE_DAY = Clockwork { |c| c.may & c.saturday & c.wday_in_month(2) } #* 2nd Saturday of May -
 
     end
   end
