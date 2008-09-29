@@ -1,6 +1,26 @@
 module Clockwork
   module CoreExt
     module HumanDateValues
+      # how many days are there in the current month?
+      # 
+      # implementation should be straightforward, but for February
+      # 
+      # @return <Integer> count of total days in the current month
+      def days_in_month
+        # cache based? maybe call up to class:
+        # self.class.days_in_month(self.year, self.month)
+      end
+      
+      # how many days are there in the current year?
+      # 
+      # implementation should be straightforward, but for leap years
+      # 
+      # @return <Integer> count of total days in the current year
+      def days_in_month
+        # cache based? maybe call up to class:
+        # self.class.days_in_year(self.year)
+      end
+      
       # how many Sundays have occurred this year before today?
       # (similar to DateTime#cweek)
       # 
@@ -8,15 +28,15 @@ module Clockwork
       #   is this the last week of the year? 2nd to last?
       # 
       # @return <Integer> count of Sundays before today in the current year, 
-      #   or Sundays remaining if reverse is true
+      #   or negative count of Sundays remaining, if reverse is true
       # 
       # TODO: spec
       def yweek(reverse=false)
-        preceding_sunday_yday = self.yday - self.wday
+        yday_of_preceding_sunday = self.yday - self.wday
         if reverse
-          -((days_in_year - preceding_sunday_yday).div(7) + 1)
+          -((self.days_in_year - yday_of_preceding_sunday).div(7) + 1)
         else
-          preceding_sunday_yday.div(7)
+          yday_of_preceding_sunday.div(7)
         end
       end
       
@@ -26,15 +46,15 @@ module Clockwork
       #   is this the last week of the month? 2nd to last? 
       # 
       # @return <Integer> count of Sundays before today in the current month, 
-      #   or negative count of Sundays remaining after preceding Sunday
+      #   or negative count of Sundays remaining, if reverse is true
       # 
       # TODO: spec
       def mweek(reverse=false)
-        preceding_sunday_mday = self.mday - self.wday
+        mday_of_preceding_sunday = self.mday - self.wday
         if reverse
-          -((days_in_month - mday_of_previous_sunday).div(7) + 1)
+          -((self.days_in_month - mday_of_preceding_sunday).div(7) + 1)
         else
-          preceding_sunday_mday.div(7) + 1
+          mday_of_preceding_sunday.div(7) + 1
         end
       end
       
@@ -48,13 +68,13 @@ module Clockwork
       #   is this the last Monday of the month? 2nd to last Thursday?
       # 
       # @return <Integer> count of occurrences of the current weekday in the 
-      #   current month before today, or remaining occurrences of the current 
-      #   weekday in the month if reverse is true
+      #   current month before today, or negative count of remaining 
+      #   occurrences, if reverse is true
       # 
-      # TODO: spec reverse
+      # TODO: spec
       def wday_in_month(reverse=false)
         if reverse
-          -((days_in_month - mday).div(7) + 1)
+          -((self.days_in_month - mday).div(7) + 1)
         else
           mday.div(7) + 1
         end
