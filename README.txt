@@ -105,6 +105,21 @@ the "when christmas" clause would fire repeatedly throughout the day
 (whenever tested). You have to take any necessary steps to prevent multiple 
 executions of your code.
 
+Clockwork includes a module of expressions for commonly observed holidays 
+(fairly United States-centric, at this point) to get you started nice and easy. 
+The module is called Clockwork::Holidays, and it's a separate require:
+
+  require 'clockwork'
+  require 'clockwork/holidays'
+  
+  case Date.today
+  when Clockwork::Holidays::UnitedStates::MOTHERS_DAY : # call your mom
+  when Clockwork::Holidays::UnitedStates::FATHERS_DAY : # call your dad
+  when Clockwork::Holidays::UnitedStates::EARTH_DAY : # thank the planet
+  when Clockwork::Holidays::UnitedStates::LABOR_DAY : # complain if you're at work
+  when Clockwork::Holidays::UnitedStates::ELECTION_DAY : # cast your vote
+  end
+
 
 == REQUIREMENTS:
 
