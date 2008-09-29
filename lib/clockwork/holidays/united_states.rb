@@ -52,10 +52,10 @@ module Clockwork
       
       
       #moveable
-      VERNAL_EQUINOX  = Clockwork {|c| c.march & c.mday(21) }     # March 21 (based on sun)
-      SUMMER_SOLSTICE = Clockwork {|c| c.june & c.mday(21) }      # June 21 (based on sun)
-      VERNAL_EQUINOX  = Clockwork {|c| c.september & c.mday(21) } # March 21 (based on sun)
-      WINTER_SOLSTICE = Clockwork {|c| c.december & c.mday(21) }  # December 21 (based on sun)
+      VERNAL_EQUINOX   = Clockwork {|c| c.march & c.mday(21) }     # March 21 (based on sun)
+      SUMMER_SOLSTICE  = Clockwork {|c| c.june & c.mday(21) }      # June 21 (based on sun)
+      AUTUMNAL_EQUINOX = Clockwork {|c| c.september & c.mday(21) } # September 21 (based on sun)
+      WINTER_SOLSTICE  = Clockwork {|c| c.december & c.mday(21) }  # December 21 (based on sun)
     end
   end
 end
