@@ -66,7 +66,7 @@ Times of day and time ranges can be specified with the #at and #from methods,
 which accept hours, minutes and optionally seconds as arrays of integers in 
 24 hour format (hour, minute[, second]):
 
-  work_week = Clockwork { |c| c.from([9,15]..[17,45]) & c.wday(1..5) }
+  work_week    = Clockwork { |c| c.from([9,15]..[17,45]) & c.wday(1..5) }
   back_to_work = Clockwork { |c| c.at([9,15]) & c.mondays }
 
 As mentioned, expressions can be composed as needed, but be aware of 

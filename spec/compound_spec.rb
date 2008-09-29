@@ -6,23 +6,33 @@ describe Clockwork::Compound do
     @datetime = DateTime.new(*DATETIME_ATTRS.map { |a| VALUES[a] })
     @date     = Date.new(*DATE_ATTRIBUTES.map { |a| VALUES[a] })
 
-    @year_assertion = Clockwork::Assertion.new(:year, 2008)
-    @yday_assertion = Clockwork::Assertion.new(:yday, 268)
+    @year  = Clockwork::Assertion.new(:year, 2008)
+    @month = Clockwork::Assertion.new(:month, 9)
+    @mday  = Clockwork::Assertion.new(:mday, 24)
+
+    @hour = Clockwork::Assertion.new(:hour, 18)
+    @min  = Clockwork::Assertion.new(:min, 30)
+    @sec  = Clockwork::Assertion.new(:sec, 15)
+
+    @yday  = Clockwork::Assertion.new(:yday, 268)
+    @yweek = Clockwork::Assertion.new(:mday, 0)
+    @wday  = Clockwork::Assertion.new(:wday, 3)
   end
   
   describe "Intersection" do
     before :all do
-      @intersection = Clockwork::Intersection.new(@year_assertion, @yday_assertion)
+      @sep_24 = Clockwork::Intersection.new(@year, @mday)
     end
     
     it "should match when both expressions match" do
-      @intersection.should === @time
+      @yday.should === @time
     end
   end
   
   describe "Union" do
     before :all do
-      @union = Clockwork::Union.new(@year_assertion, @yday_assertion)
+      year_2006 = Clockwork::Assertion.new(:year, 2006)
+      @union = Clockwork::Union.new(@year, year_2006)
     end
     
     it "should match when either expression matches" do
@@ -32,8 +42,8 @@ describe Clockwork::Compound do
   
   describe "Difference" do
     before :all do
-      year_assertion2 = Clockwork::Assertion.new(:year, 2007)
-      @difference = Clockwork::Difference.new(@year_assertion, year_assertion2)
+      year_2007 = Clockwork::Assertion.new(:year, 2007)
+      @difference = Clockwork::Difference.new(@year, year_2007)
     end
     
     it "should match when the 1st expression matches and the 2nd doesn't" do
