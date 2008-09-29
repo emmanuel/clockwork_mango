@@ -7,7 +7,8 @@ module Clockwork
     attr_reader *ASSERTABLE_ATTRIBUTES
 
     def initialize(attribute, value)
-      @attribute, @value = attribute.to_sym, value
+      @attribute = value < 0 ? "#{attribute}_reverse".to_sym : attribute.to_sym
+      @value = value
       instance_variable_set("@#{@attribute}", @value)
     end
     
