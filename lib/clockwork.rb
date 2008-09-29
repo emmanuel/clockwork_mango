@@ -11,7 +11,7 @@ module Clockwork
   end # module VERSION
   
   LIBDIR = Pathname(__FILE__).dirname.expand_path
-  $LOAD_PATH << Clockwork::LIBDIR unless $LOAD_PATH.include?(Clockwork::LIBDIR)
+  $LOAD_PATH << LIBDIR unless $LOAD_PATH.include?(LIBDIR)
 end # module Clockwork
 
 require "clockwork/expression"
