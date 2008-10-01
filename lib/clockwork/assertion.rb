@@ -24,6 +24,10 @@ module Clockwork
       [@attribute]
     end
     
+    def values
+      [@value]
+    end
+    
     def ===(other)
       rval = other.send(@attribute) rescue false
       @value === rval or rval.nil?

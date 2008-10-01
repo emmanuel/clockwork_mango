@@ -7,6 +7,10 @@ module Clockwork
     def attributes
       @expressions.map { |e| e.attributes }.flatten
     end
+    
+    def values
+      @expressions.map { |e| e.values }.flatten
+    end
   end # class Compound
   
   class Union < Compound

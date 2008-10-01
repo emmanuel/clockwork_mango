@@ -7,6 +7,13 @@ module Clockwork
       []
     end
     
+    # Disclose which values this Expression is concerned with
+    # 
+    # @return <Array[<Integer, Range>]> attribute values asserted in this expression
+    def values
+      []
+    end
+    
     # Test matchiness of "other" in "self". Subclasses should override this
     # method to provide meaningful match semantics (eg., Assertion#===).
     # 
