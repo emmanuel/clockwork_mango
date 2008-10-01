@@ -1,8 +1,13 @@
 * Spec everything!
+* Add shorter shortcut for Clockwork::Dsl#wday_in_month, I'm thinking one of:
+  * c.monday(1)
+  * c.monday(:first)
+  * c.first_monday
+* Test Clockwork::Dsl#at
 * Implement and test Clockwork::Dsl#from
-* Implement and test Clockwork::CoreExt::HumanDateValues#*_reverse methods
+* Define, implement and test Clockwork::CoreExt::HumanDateValues#*_reverse
 * Figure out a better way to override Date#hour, #min, #sec, #usec and 
   DateTime#usec (Clockwork::CoreExt::DayPrecision is *ugly*)
-* Test and implement Runt compatibility constructors: PDate, REDay, REMonth, 
-  DIMonth, TimeRange(?), etc.
-* Support lunar calendar (longer term)
+* Implement and test PrecisionDate and TemporalRange (Runt compatibility)
+* Test and implement more Runt compatibility: REDay, REMonth, DIMonth, etc.
+* Add lunar calendar support to Date, DateTime, and Time (longer term)

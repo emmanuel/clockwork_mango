@@ -16,8 +16,8 @@ differs significantly from the one that Fowler describes there.
 
 * Describe event recurrence with a simple DSL.
 * Simple, clean, well-specified (TODO) codebase.
-* Unified implementation for recurrence, Precisioned Dates, and 
-  Date/DateTime/Time Ranges.
+* Unified implementation for recurrence, Precisioned Dates (TODO), and 
+  Temporal Ranges (TODO).
 
 == SYNOPSIS:
 
