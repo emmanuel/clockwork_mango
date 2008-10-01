@@ -29,16 +29,46 @@ module Clockwork
       define_arity_one_expression_builder(attribute, attribute)
     end
     
-    WEEKDAYS = %w[sunday monday tuesday wednesday thursday friday saturday]
-    WEEKDAYS.each_with_index do |wday, index|
-      define_arity_zero_expression_builder(wday, :wday, index)
-      define_arity_zero_expression_builder("#{wday}s", :wday, index)
-    end
-    
     MONTHS = %w[january february march april may june 
       july august september october november december]
     MONTHS.each_with_index do |month, index|
       define_arity_zero_expression_builder(month, :month, index + 1)
+    end
+    
+    ORDINAL_MAP = {
+      :first  => 1,
+      :second => 2,
+      :third  => 3,
+      :fourth => 4,
+      :fifth  => 5,
+
+      :last   => -1,
+      :second_to_last => -2,
+    }
+    # Build an assertion that matches the named weekday.
+    # 
+    # @param ordinal [<Integer>, <Symbol>] (optional) used to define 
+    #   intersecting :wday_in_month Assertion if provided. Symbols will be used 
+    #   to look up an integer value in ORDINAL_MAP. If not ordinal is not found, 
+    #   no :wday_in_month assertion will be intersected
+    # 
+    # @return <Clockwork::Expression> an Assertion (:wday) or Intersection 
+    #   (:wday & :wday_in_month) if ordinal provided
+    WEEKDAYS = %w[sunday monday tuesday wednesday thursday friday saturday]
+    WEEKDAYS.each_with_index do |wday, index|
+      method_def = <<-END_EVAL
+        def #{wday}(ordinal=nil)
+          ordinal = ORDINAL_MAP[ordinal] if ordinal.is_a?(Symbol)
+          if ordinal
+            wday(#{index}) & wday_in_month(ordinal)
+          else
+            wday(#{index})
+          end
+        end
+      END_EVAL
+      self.module_eval method_def, __FILE__, __LINE__
+      alias_method :"#{wday}s", :"#{wday}"
+      module_function :"#{wday}", :"#{wday}s"
     end
     
     module_function
