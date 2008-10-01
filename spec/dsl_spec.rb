@@ -29,6 +29,20 @@ describe Clockwork::Dsl do
         assertion.attribute.should == :wday
         assertion.value.should     == value
       end
+      
+      it "should accept an Integer argument which defines an intersecting :wday_in_month Assertion" do
+        assertion = Clockwork::Dsl.send(weekday, 1)
+        assertion.class.should      == Clockwork::Intersection
+        assertion.attributes.should == [:wday, :wday_in_month]
+        assertion.values.should     == [index, 1]
+      end
+      
+      it "should accept a Symbol argument which defines an intersecting :wday_in_month Assertion" do
+        assertion = Clockwork::Dsl.send(weekday, :second)
+        assertion.class.should      == Clockwork::Intersection
+        assertion.attributes.should == [:wday, :wday_in_month]
+        assertion.values.should     == [index, 2]
+      end
     end
   end
   

@@ -27,5 +27,6 @@ VALUES = {
   :yday  => 268,
   :yweek => 3,
   :wday  => 3,
+  :wday_in_month => 4,
 }
 

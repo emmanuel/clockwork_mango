@@ -1,8 +1,4 @@
 * Spec everything!
-* Add shorter shortcut for Clockwork::Dsl#wday_in_month, I'm thinking one of:
-  * c.monday(1)
-  * c.monday(:first)
-  * c.first_monday
 * Test Clockwork::Dsl#at
 * Implement and test Clockwork::Dsl#from
 * Define, implement and test Clockwork::CoreExt::HumanDateValues#*_reverse
