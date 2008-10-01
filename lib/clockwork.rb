@@ -11,8 +11,9 @@ module Clockwork
   end # module VERSION
 end # module Clockwork
 
-lib_dir = Pathname(__FILE__).dirname.expand_path
-$LOAD_PATH << lib_dir unless $LOAD_PATH.include?(lib_dir)
+lib_dir = Pathname(__FILE__).dirname
+$LOAD_PATH << lib_dir unless $LOAD_PATH.include?(lib_dir) or
+  $LOAD_PATH.include?(lib_dir.expand_path)
 
 require "clockwork/expression"
 require "clockwork/assertion"
