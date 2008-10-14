@@ -4,9 +4,9 @@ module Clockwork
   module Holidays
     module FederationOfBosniaAndHerzegovina
 
-      NEW_YEARS_DAY = Clockwork{|x| c.january & c.mday(1)}
+      NEW_YEARS_DAY = Clockwork{|c| c.january & c.mday(1)}
       #Easter
-      MAY_DAY = Clockwork{|x| c.may & c.mday(1)}
+      MAY_DAY = Clockwork{|c| c.may & c.mday(1)}
       #Christmas
 
     end
