@@ -17,6 +17,7 @@ $LOAD_PATH << lib_dir unless $LOAD_PATH.include?(lib_dir) or
 
 require "clockwork/expression"
 require "clockwork/assertion"
+require "clockwork/proc_assertion"
 require "clockwork/compound"
 require "clockwork/dsl"
 require "clockwork/core_ext"

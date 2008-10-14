@@ -53,16 +53,23 @@ module Clockwork
     #   no :wday_in_month assertion will be intersected
     # 
     # @return <Clockwork::Expression> an Assertion (:wday) or Intersection 
-    #   (:wday & :wday_in_month) if ordinal provided
+    #   (:wday & :wday_in_month) if ordinal provided and ordinal_scope == :month (default)
+    #   (:wday & :wday_in_year) if ordinal provided and ordinal_scope == :year
     WEEKDAYS = %w[sunday monday tuesday wednesday thursday friday saturday]
     WEEKDAYS.each_with_index do |wday, index|
       method_def = <<-END_EVAL
-        def #{wday}(ordinal=nil)
+        def #{wday}(ordinal=nil, ordinal_scope=:month)
           ordinal = ORDINAL_MAP[ordinal] if ordinal.is_a?(Symbol)
+          wday_assertion = wday(#{index})
           if ordinal
-            wday(#{index}) & wday_in_month(ordinal)
+            case ordinal_scope
+            when :month
+              wday_assertion & wday_in_month(ordinal)
+            when :year
+              wday_assertion & wday_in_year(ordinal)
+            end
           else
-            wday(#{index})
+            wday_assertion
           end
         end
       END_EVAL
@@ -72,6 +79,10 @@ module Clockwork
     end
     
     module_function
+    
+    def proc(&block)
+      ProcAssertion.new(&block)
+    end
     
     # Builds an Expression that will match the given time of day, 
     #   at the given precision (hour, minute, or second)
