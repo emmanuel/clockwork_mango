@@ -2,6 +2,9 @@ module Clockwork
   ASSERTABLE_ATTRIBUTES = [:year, :month, :mday, :hour, :min, :sec, :usec,
     :yday, :yweek, :mweek, :wday, :wday_in_month]
   
+  REVERSIBLE_ATTRIBUTES = [:month, :mday, :hour, :min, :sec, :usec,
+    :yday, :yweek, :mweek, :wday, :wday_in_month]
+  
   class Assertion < Expression
     attr_reader :attribute, :value, :reverse
     attr_reader *ASSERTABLE_ATTRIBUTES
