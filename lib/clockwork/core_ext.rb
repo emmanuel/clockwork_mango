@@ -12,6 +12,3 @@ require "clockwork/core_ext/human_date_values"
 [::Date, ::Time, ::DateTime].each do |klass|
   klass.send(:include, Clockwork::CoreExt::HumanDateValues)
 end
-
-require "clockwork/core_ext/proc_threequals"
-::Proc.send(:include, Clockwork::CoreExt::ProcThreequals)

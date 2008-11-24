@@ -4,8 +4,8 @@ module Clockwork
       @value = proc || block
     end
 
-    def ===(rval)
-      @value === rval
+    def ===(*rval)
+      @value.call(*rval)
     end
   end
 end
