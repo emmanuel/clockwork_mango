@@ -1,7 +1,7 @@
 * Spec everything!
-* Test Clockwork::Dsl#at
-* Implement and test Clockwork::Dsl#from
-* Define, implement and test Clockwork::CoreExt::HumanDateValues#*_reverse
+* Spec Clockwork::Dsl#at
+* Spec Clockwork::Dsl#from
+* Spec Clockwork::CoreExt::HumanDateValues#*_reverse
 * Figure out a better way to override Date#hour, #min, #sec, #usec and 
   DateTime#usec (Clockwork::CoreExt::DayPrecision is *ugly*)
 * Implement and test PrecisionDate and TemporalRange (Runt compatibility)
