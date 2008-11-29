@@ -74,7 +74,7 @@ module Clockwork
       # 
       # TODO: spec
       def wday_in_month
-        mday.div(7) + 1
+        self.mday.div(7) + 1
       end
       
       # how many of this weekday have occurred this month? For example:
@@ -88,7 +88,7 @@ module Clockwork
       # 
       # TODO: spec
       def wday_in_month_reverse
-        -((self.days_in_month - mday).div(7) + 1)
+        -((self.days_in_month - self.mday).div(7) + 1)
       end
     end # module HumanDateValues
   end # module CoreExt
