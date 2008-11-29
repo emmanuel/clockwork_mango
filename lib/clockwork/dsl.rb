@@ -131,54 +131,220 @@ module Clockwork
         hour(hh) & min(mm) & sec(ss)
       end
     end
-    
+
+    MAX_HH = 23
+    MAX_MM = 59
+    MAX_SS = 60
+
     # Builds an Expression that will match the given range of time of day, 
     #   at the given precision (hour, minute, or second)
-    # 
+    #
     # @param [Range(Array(Integer)..Array(Integer))] time_range
-    #   a Range bounded at each end by an array of hour, minute[, second] Integers
-    # 
+    #   a Range bounded at each end by an array of
+    #   hour, minute[, second] Integers
+    #
     # @return [Clockwork::Intersection, Clockwork::Union]
     #   an Expression that matches the given range of time of day,
     #   at the precision of the +time_range+ endpoints
+    # 
+    # Implementation unrolls +time_range+ into Union expressions:
+    #   Clockwork::Dsl.from([9,15]..[12,45])
+    #   # => (hour(9) & min(15..59)) | hour(10..11) | (hour(12) & min (0..45))
+    # Or:
+    #   Clockwork::Dsl.from([9]..[12,45])
+    #   # => hour(9..11) | (hour(12) & min (0..45))
+    # Also:
+    #   Clockwork::Dsl.from([9,15]..[12,45,55])
+    #   # => (hour(9) & min(15..59)) | hour(10..11) | (hour(12) & (min(0..44) | (min(45) & sec(0..55))))
     def from(time_range)
-      raise NotImplementedError, "TODO"
-      # TODO: unroll time_range into Union expressions:
-      #   [9,15]..[12,45] => 
-      #   (hour(9) & min(15..59)) | hour(10) | hour(11) | (hour(12) & min (0..45))
-      # Also:
-      #   [9,15,30]..[12,45,55] => 
-      #   (hour(9) & ((min(15) & sec(30..60)) | min(16..59))) | hour(10..11) | (hour(12) & (min(0..44) | (min(45) & sec(0..55))))
-      unless time_range.respond_to?(:begin) && time_range.begin.respond_to?(:to_ary) && (1..3).include?(time_range.begin.size)
+      unless time_range.respond_to?(:end) && time_range.end.respond_to?(:to_ary) && (1..3).include?(time_range.end.size) &&
+        time_range.respond_to?(:begin) && time_range.begin.respond_to?(:to_ary) && (1..3).include?(time_range.begin.size)
         raise ArgumentError, "expected range with Array endpoints"
       end
       begin_hh, begin_mm, begin_ss = *time_range.begin
-      end_hh, end_mm, end_ss       = *time_range.end
-      
-      unless [begin_hh, begin_mm, begin_ss].compact.size == [end_hh, end_mm, end_ss].compact.size
-        raise ArgumentError, "only endpoints of equal specificity are currently supported"
-      end
-      
-      if !begin_mm && !end_mm     # begin is an hour and end is an hour
-        begin_hh < end_hh ? hour(begin_hh..end_hh) : hour(begin_hh)
-      elsif !begin_ss && !end_ss  # begin is [hour,min] and end is [hour,min]
-        if begin_hh < end_hh
-          
-        elsif begin_hh == end_hh
+      end_hh,   end_mm,   end_ss   = *time_range.end
+      delta_hh = end_hh - begin_hh  # hh is required
+      delta_mm = (end_mm - begin_mm rescue nil)
+      delta_ss = (end_ss - begin_ss rescue nil)
+
+      case delta_hh
+      when 3..MAX_HH  # => from([9,45,15]..[12,10])
+        case delta_mm
+        when nil
+          middle = nil
+          if begin_mm
+            beginning = unroll_hhmmss_into_partial_hour_expression(time_range.begin)
+            ending    = hour((begin_hh + 1)..end_hh)
+          elsif end_mm
+            beginning = hour(begin_hh..(end_hh - 1))
+            ending    = unroll_hhmmss_into_partial_hour_expression(time_range.end, true)
+          else
+            beginning = hour(begin_hh..end_hh)
+            ending    = nil
+          end
+        when -MAX_MM..MAX_MM
+          beginning = unroll_hhmmss_into_partial_hour_expression(time_range.begin)
+          middle    = hour((begin_hh + 1)..(end_hh - 1))
+          ending    = unroll_hhmmss_into_partial_hour_expression(time_range.end, true)
+        else
+          raise ArgumentError, "Invalid begin_mm (#{begin_mm.inspect}) and end_mm (#{end_mm.inspect})"
         end
+        return beginning | middle | ending
+      when 2          # => from([9,45,15]..[11,47,45])
+        beginning = unroll_hhmmss_into_partial_hour_expression(time_range.begin)
+        middle    = hour(begin_hh + 1)
+        ending    = unroll_hhmmss_into_partial_hour_expression(time_range.end, true)
+        return beginning | middle | ending
+      when 1          # => from([9,45,15]..[10,47,45])
+        beginning = unroll_hhmmss_into_partial_hour_expression(time_range.begin)
+        ending    = unroll_hhmmss_into_partial_hour_expression(time_range.end, true)
+        return beginning | ending
+      when 0            # => from([9,15]..[9,45])
+        case delta_mm
+        when 3..MAX_MM  # => from([9,15]..[9,18])
+          beginning = unroll_mmss_into_partial_minute_expression(begin_mm, begin_ss)
+          middle    = min((begin_mm + 1)..(end_mm - 1))
+          ending    = unroll_mmss_into_partial_minute_expression(end_mm, end_ss, true)
+          rest      = beginning | middle | ending
+        when 2          # => from([9,45,15]..[9,47,45])
+          beginning = unroll_mmss_into_partial_minute_expression(begin_mm, begin_ss)
+          middle    = min(begin_mm + 1)
+          ending    = unroll_mmss_into_partial_minute_expression(end_mm, end_ss, true)
+          rest      = beginning | middle | ending
+        when 1          # => from([9,45,15]..[9,46,45])
+          beginning = unroll_mmss_into_partial_minute_expression(begin_mm, begin_ss)
+          ending    = unroll_mmss_into_partial_minute_expression(end_mm, end_ss, true)
+          rest      = beginning | ending
+        when 0          # => from([9,45,10]..[9,45,45])
+          case delta_ss
+          when nil        # => from([9,15]..[9,15])
+            minutes = min(begin_mm)
+          when 0          # => from([9,15,45]..[9,15,45])
+            minutes = min(begin_mm) & sec(begin_ss)
+          when 1..MAX_SS  # => from([9,15,15]..[9,15,45])
+            minutes = min(begin_mm) & sec(begin_ss..end_ss)
+          else
+            raise ArgumentError, "Invalid begin_ss (#{begin_ss.inspect}) and end_ss (#{end_ss.inspect})"
+          end
+          return hour(begin_hh) & minutes
+        when nil
+          if end_mm       # => from([9]..[9,45])
+            unroll_hhmmss_into_partial_hour_expression(time_range.end, true)
+          elsif begin_mm  # => from([9,45]..[9])
+            raise ArgumentError, "Invalid endpoints: #{time_range.begin.inspect}..#{time_range.end.inspect}"
+          else            # => from([9]..[9])
+            return hour(begin_hh)
+          end
+        else
+          raise ArgumentError, "Invalid begin_mm (#{begin_mm.inspect}) and end_mm (#{end_mm.inspect})"
+        end
+        return hour(begin_hh) & rest
+      else
+        raise ArgumentError, "Invalid begin_hh (#{begin_hh.inspect}) and end_hh (#{end_hh.inspect})"
       end
     end
-    
-    def _unroll_array_into_expression(time_array, forward=true)
-      hh, mm, ss = *time_array
-      if !mm
-        hour(hh)
-      elsif !ss
-        hour(hh) & min(forward ? (mm..59) : (0..mm))
-      elsif forward
-        hour(hh) & ((min(mm) & sec(ss..60)) | min((mm+1)..59))
+
+    # unrolls a set of mm[, ss] args
+    def unroll_mmss_into_partial_minute_expression(time_array, end_at_beginning=false)
+      mm, ss = *time_array
+      raise ArgumentError, "invalid mm parameter: #{mm.inspect}" unless mm.kind_of?(Fixnum)
+      if !ss      # no +ss+ then there's nothing to unroll
+        min(mm)
+      elsif end_at_beginning    # unroll the expression towards the beginning of the minute
+        case ss
+        when 1..MAX_SS    # => unroll_mmss_into_partial_minute_expression([45,30], true)
+          seconds = sec(0..ss)
+        when 0            # => unroll_mmss_into_partial_minute_expression([45,0], true)
+          seconds = sec(ss)
+        else
+          raise ArgumentError, "Invalid ss argument: #{ss.inspect}"
+        end
+        return min(mm) & seconds
       else
-        hour(hh) & ((min(mm) & sec(0..ss)) | min(0..(mm-1)))
+        case ss
+        when 0..(MAX_SS - 1)
+          seconds = sec(ss..MAX_SS)
+        when MAX_SS
+          seconds = sec(ss)
+        else
+          raise ArgumentError, "Invalid ss argument: #{ss.inspect}"
+        end
+        return min(mm) & seconds
+      end
+    end
+
+    # unrolls a set of hh[, mm[, ss]] args into an Expression that matches a
+    # partial hour, using +time_array+ to define either the beginning, or the end
+    def unroll_hhmmss_into_partial_hour_expression(time_array, end_at_beginning=false)
+      hh, mm, ss = *time_array
+      raise ArgumentError, "invalid hh parameter: #{hh.inspect}" unless hh.kind_of?(Fixnum)
+      if !mm      # no +mm+ then there's nothing to unroll
+        return hour(hh)
+      elsif !ss   # no +ss+ then the permutations to unroll aren't too bad
+        if end_at_beginning
+          case mm
+          when 1..MAX_MM
+            minutes = min(0..mm)
+          when 0
+            minutes = min(mm)
+          else
+            raise ArgumentError, "Invalid mm argument: #{mm.inspect}"
+          end
+        else
+          case mm
+          when 0..(MAX_MM - 1)
+            minutes = min(mm..MAX_MM)
+          when MAX_MM
+            minutes = min(mm)
+          else
+            raise ArgumentError, "Invalid mm argument: #{mm.inspect}"
+          end
+        end
+        return hour(hh) & minutes
+      elsif end_at_beginning  # with +hh+, +mm+, and +ss+, there are tons of possibilities
+        case mm
+        when 2..MAX_MM  # use a range of minutes
+          case ss
+          when 0..MAX_SS
+            minutes = min(0..(mm-1)) | unroll_mmss_into_partial_minute_expression([mm, ss], true)
+          else
+            raise ArgumentError, "Invalid ss argument: #{ss.inspect}"
+          end
+        when 1
+          minutes = min(0) | unroll_mmss_into_partial_minute_expression([mm, ss], true)
+        when 0
+          minutes = unroll_mmss_into_partial_minute_expression([mm, ss], true)
+        else
+          raise ArgumentError, "Invalid mm argument: #{mm.inspect}"
+        end
+        return hour(hh) & minutes
+      else
+        case mm
+        when 0..(MAX_MM - 2)
+          case ss
+          when 0..MAX_SS
+            minutes = min((mm+1)..MAX_MM) | unroll_mmss_into_partial_minute_expression([mm, ss])
+          else
+            raise ArgumentError, "Invalid ss argument: #{ss.inspect}"
+          end
+        when (MAX_MM - 1)
+          case ss
+          when 0..MAX_SS
+            minutes = min(MAX_MM) | unroll_mmss_into_partial_minute_expression([mm, ss])
+          else
+            raise ArgumentError, "Invalid ss argument: #{ss.inspect}"
+          end
+        when MAX_MM
+          case ss
+          when 0..MAX_SS
+            minutes = unroll_mmss_into_partial_minute_expression([mm, ss])
+          else
+            raise ArgumentError, "Invalid ss argument: #{ss.inspect}"
+          end
+        else
+          raise ArgumentError, "Invalid mm argument: #{mm.inspect}"
+        end
+        return hour(hh) & minutes
       end
     end
   end # module Dsl
