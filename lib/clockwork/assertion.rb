@@ -35,5 +35,13 @@ module Clockwork
       rval = other.send(@attribute) rescue false
       @value === rval or rval.nil?
     end
+    
+    def operator
+      :===
+    end
+    
+    def to_sexp
+      [operator, @attribute, @value]
+    end
   end
 end

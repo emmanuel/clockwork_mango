@@ -37,7 +37,7 @@ module Clockwork
     # @return [Clockwork::Intersection]
     #   the Intersection of +self+ and +expression+
     def &(expression)
-      Intersection.new(self, expression)
+      expression.nil? ? self : Intersection.new(self, expression)
     end
     
     # Union self with another Expression. The returned Union will
@@ -49,7 +49,7 @@ module Clockwork
     # @return [Clockwork::Union]
     #   the Union of +self+ and +expression+
     def |(expression)
-      Union.new(self, expression)
+      expression.nil? ? self : Union.new(self, expression)
     end
     
     # Subtract an Expression from this one. The returned Difference will
@@ -61,7 +61,17 @@ module Clockwork
     # @return [Clockwork::Difference]
     #   the Difference of +self+ and +expression+
     def -(expression)
-      Difference.new(self, expression)
+      expression.nil? ? self : Difference.new(self, expression)
+    end
+    
+    # Get the operator of this Expression
+    def operator
+      nil
+    end
+    
+    # Get a representation of this Expression as an s-expression
+    def to_sexp
+      [operator]
     end
   end
 end
