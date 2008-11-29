@@ -5,7 +5,7 @@ module Clockwork
       # 
       # implementation should be straightforward, but for February
       # 
-      # @return <Integer> count of total days in the current month
+      # @return [Integer] count of total days in the current month
       def days_in_month
         # cache based? maybe call up to class:
         # self.class.days_in_month(self.year, self.month)
@@ -15,8 +15,8 @@ module Clockwork
       # 
       # implementation should be straightforward, but for leap years
       # 
-      # @return <Integer> count of total days in the current year
-      def days_in_month
+      # @return [Integer] count of total days in the current year
+      def days_in_year
         # cache based? maybe call up to class:
         # self.class.days_in_year(self.year)
       end
@@ -24,7 +24,7 @@ module Clockwork
       # how many Sundays have already occurred this year (before today)?
       # (similar to DateTime#cweek)
       # 
-      # @return <Integer> count of Sundays before today in the current year
+      # @return [Integer] count of Sundays before today in the current year
       # 
       # TODO: spec
       def yweek
@@ -34,7 +34,7 @@ module Clockwork
       # how many Sundays are left this year (after today)?
       # (similar to DateTime#cweek)
       # 
-      # @return <Integer> negative count of Sundays remaining in the current year
+      # @return [Integer] negative count of Sundays remaining in the current year
       # 
       # TODO: spec
       def yweek_reverse
@@ -44,7 +44,7 @@ module Clockwork
       
       # how many Sundays have occurred this month before today?
       # 
-      # @return <Integer> count of Sundays before today in the current month
+      # @return [Integer] count of Sundays before today in the current month
       # 
       # TODO: spec
       def mweek
@@ -53,7 +53,7 @@ module Clockwork
       
       # how many Sundays have occurred this month before today?
       # 
-      # @return <Integer> count of Sundays before today in the current month, 
+      # @return [Integer] count of Sundays before today in the current month, 
       #   or negative count of Sundays remaining, if reverse is true
       # 
       # TODO: spec
@@ -68,7 +68,8 @@ module Clockwork
       # 
       # considered naming this mwday_ordinal ... is that clearer?
       # 
-      # @return <Integer> count of occurrences of the current weekday in the 
+      # @return [Integer]
+      #   count of occurrences of the current weekday in the
       #   current month before today
       # 
       # TODO: spec
@@ -82,7 +83,7 @@ module Clockwork
       # 
       # considered naming this mwday_ordinal ... is that clearer?
       # 
-      # @return <Integer> negative count of remaining occurrences of the 
+      # @return [Integer] negative count of remaining occurrences of the 
       #   current weekday in the current month
       # 
       # TODO: spec
