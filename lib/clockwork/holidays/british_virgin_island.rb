@@ -18,6 +18,7 @@ module Clockwork
       SAINT_URSULAS_DAY = Clockwork{|c| c.october & c.mday(21)}
       CHRISTMAS_DAY = Clockwork{|c| c.december & c.mday(25)}
       BOXING_DAY = Clockwork{|c| c.december & c.mday(26)}
+      extend HolidayMixin
 
     end
   end

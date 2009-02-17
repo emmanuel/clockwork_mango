@@ -14,6 +14,7 @@ module Clockwork
       INDEPENDENCE_DAY = Clockwork{|c| c.september & c.mday(15)}
       MEETING_OF_CULTURES_DAY = Clockwork{|c| c.october & c.mday(12)}
       CHRISTMAS_DAY = Clockwork{|c| c.december & c.mday(25)}
+      extend HolidayMixin
 
     end
   end

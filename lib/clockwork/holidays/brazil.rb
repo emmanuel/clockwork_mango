@@ -40,6 +40,7 @@ module Clockwork
       #PAIXO_DE_CRISTO = Clockwork{|c| c.march & c.mday(21)}
       #EASTER = Clockwork{|c| c.march & c.mday(23)}
       #CORPUS_CHRISTI = Clockwork{|c| c.may & c.mday(22)}
+      extend HolidayMixin
 
     end
   end

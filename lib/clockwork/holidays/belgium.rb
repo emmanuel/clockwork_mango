@@ -19,6 +19,7 @@ module Clockwork
       ARMISTICE_DAY = Clockwork{|c| c.november & c.mday(11)}
       DYNASTY_DAY = Clockwork{|c| c.november & c.mday(15)} #__DAY_OF_GERMANSPEAKING_COMMUNITY_ONLY_HELD_IN_AREAS_OF_THE_GERMANSPEAKING_COMMUNITY_OF_BELGIUM
       CHRISTMAS_DAY = Clockwork{|c| c.december & c.mday(25)}
+      extend HolidayMixin
 
     end
   end

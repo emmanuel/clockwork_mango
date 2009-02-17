@@ -13,6 +13,7 @@ module Clockwork
       VICTORY_DAY = Clockwork{|c| c.december & c.mday(16)}
       #20-22 December-Eid-ul-Azha
       CHRISTMAS_DAY = Clockwork{|c| c.december & c.mday(25)}
+      extend HolidayMixin
 
     end
   end

@@ -19,6 +19,7 @@ module Clockwork
       ST_STEPHENS_DAY = Clockwork{|c| c.december & c.mday(26)}
 
       #Movable Holidays (*)
+      extend HolidayMixin
 
     end
   end

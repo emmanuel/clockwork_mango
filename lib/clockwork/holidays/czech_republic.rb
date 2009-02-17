@@ -4,6 +4,7 @@ module Clockwork
   module Holidays
     module CzechRepublic
 
+      extend HolidayMixin
 
     end
   end

@@ -18,6 +18,7 @@ module Clockwork
       DIA_DE_LAS_MERCEDES = Clockwork{|c| c.september & c.mday(24)}
       CONSTITUTION_DAY = Clockwork{|c| c.november & c.mday(6)}
       NAVIDAD = Clockwork{|c| c.december & c.mday(25)}
+      extend HolidayMixin
 
     end
   end

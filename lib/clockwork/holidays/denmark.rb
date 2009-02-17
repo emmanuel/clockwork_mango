@@ -18,6 +18,7 @@ module Clockwork
       JUL_DENMARK_CHRISTMAS_EVE = Clockwork{|c| c.december & c.mday(24)}
       JUL_DENMARK_CHRISTMAS_DAY = Clockwork{|c| c.december & c.mday(25)}
       BOXING_DAY = Clockwork{|c| c.december & c.mday(26)}
+      extend HolidayMixin
 
     end
   end

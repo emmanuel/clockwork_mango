@@ -4,6 +4,7 @@ module Clockwork
   module Holidays
     module Cuba
 
+      extend HolidayMixin
 
     end
   end

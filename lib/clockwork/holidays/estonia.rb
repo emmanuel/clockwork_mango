@@ -16,6 +16,7 @@ module Clockwork
       DAY_OF_RESTORATION_OF_INDEPENDENCE = Clockwork{|c| c.august & c.mday(20)}
       CHRISTMAS_EVE = Clockwork{|c| c.december & c.mday(24)}
       CHRISTMAS_DAY = Clockwork{|c| c.december & c.mday(25)}
+      extend HolidayMixin
 
     end
   end

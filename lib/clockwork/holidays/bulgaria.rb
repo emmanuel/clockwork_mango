@@ -18,6 +18,7 @@ module Clockwork
       CHRISTMAS_EVE = Clockwork{|c| c.december & c.mday(24)}
       CHRISTMAS_DAY = Clockwork{|c| c.december & c.mday(25)}
       SECOND_DAY_OF_CHRISTMAS = Clockwork{|c| c.december & c.mday(26)}
+      extend HolidayMixin
 
     end
   end

@@ -1,5 +1,4 @@
 require "clockwork" unless defined? Clockwork
-
 module Clockwork
   module Holidays
     module UnitedStates
@@ -33,7 +32,8 @@ module Clockwork
 
       MISCHIEF_NIGHT = Clockwork {|c| c.october & c.mday(30) }
       HALLOWEEN = Clockwork {|c| c.october & c.mday(31) }
-      ALL_SAINTS_DAY_DAY_OF_THE_DEAD = Clockwork {|c| c.november & c.mday(1) }  #(Mexico)
+      ALL_SAINTS_DAY = Clockwork {|c| c.november & c.mday(1) }
+      DAY_OF_THE_DEAD = Clockwork {|c| c.november & c.mday(1) }  #(Mexico)
 
       ELECTION_DAY = Clockwork do |c| # (Tuesday after the first Monday of november)
         first_monday_in_nov = c.november & c.monday(1)
@@ -61,6 +61,8 @@ module Clockwork
       SUMMER_SOLSTICE  = Clockwork {|c| c.june & c.mday(21) }      # June 21 (based on sun)
       AUTUMNAL_EQUINOX = Clockwork {|c| c.september & c.mday(21) } # September 21 (based on sun)
       WINTER_SOLSTICE  = Clockwork {|c| c.december & c.mday(21) }  # December 21 (based on sun)
+
+      extend HolidayMixin
     end
   end
 end

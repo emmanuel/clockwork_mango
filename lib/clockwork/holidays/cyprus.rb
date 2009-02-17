@@ -13,6 +13,7 @@ module Clockwork
       CYPRUS_INDEPENDENCE_DAY = Clockwork{|c| c.october & c.mday(1)}
       CHRISTMAS_DAY = Clockwork{|c| c.december & c.mday(25)}
       BOXING_DAY = Clockwork{|c| c.december & c.mday(26)}
+      extend HolidayMixin
 
     end
   end

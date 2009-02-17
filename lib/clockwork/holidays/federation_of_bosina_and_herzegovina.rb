@@ -8,6 +8,7 @@ module Clockwork
       #Easter
       MAY_DAY = Clockwork{|c| c.may & c.mday(1)}
       #Christmas
+      extend HolidayMixin
 
     end
   end

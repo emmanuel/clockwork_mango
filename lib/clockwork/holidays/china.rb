@@ -29,6 +29,7 @@ module Clockwork
       #Chinese calendar
       #Public holidays in Hong Kong
       #Public holidays in Macau
+      extend HolidayMixin
 
     end
   end

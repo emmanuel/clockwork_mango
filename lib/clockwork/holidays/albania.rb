@@ -1,4 +1,4 @@
-require "clockwork" unless defined? Clockwork
+"clockwork" unless defined? Clockwork
 
 module Clockwork
   module Holidays
@@ -12,6 +12,7 @@ module Clockwork
       INDEPENDENCE_DAY = Clockwork{|c| c.november & c.mday(28)}
       CHRISTMAS_DAY = Clockwork{|c| c.december & c.mday(25)}
       INNOCENTS_DAY = Clockwork{|c| c.december & c.mday(28)}
+      extend HolidayMixin
 
     end
   end

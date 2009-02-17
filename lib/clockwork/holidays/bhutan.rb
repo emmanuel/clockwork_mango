@@ -19,6 +19,7 @@ module Clockwork
       #(lunar) - Buddha Descension Day
       NATIONAL_DAY = Clockwork{|c| c.december & c.mday(17)}
       WINTER_SOLSTICE = Clockwork{|c| c.december & c.mday(21)}
+      extend HolidayMixin
 
     end
   end

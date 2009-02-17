@@ -11,6 +11,7 @@ module Clockwork
       ANNIVERSARY_OF_THE_ARGENTINE_DECLARATION_OF_INDEPENDENCE = Clockwork{|c| c.july & c.mday(9)}
       TEACHERS_DAY = Clockwork{|c| c.september & c.mday(11)}
       CHRISTMAS_DAY = Clockwork{|c| c.december & c.mday(25)}
+      extend HolidayMixin
 
     end
   end

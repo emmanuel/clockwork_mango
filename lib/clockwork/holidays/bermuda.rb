@@ -17,6 +17,7 @@ module Clockwork
       REMEMBRANCE_DAY = Clockwork{|c| c.november & c.mday(11)}
       CHRISTMAS_DAY = Clockwork{|c| c.december & c.mday(25)}
       BOXING_DAY = Clockwork{|c| c.december & c.mday(26)}
+      extend HolidayMixin
 
     end
   end

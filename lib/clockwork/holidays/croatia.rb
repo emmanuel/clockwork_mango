@@ -29,6 +29,7 @@ module Clockwork
       BOI = Clockwork{|c| c.december & c.mday(25)}
       SAINT_STEPHEN = Clockwork{|c| c.december & c.mday(26)}
       SVETI_STJEPAN = Clockwork{|c| c.december & c.mday(26)}
+      extend HolidayMixin
 
     end
   end

@@ -18,6 +18,7 @@ module Clockwork
       GARIFUNA_SETTLEMENT_DAY = Clockwork{|c| c.november & c.mday(19)}
       CHRISTMAS_DAY = Clockwork{|c| c.december & c.mday(25)}
       BOXING_DAY = Clockwork{|c| c.december & c.mday(26)}
+      extend HolidayMixin
 
     end
   end

@@ -139,6 +139,8 @@ module Clockwork
       WORLD_ASTHMA_DAY = Clockwork { |c| c.may & c.tuesday & c.wday_in_month(1) } #* 1st Tuesday of May -
       WORLD_FAIR_TRADE_DAY = Clockwork { |c| c.may & c.saturday & c.wday_in_month(2) } #* 2nd Saturday of May -
 
+      extend HolidayMixin
+
     end
   end
 end

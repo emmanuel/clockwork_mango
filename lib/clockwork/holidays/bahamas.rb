@@ -15,6 +15,7 @@ module Clockwork
       NATIONAL_HEROES_DAY = Clockwork{|c| c.october & c.mday(12)}
       CHRISTMAS_DAY = Clockwork{|c| c.december & c.mday(25)}
       BOXING_DAY = Clockwork{|c| c.december & c.mday(26)}
+      extend HolidayMixin
 
     end
   end

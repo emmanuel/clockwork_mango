@@ -21,6 +21,7 @@ module Clockwork
       ALL_SAINTS_DAY = Clockwork{|c| c.november & c.mday(5)}
       IMMACULATE_CONCEPTION_DAY = Clockwork{|c| c.december & c.mday(8)}
       CHRISTMAS_DAY = Clockwork{|c| c.december & c.mday(24)}
+      extend HolidayMixin
 
     end
   end

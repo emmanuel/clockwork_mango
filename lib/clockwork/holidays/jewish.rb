@@ -12,6 +12,8 @@ module Clockwork
       SIMCHAT_TORAH          = Clockwork { |c| c.october & c.mday(22) }  # October 22 (moveable 22 days after Rosh Hashanah)
       FIRST_DAY_OF_HANNUKKAH = Clockwork { |c| c.december & c.mday(22) }  # December 22 (moveable based on Jewish calendar)
       LAST_DAY_OF_HANNUKKAH  = Clockwork { |c| c.december & c.mday(29) }  # December 29 (moveable based on Jewish Calendar)
+      extend HolidayMixin
+
     end
   end
 end

@@ -23,6 +23,7 @@ module Clockwork
       #In addition, the following holidays are reserved for observance by Copts, though are not national holidays:
 
       COPTIC_NEW_YEARS_DAY = Clockwork{|c| c.september & c.mday(11)}
+      extend HolidayMixin
 
     end
   end

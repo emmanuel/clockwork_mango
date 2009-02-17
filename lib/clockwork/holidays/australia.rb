@@ -16,6 +16,7 @@ module Clockwork
       PROCLAMATION_DAY_SOUTH_AUSTRALIA_ONLY = Clockwork{|c| c.december & c.mday(26)}
       #Labour Day (localised holiday, on a different day in each region)
       #Show Day (localised holiday, on a different day in each region)
+      extend HolidayMixin
 
     end
   end
