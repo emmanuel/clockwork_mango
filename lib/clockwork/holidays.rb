@@ -9,7 +9,7 @@ module Clockwork
         @@regions_cache ||= constants.map{|x| const_get(x) }
         regions = @@regions_cache
       end
-      regions.any?{|r| r.has_a_holiday?(date) }
+      regions.any?{|r| r.has_holiday?(date) }
     end
 
     def self.include?(date)
@@ -23,7 +23,7 @@ module Clockwork
     # creates an array of holidays for the module
     # checks to see if the date is in the array
     def has_holiday?(date)
-      all_holidays = module_eval("constants.map{|x| const_get(x)}")
+      all_holidays = constants.map{|x| const_get(x)}
       all_holidays.any?{|h| h === date}
     end
 
