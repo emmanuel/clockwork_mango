@@ -1,4 +1,5 @@
 require "pathname"
+require "date"
 
 module Clockwork
   module VERSION #:nodoc:
