@@ -1,26 +1,25 @@
 module Clockwork
   module CoreExt
     module HumanDateValues
+      MONTH_LENGTHS = [nil, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 31, 31]
       # how many days are there in the current month?
-      # 
-      # implementation should be straightforward, but for February
       # 
       # @return [Integer] count of total days in the current month
       def days_in_month
-        # cache based? maybe call up to class:
-        # self.class.days_in_month(self.year, self.month)
+        leap_year? and month == 2 ? MONTH_LENGTHS[month] + 1 : MONTH_LENGTHS[month]
       end
       
       # how many days are there in the current year?
       # 
-      # implementation should be straightforward, but for leap years
-      # 
       # @return [Integer] count of total days in the current year
       def days_in_year
-        # cache based? maybe call up to class:
-        # self.class.days_in_year(self.year)
+        leap_year? ? 366 : 365
       end
-      
+
+      def leap_year?
+        @leap_year ||= year % 4 == 0 and not year % 100 == 0 or year % 400 == 0
+      end
+
       # how many Sundays have already occurred this year (before today)?
       # (similar to DateTime#cweek)
       # 
