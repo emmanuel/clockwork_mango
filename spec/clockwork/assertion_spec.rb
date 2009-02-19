@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + "/spec_helper"
+require File.expand_path(File.join(File.dirname(__FILE__), %w[.. spec_helper]))
 
 describe Clockwork::Assertion do
   before :all do
@@ -12,47 +12,39 @@ describe Clockwork::Assertion do
     DAY_PRECISION_UNITS.each do |attr|
       value = VALUES[attr]
       random = rand(99)
-      
-      {::Time => true, ::DateTime => true, ::Date => true}.each do |klass, specific|
+
+      [::Time, ::DateTime, ::Date].each do |klass|
         it "should match #{klass} objects on asserted #{attr} integer value" do
           Clockwork::Assertion.new(attr, value).should === @values[klass]
         end
-      
+
         it "should match #{klass} objects on asserted #{attr} range value" do
           Clockwork::Assertion.new(attr, (value - 1)..(value + 1)).should === @values[klass]
         end
-      
-        if specific
-          it "should not match #{klass} objects on any other #{attr} value" do
-            Clockwork::Assertion.new(attr, value - 1).should_not === @values[klass]
-            Clockwork::Assertion.new(attr, value + 1).should_not === @values[klass]
-            Clockwork::Assertion.new(attr, value + random).should_not === @values[klass]
-          end
-        else
-          it "should match #{klass} objects on any other #{attr} value" do
-            Clockwork::Assertion.new(attr, value - 1).should === @values[klass]
-            Clockwork::Assertion.new(attr, value + 1).should === @values[klass]
-            Clockwork::Assertion.new(attr, value + random).should === @values[klass]
-          end
+
+        it "should not match #{klass} objects on any other #{attr} value" do
+          Clockwork::Assertion.new(attr, value - 1).should_not === @values[klass]
+          Clockwork::Assertion.new(attr, value + 1).should_not === @values[klass]
+          Clockwork::Assertion.new(attr, value + random).should_not === @values[klass]
         end
       end
     end
   end # describe DAY_PRECISION_UNITS
-  
+
   describe "SECOND_PRECISION_UNITS" do
     (SECOND_PRECISION_UNITS - DAY_PRECISION_UNITS).each do |attr|
       value = VALUES[attr]
       random = rand(99)
-      
+
       {::Time => true, ::DateTime => true, ::Date => false}.each do |klass, specific|
         it "should match #{klass} objects on asserted #{attr} integer value" do
           Clockwork::Assertion.new(attr, value).should === @values[klass]
         end
-      
+
         it "should match #{klass} objects on asserted #{attr} range value" do
           Clockwork::Assertion.new(attr, (value - 1)..(value + 1)).should === @values[klass]
         end
-        
+
         if specific
           it "should not match #{klass} objects on any other #{attr} value" do
             Clockwork::Assertion.new(attr, value - 1).should_not === @values[klass]
@@ -69,21 +61,21 @@ describe Clockwork::Assertion do
       end
     end
   end # describe SECOND_PRECISION_UNITS
-  
+
   describe "USECOND_PRECISION_UNITS" do
     (USECOND_PRECISION_UNITS - SECOND_PRECISION_UNITS).each do |attr|
       value = VALUES[attr]
       random = rand(99)
-      
+
       {::Time => true, ::DateTime => false, ::Date => false}.each do |klass, specific|
         it "should match #{klass} objects on asserted #{attr} integer value" do
           Clockwork::Assertion.new(attr, value).should === @values[klass]
         end
-        
+
         it "should match #{klass} objects on asserted #{attr} range value" do
           Clockwork::Assertion.new(attr, (value - 1)..(value + 1)).should === @values[klass]
         end
-        
+
         if specific
           it "should not match #{klass} objects on any other #{attr} value" do
             Clockwork::Assertion.new(attr, value - 1).should_not === @values[klass]

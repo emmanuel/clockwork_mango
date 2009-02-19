@@ -29,4 +29,3 @@ VALUES = {
   :wday  => 3,
   :wday_in_month => 4,
 }
-

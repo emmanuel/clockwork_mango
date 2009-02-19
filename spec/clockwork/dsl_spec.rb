@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + "/spec_helper"
+require File.expand_path(File.join(File.dirname(__FILE__), %w[.. spec_helper]))
 
 describe Clockwork::Dsl do
   describe "arity one attribute assertions (ASSERTABLE_ATTRIBUTES)" do
