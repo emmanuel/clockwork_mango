@@ -1,16 +1,19 @@
 module Clockwork
   module Holidays
-    def self.all_regions
-      @all_regions ||= constants.map { |x| const_get(x) }
+    class << self
+      def all_regions
+       @all_regions ||= constants.map { |x| const_get(x) }
+      end
+
+      def holiday?(date, region = nil)
+       search_regions = region ? Array(region) : all_regions
+       search_regions.any? { |r| r.has_holiday?(date) }
+      end
+
+      alias_method :include?, :holiday?
+      alias_method :===,      :holiday?
     end
 
-    def self.holiday?(date, region = nil)
-      search_regions = region ? Array(region) : all_regions
-      search_regions.any? { |r| r.has_holiday?(date) }
-    end
-
-    alias_method :include?, :holiday?
-    alias_method :===,      :holiday?
   end
 
   module HolidayMixin
