@@ -64,6 +64,12 @@ module Clockwork
       expression.nil? ? self : Difference.new(self, expression)
     end
     
+    # Gets the next +limit+ occurrences of this expression, if it recurs that
+    # many times.
+    def next_occurrence(after = Time.now.utc)
+      nil
+    end
+    
     # Get the operator of this Expression
     def operator
       nil
