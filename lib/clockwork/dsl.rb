@@ -91,9 +91,9 @@ module Clockwork
       ProcAssertion.new(&block)
     end
     
-    ATTRIB_VALID_RANGES = {
+    ATTR_VALID_RANGES = {
       :month => -11..11,
-      :mday  => -30..30,
+      :day   => -30..30,
       :wday  => -6..6,
       :hour  => -23..23,
       :min   => -59..59,
@@ -114,12 +114,12 @@ module Clockwork
     #   at the precision of the +time_array+ component[s]
     def at(time_array)
       hh, mm, ss = *time_array
-      if not (hh.is_a?(Integer) and ATTRIB_VALID_RANGES[:hour].include?(hh))
+      if not (hh.is_a?(Integer) and ATTR_VALID_RANGES[:hour].include?(hh))
         raise ArgumentError, "invalid hour specified (#{hh.inspect})"
-      elsif not (mm.nil? or ATTRIB_VALID_RANGES[:min].include?(mm))
+      elsif not (mm.nil? or ATTR_VALID_RANGES[:min].include?(mm))
         raise ArgumentError, "invalid minute specified (#{mm.inspect})"
       # there can be 61 seconds in a minute to allow second injection
-      elsif not (ss.nil? or ATTRIB_VALID_RANGES[:sec].include?(ss))
+      elsif not (ss.nil? or ATTR_VALID_RANGES[:sec].include?(ss))
         raise ArgumentError, "invalid second specified (#{ss.inspect})"
       end
       
