@@ -6,7 +6,7 @@ require 'spec'
 SPEC_ROOT = Pathname(__FILE__).dirname.expand_path
 require SPEC_ROOT.parent + 'lib/clockwork'
 
-DATE_ATTRIBUTES = [:year, :month, :mday]
+DATE_ATTRIBUTES = [:year, :month, :day]
 DATETIME_ATTRS  = DATE_ATTRIBUTES + [:hour, :min, :sec]
 TIME_ATTRIBUTES = DATETIME_ATTRS + [:usec]
 
@@ -19,7 +19,7 @@ USECOND_PRECISION_UNITS = TIME_ATTRIBUTES + DERIVED_ATTRS
 VALUES = {
   :year  => 2008,
   :month => 9,
-  :mday  => 24,
+  :day   => 24,
   :hour  => 18,
   :min   => 30,
   :sec   => 15,
