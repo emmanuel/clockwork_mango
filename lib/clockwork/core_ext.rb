@@ -1,6 +1,13 @@
 require "date"
 require "time"
 
+require "active_support/basic_object"
+require "active_support/duration"
+require "active_support/core_ext/object"
+require "active_support/core_ext/date"
+require "active_support/core_ext/date_time"
+require "active_support/core_ext/time"
+
 require "clockwork/core_ext/day_precision"
 ::Date.send(    :include, Clockwork::CoreExt::DayPrecision)
 ::DateTime.send(:include, Clockwork::CoreExt::DayPrecisionRemover)
