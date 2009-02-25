@@ -4,10 +4,10 @@ include Clockwork
 
 describe Clockwork::Assertion do
   before :all do
-    @date = Date.new(*DATE_ATTRIBUTES.map { |a| VALUES[a] })
-    @datetime = DateTime.new(*DATETIME_ATTRS.map { |a| VALUES[a] })
-    @time = Time.local(*TIME_ATTRIBUTES.map { |a| VALUES[a] })
-    @values = { Date => @date, DateTime => @datetime, Time => @time }
+    date = Date.new(*DATE_ATTRIBUTES.map { |a| VALUES[a] })
+    datetime = DateTime.new(*DATETIME_ATTRS.map { |a| VALUES[a] })
+    time = Time.local(*TIME_ATTRIBUTES.map { |a| VALUES[a] })
+    @values = { Date => date, DateTime => datetime, Time => time }
   end
 
   describe "DAY_PRECISION_UNITS" do
@@ -95,10 +95,46 @@ describe Clockwork::Assertion do
     end
   end
 
-  describe "#next_occurrences" do
-    it "should return a single Time objects representing the next occurrence of the receiver" do
-      assertion = Assertion.new(:mday, 1)
-      assertion.next_occurrence(@time).should == Time.local(@time.year, @time.month + 1, 1, @time.hour, @time.min, @time.sec)
+  describe "#next_occurrence" do
+    before(:all) do
+      @time = Time.parse("Sun Feb 01 00:00:00 UTC 2004")
     end
+
+    it "should return a single Time object" do
+      Assertion.new(:day, 1).next_occurrence.should be_an_instance_of(Time)
+    end
+
+    it "should return an object representing the next occurrence of the receiver" do
+      assertion = Assertion.new(:day, 1)
+      next_occurrence = Time.utc(@time.year, @time.month + 1, 1)
+      assertion.next_occurrence(@time).should == next_occurrence
+    end
+
+    it "should return a Time object that occurs after its argument" do
+      assertion = Assertion.new(:day, 1)
+      assertion.next_occurrence(@time).should > @time
+    end
+
+    it "should return a value that matches the receiver" do
+      assertion = Assertion.new(:day, 1)
+      assertion.should === assertion.next_occurrence
+      assertion.should === assertion.next_occurrence(@time)
+    end
+
+    it "should return 'Sun Feb 29 00:00:00 UTC 2004' when asked for the next 29th day after 'Sun Feb 01 00:00:00 UTC 2004'" do
+      start = Time.parse("Sun Feb 01 00:00:00 UTC 2004")
+      next_time = Time.parse("Sun Feb 29 00:00:00 UTC 2004")
+      next_occurrence = Assertion.new(:day, 29).next_occurrence(start)
+      next_occurrence.should == next_time
+    end
+
+    it "should reset hours, minutes, and seconds when advancing mday" do
+      start = Time.parse("Sun Feb 01 12:15:22 UTC 2004")
+      next_time = Time.parse("Sun Feb 29 00:00:00 UTC 2004")
+      next_occurrence = Assertion.new(:day, 29).next_occurrence(start)
+      next_occurrence.should == next_time
+    end
+
+    it "should "
   end
 end
