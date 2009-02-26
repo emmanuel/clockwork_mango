@@ -8,7 +8,7 @@ module Clockwork
     :yday, :yweek, :mweek, :wday, :wday_in_month]
   
   ATTR_RECURRENCE = {
-    :year  => nil,
+    :year  => :years,
     :month => :years,
     :day   => :months,
     :hour  => :days,
@@ -23,8 +23,8 @@ module Clockwork
     :wday_in_month => :months,
   }
   ATTR_RESET = {
-    :year  => :hour,
-    :month => :hour,
+    :year  => :month,
+    :month => :day,
     :day   => :hour,
     :hour  => :min,
     :min   => :sec,
@@ -37,7 +37,15 @@ module Clockwork
     :wday  => :hour,
     :wday_in_month => :hour,
   }
-  ATTR_PRIMACY = [:usec, :sec, :min, :hour, :day]
+  ATTR_RESET_VALUES = {
+    :month => 1,
+    :day   => 1,
+    :hour  => 0,
+    :min   => 0,
+    :sec   => 0,
+    :usec  => 0,
+  }
+  ATTR_PRIMACY = [:usec, :sec, :min, :hour, :day, :month]
   
   class Assertion < Expression
     attr_reader :attribute, :value, :reverse
@@ -71,14 +79,17 @@ module Clockwork
     end
     
     def next_occurrence(after = Time.now.utc)
-      if recurrence_unit = ATTR_RECURRENCE[@attribute] # rescue nil
-        reset_index = ATTR_PRIMACY.index(ATTR_RESET[@attribute]).to_i # convert nil to 0
+      if recurrence_unit = ATTR_RECURRENCE[@attribute]
+        reset_primacy = ATTR_RESET[@attribute]
+        reset_index = ATTR_PRIMACY.index(reset_primacy).to_i # convert nil to 0
         updated_attr = { @attribute => @value }
         ATTR_PRIMACY.each_with_index do |attr, i|
-          updated_attr[attr] = 0 if i <= reset_index
+          updated_attr[attr] = ATTR_RESET_VALUES[attr] if i <= reset_index
         end
         occurrence = after.change(updated_attr)
-        if after < occurrence
+        if @attribute == :year and @value < after.year
+          nil
+        elsif after < occurrence
           occurrence
         else
           begin
