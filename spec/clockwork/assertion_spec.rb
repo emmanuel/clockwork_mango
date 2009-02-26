@@ -105,36 +105,139 @@ describe Clockwork::Assertion do
     end
 
     it "should return an object representing the next occurrence of the receiver" do
+      start = Time.parse("Sun Feb 01 00:00:00 UTC 2004")
       assertion = Assertion.new(:day, 1)
-      next_occurrence = Time.utc(@time.year, @time.month + 1, 1)
-      assertion.next_occurrence(@time).should == next_occurrence
+      next_occurrence = Time.utc(start.year, start.month + 1, 1)
+      assertion.next_occurrence(start).should == next_occurrence
     end
 
     it "should return a Time object that occurs after its argument" do
+      start = Time.parse("Sun Feb 01 00:00:00 UTC 2004")
       assertion = Assertion.new(:day, 1)
-      assertion.next_occurrence(@time).should > @time
+      assertion.next_occurrence(start).should > start
+    end
+
+    it "should return a Time object in the UTC zone with no argument" do
+      Assertion.new(:day, 1).next_occurrence.zone.should == "UTC"
+    end
+
+    it "should return a Time object with the same zone as its argument" do
+      utc = Time.parse("Sun Feb 01 00:00:00 UTC 2004")
+      Assertion.new(:day, 1).next_occurrence(utc).zone.should == utc.zone
+      local = Time.parse("Sun Feb 01 00:00:00 -0800 2004")
+      Assertion.new(:day, 1).next_occurrence(local).zone.should == local.zone
+    end
+
+    it "should return a temporal object of the same class as its argument" do
+      date      = Date.parse("Mon Feb 01 00:00:00 UTC 2004")
+      date_time = DateTime.parse("Mon Feb 01 00:00:00 UTC 2004")
+      time      = Time.parse("Mon Feb 01 00:00:00 UTC 2004")
+      assertion = Assertion.new(:day, 1)
+
+      assertion.next_occurrence(date).should      be_instance_of(Date)
+      assertion.next_occurrence(date_time).should be_instance_of(DateTime)
+      assertion.next_occurrence(time).should      be_instance_of(Time)
     end
 
     it "should return a value that matches the receiver" do
+      start = Time.parse("Sun Feb 01 00:00:00 UTC 2004")
       assertion = Assertion.new(:day, 1)
       assertion.should === assertion.next_occurrence
-      assertion.should === assertion.next_occurrence(@time)
+      assertion.should === assertion.next_occurrence(start)
     end
 
     it "should return 'Sun Feb 29 00:00:00 UTC 2004' when asked for the next 29th day after 'Sun Feb 01 00:00:00 UTC 2004'" do
       start = Time.parse("Sun Feb 01 00:00:00 UTC 2004")
       next_time = Time.parse("Sun Feb 29 00:00:00 UTC 2004")
-      next_occurrence = Assertion.new(:day, 29).next_occurrence(start)
-      next_occurrence.should == next_time
+      Assertion.new(:day, 29).next_occurrence(start).should == next_time
     end
 
-    it "should reset hours, minutes, and seconds when advancing mday" do
-      start = Time.parse("Sun Feb 01 12:15:22 UTC 2004")
+    it "should reset hours, minutes, and seconds when advancing day" do
+      start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
       next_time = Time.parse("Sun Feb 29 00:00:00 UTC 2004")
-      next_occurrence = Assertion.new(:day, 29).next_occurrence(start)
-      next_occurrence.should == next_time
+      Assertion.new(:day, 29).next_occurrence(start).should == next_time
     end
 
-    it "should "
+    it "should return a time within the current minute when a :sec value greater than start.sec is asserted" do
+      start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
+      next_time = Time.parse("Sun Feb 01 12:15:29 UTC 2004")
+      start.sec.should < next_time.sec
+      Assertion.new(:sec, 29).next_occurrence(start).should == next_time
+    end
+
+    it "should return a time within the next minute when a :sec value less than start.sec is asserted" do
+      start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
+      next_time = Time.parse("Sun Feb 01 12:16:02 UTC 2004")
+      start.sec.should > next_time.sec
+      Assertion.new(:sec, 2).next_occurrence(start).should == next_time
+    end
+
+    it "should return a time within the current hour when a :min value greater than start.min is asserted" do
+      start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
+      next_time = Time.parse("Sun Feb 01 12:18:00 UTC 2004")
+      start.min.should < next_time.min
+      Assertion.new(:min, 18).next_occurrence(start).should == next_time
+    end
+
+    it "should return a time within the next hour when a :min value less than start.min is asserted" do
+      start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
+      next_time = Time.parse("Sun Feb 01 13:02:00 UTC 2004")
+      start.min.should > next_time.min
+      Assertion.new(:min, 2).next_occurrence(start).should == next_time
+    end
+
+    it "should return a time within the current day when an :hour value greater than start.hour is asserted" do
+      start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
+      next_time = Time.parse("Sun Feb 01 16:00:00 UTC 2004")
+      start.hour.should < next_time.hour
+      Assertion.new(:hour, 16).next_occurrence(start).should == next_time
+    end
+
+    it "should return a time within the next day when an :hour value less than start.hour is asserted" do
+      start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
+      next_time = Time.parse("Mon Feb 02 06:00:00 UTC 2004")
+      start.hour.should > next_time.hour
+      Assertion.new(:hour, 6).next_occurrence(start).should == next_time
+    end
+
+    it "should return a time within the current month when a :day value greater than start.day is asserted" do
+      start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
+      next_time = Time.parse("Mon Feb 09 00:00:00 UTC 2004")
+      start.day.should < next_time.day
+      Assertion.new(:day, 9).next_occurrence(start).should == next_time
+    end
+
+    it "should return a time within the next month when a :day value less than start.day is asserted" do
+      start = Time.parse("Mon Feb 02 12:15:12 UTC 2004")
+      next_time = Time.parse("Mon Mar 01 00:00:00 UTC 2004")
+      start.day.should > next_time.day
+      Assertion.new(:day, 1).next_occurrence(start).should == next_time
+    end
+
+    it "should return a time within the current year when a :month value greater than start.month is asserted" do
+      start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
+      next_time = Time.parse("Mon Mar 01 00:00:00 UTC 2004")
+      start.month.should < next_time.month
+      Assertion.new(:month, 3).next_occurrence(start).should == next_time
+    end
+
+    it "should return a time within the next year when a :month value less than start.month is asserted" do
+      start = Time.parse("Mon Feb 02 12:15:12 UTC 2004")
+      next_time = Time.parse("Sat Jan 01 00:00:00 UTC 2005")
+      start.month.should > next_time.month
+      Assertion.new(:month, 1).next_occurrence(start).should == next_time
+    end
+
+    it "should return nil when a :year value less than start.year is asserted" do
+      start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
+      Assertion.new(:year, 2003).next_occurrence(start).should == nil
+    end
+
+    it "should return the beginning of the asserted year when a :year value greater than start.year is asserted" do
+      start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
+      next_time = Time.parse("Sun Jan 01 00:00:00 UTC 2006")
+      start.year.should < next_time.year
+      Assertion.new(:year, 2006).next_occurrence(start).should == next_time
+    end
   end
 end
