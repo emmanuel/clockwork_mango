@@ -5,9 +5,9 @@ module Clockwork
         base.module_eval do
           # TODO: make this conditional so it doesn't blow up if it gets 
           #   included in unanticipated places
-          alias_method :original_hour, :hour # if instance_methods.include?(:hour)
-          alias_method :original_min,  :min  # if instance_methods.include?(:min)
-          alias_method :original_sec,  :sec  # if instance_methods.include?(:sec)
+          alias_method :hour_with_private, :hour # if instance_methods.include?(:hour)
+          alias_method :min_with_private,  :min  # if instance_methods.include?(:min)
+          alias_method :sec_with_private,  :sec  # if instance_methods.include?(:sec)
           
           def hour
             nil
@@ -30,9 +30,14 @@ module Clockwork
         base.module_eval do
           # TODO: make this conditional so it doesn't blow up if it gets 
           #   included in unanticipated places
-          alias_method :hour, :original_hour # if instance_methods.include?(:original_hour)
-          alias_method :min,  :original_min  # if instance_methods.include?(:original_min)
-          alias_method :sec,  :original_sec  # if instance_methods.include?(:original_sec)
+          alias_method :hour, :hour_with_private # if instance_methods.include?(:original_hour)
+          alias_method :min,  :min_with_private  # if instance_methods.include?(:original_min)
+          alias_method :sec,  :sec_with_private  # if instance_methods.include?(:original_sec)
+
+          public :hour
+          public :min
+          public :sec
+          public :usec
         end
       end
     end
