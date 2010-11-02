@@ -1,21 +1,10 @@
 require "pathname"
 require "date"
 
-module Clockwork
-  module VERSION #:nodoc:
-    MAJOR = 0
-    MINOR = 0
-    TINY  = 2
+require "bundler"
+Bundler.setup(:default)
 
-    STRING = [MAJOR, MINOR, TINY].join('.')
-    self
-  end # module VERSION
-end # module Clockwork
-
-lib_dir = Pathname(__FILE__).dirname
-$LOAD_PATH << lib_dir unless $LOAD_PATH.include?(lib_dir) or
-  $LOAD_PATH.include?(lib_dir.expand_path)
-
+require "clockwork/version"
 require "clockwork/expression"
 require "clockwork/assertion"
 require "clockwork/proc_assertion"

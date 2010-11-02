@@ -95,3 +95,7 @@ module Clockwork
     end # module HumanDateValues
   end # module CoreExt
 end # module Clockwork
+
+::Date.send(    :include, Clockwork::CoreExt::HumanDateValues)
+::DateTime.send(:include, Clockwork::CoreExt::HumanDateValues)
+::Time.send(    :include, Clockwork::CoreExt::HumanDateValues)

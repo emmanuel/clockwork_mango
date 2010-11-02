@@ -1,4 +1,4 @@
-require File.expand_path(File.join(File.dirname(__FILE__), %w[.. .. spec_helper]))
+require "spec_helper"
 
 describe Clockwork::CoreExt::UnitValues do
   TOLERANCE = 0.000000001   # floats get reeeaally close

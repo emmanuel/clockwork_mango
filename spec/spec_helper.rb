@@ -1,10 +1,7 @@
-require 'pathname'
-require 'rubygems'
-gem 'rspec', '>=1.1.3'
-require 'spec'
+Bundler.setup(:default, :test)
 
-SPEC_ROOT = Pathname(__FILE__).dirname.expand_path
-require SPEC_ROOT.parent + 'lib/clockwork'
+require "pathname"
+require "clockwork"
 
 DATE_ATTRIBUTES = [:year, :month, :day]
 DATETIME_ATTRS  = DATE_ATTRIBUTES + [:hour, :min, :sec]

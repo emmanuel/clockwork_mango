@@ -43,3 +43,6 @@ module Clockwork
     end
   end # module CoreExt
 end # module Clockwork
+
+::Date.send(    :include, Clockwork::CoreExt::DayPrecision)
+::DateTime.send(:include, Clockwork::CoreExt::DayPrecisionRemover)

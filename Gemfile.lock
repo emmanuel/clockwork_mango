@@ -1,0 +1,30 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    activesupport (3.0.1)
+    autotest (4.4.1)
+    autotest-fsevent (0.2.3)
+      sys-uname
+    autotest-growl (0.2.6)
+    diff-lcs (1.1.2)
+    rspec (2.0.1)
+      rspec-core (~> 2.0.1)
+      rspec-expectations (~> 2.0.1)
+      rspec-mocks (~> 2.0.1)
+    rspec-core (2.0.1)
+    rspec-expectations (2.0.1)
+      diff-lcs (>= 1.1.2)
+    rspec-mocks (2.0.1)
+      rspec-core (~> 2.0.1)
+      rspec-expectations (~> 2.0.1)
+    sys-uname (0.8.4)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  activesupport (~> 3.0)
+  autotest
+  autotest-fsevent
+  autotest-growl
+  rspec (~> 2.0)

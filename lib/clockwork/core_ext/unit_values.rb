@@ -60,3 +60,7 @@ module Clockwork
     end # module IntegerDsl
   end # module CoreExt
 end # module Clockwork
+
+::Date.send(    :extend, Clockwork::CoreExt::UnitValues::Date)
+::DateTime.send(:extend, Clockwork::CoreExt::UnitValues::Date)
+::Time.send(    :extend, Clockwork::CoreExt::UnitValues::Time)

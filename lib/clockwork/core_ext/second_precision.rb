@@ -7,3 +7,5 @@ module Clockwork
     end # module SecondPrecision
   end # module CoreExt
 end # module Clockwork
+
+::DateTime.send(:include, Clockwork::CoreExt::SecondPrecision)

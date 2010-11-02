@@ -1,4 +1,4 @@
-require File.expand_path(File.join(File.dirname(__FILE__), %w[.. .. spec_helper]))
+require "spec_helper"
 
 describe Clockwork::CoreExt::HumanDateValues do
   describe "leap year related methods" do
