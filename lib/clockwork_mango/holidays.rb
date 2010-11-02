@@ -1,21 +1,4 @@
 module ClockworkMango
-  module Holidays
-    class << self
-      def all_regions
-        @all_regions ||= constants.map { |x| const_get(x) }
-      end
-
-      def holiday?(date, region = nil)
-        search_regions = region ? Array(region) : all_regions
-        search_regions.any? { |r| r.has_holiday?(date) }
-      end
-
-      alias_method :include?, :holiday?
-      alias_method :===,      :holiday?
-    end
-
-  end
-
   module HolidayCollection
     def all_holidays
       @all_holidays ||= constants.map { |c| const_get(c) }
@@ -24,12 +7,24 @@ module ClockworkMango
     # accepts a date
     # creates an array of holidays for the module
     # checks to see if the date is in the array
-    def has_holiday?(date)
+    def holiday?(date)
       all_holidays.any? { |holiday| holiday === date }
     end
 
-    alias_method :include?, :has_holiday?
-    alias_method :===,      :has_holiday?
+    alias_method :include?, :holiday?
+    alias_method :===,      :holiday?
+  end
+
+  module Holidays
+    extend HolidayCollection
+
+    class << self
+      alias_method :all_regions, :all_holidays
+    end
+
+    def self.holiday?(date, region = nil)
+      Array(region || all_regions).any? { |r| r.include?(date) }
+    end
   end
 
 end
