@@ -3,10 +3,10 @@ require "enumerator"
 module Clockwork
   ASSERTABLE_ATTRIBUTES = [:year, :month, :day, :hour, :min, :sec, :usec,
     :yday, :yweek, :mweek, :wday, :wday_in_month]
-  
+
   REVERSIBLE_ATTRIBUTES = [:month, :day, :hour, :min, :sec, :usec,
     :yday, :yweek, :mweek, :wday, :wday_in_month]
-  
+
   ATTR_RECURRENCE = {
     :year  => :years,
     :month => :years,
@@ -46,8 +46,8 @@ module Clockwork
     :usec  => 0,
   }
   ATTR_PRIMACY = [:usec, :sec, :min, :hour, :day, :month]
-  
-  class Assertion < Expression
+
+  class ComparisonPredicate < Predicate
     attr_reader :attribute, :value, :reverse
     attr_reader *ASSERTABLE_ATTRIBUTES
 
@@ -64,20 +64,20 @@ module Clockwork
       @attribute, @value = attribute.to_sym, value
       instance_variable_set("@#{@attribute}", @value)
     end
-    
+
     def attributes
       [@attribute]
     end
-    
+
     def values
       [@value]
     end
-    
+
     def ===(other)
       rval = other.send(@attribute) rescue false
       @value === rval or rval.nil?
     end
-    
+
     def next_occurrence(after = Time.now.utc)
       if recurrence_unit = ATTR_RECURRENCE[@attribute]
         reset_primacy = ATTR_RESET[@attribute]
@@ -101,19 +101,20 @@ module Clockwork
         nil
       end
     end
-    
+
     def next_occurrences(limit = 1, after = Time.now.utc)
       Array(1..limit).map do |i|
         next_occurrence(after.advance(ATTR_RECURRENCE[@attribute] => i))
       end
     end
-    
+
     def operator
       :===
     end
-    
+
     def to_sexp
       [operator, @attribute, @value]
     end
+
   end
 end

@@ -1,5 +1,6 @@
+# Procs are not serializable, so this is a ticking time bomb
 module Clockwork
-  class ProcAssertion < Expression
+  class ProcPredicate < Predicate
     def initialize(proc=nil, &block)
       @value = proc || block
     end

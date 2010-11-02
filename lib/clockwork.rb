@@ -5,10 +5,10 @@ require "bundler"
 Bundler.setup(:default)
 
 require "clockwork/version"
-require "clockwork/expression"
-require "clockwork/assertion"
-require "clockwork/proc_assertion"
-require "clockwork/compound"
+require "clockwork/predicate"
+require "clockwork/comparison_predicate"
+require "clockwork/proc_predicate"
+require "clockwork/compound_predicate"
 require "clockwork/dsl"
 require "clockwork/core_ext"
 
@@ -19,7 +19,7 @@ require "clockwork/core_ext"
 # 
 # @param block <Block> block that will get Clockwork::Dsl as a parameter
 # 
-# @return <Clockwork::Expression> defined by the provided block
+# @return <Clockwork::Predicate> defined by the provided block
 def Clockwork(&block)
   yield(Clockwork::Dsl)
 end

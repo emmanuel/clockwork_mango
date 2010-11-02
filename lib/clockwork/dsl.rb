@@ -4,10 +4,10 @@ module Clockwork
     # 
     # @param name<String, Symbol> the name of the method to create
     # @param attribute<String, Symbol> the attribute that will be asserted
-    def self.define_arity_one_expression_builder(name, attribute)
+    def self.define_arity_one_predicate_builder(name, attribute)
       name, attribute = name.to_sym, attribute.to_sym
       define_method(name) do |value|
-        Assertion.new(attribute, value)
+        ComparisonPredicate.new(attribute, value)
       end
       module_function(name)
     end
@@ -17,22 +17,22 @@ module Clockwork
     # @param name<String, Symbol> the name of the method to create
     # @param attribute<String, Symbol> the attribute that will be asserted
     # @param value<Integer, Range> the value of the attribute assertion
-    def self.define_arity_zero_expression_builder(name, attribute, value)
+    def self.define_arity_zero_predicate_builder(name, attribute, value)
       name, attribute = name.to_sym, attribute.to_sym
       define_method(name) do
-        Assertion.new(attribute, value)
+        ComparisonPredicate.new(attribute, value)
       end
       module_function(name)
     end
     
     ASSERTABLE_ATTRIBUTES.each do |attribute|
-      define_arity_one_expression_builder(attribute, attribute)
+      define_arity_one_predicate_builder(attribute, attribute)
     end
     
     MONTHS = %w[january february march april may june 
       july august september october november december]
     MONTHS.each_with_index do |month, index|
-      define_arity_zero_expression_builder(month, :month, index + 1)
+      define_arity_zero_predicate_builder(month, :month, index + 1)
     end
     
     ORDINAL_MAP = {
@@ -48,12 +48,12 @@ module Clockwork
     # Build an assertion that matches the named weekday.
     # 
     # @param [Integer, Symbol] ordinal (optional)
-    #   define intersecting :wday_in_month Assertion if provided.
+    #   define intersecting :wday_in_month ComparisonPredicate if provided.
     #   Symbols will be used to look up an integer value in ORDINAL_MAP.
     #   If no value is found, no :wday_in_month assertion will be intersected
     # 
-    # @return [Clockwork::Assertion, Clockwork::Intersection]
-    #   a :wday Assertion or Intersection of :wday & :wday_in_month or :wday_in_year
+    # @return [Clockwork::ComparisonPredicate, Clockwork::IntersectionPredicate]
+    #   a :wday ComparisonPredicate or IntersectionPredicate of :wday & :wday_in_month or :wday_in_year
     #   (:wday & :wday_in_month) if ordinal provided and ordinal_scope == :month (default)
     #   (:wday & :wday_in_year) if ordinal provided and ordinal_scope == :year
     WEEKDAYS = %w[sunday monday tuesday wednesday thursday friday saturday]
@@ -81,14 +81,14 @@ module Clockwork
     
     module_function
     
-    # Builds a ProcAssertion using the provided block
+    # Builds a ProcPredicate using the provided block
     # 
     # @param [Proc] block
     #   will be called with a Date-ish object being tested with #===
-    # @return [Clockwork::ProcAssertion]
-    #   a ProcAssertion configured with the provided block
+    # @return [Clockwork::ProcPredicate]
+    #   a ProcPredicate configured with the provided block
     def proc(&block)
-      ProcAssertion.new(&block)
+      ProcPredicate.new(&block)
     end
     
     ATTR_VALID_RANGES = {
@@ -99,7 +99,7 @@ module Clockwork
       :min   => -59..59,
       :sec   => -60..60,
     }
-    # Builds an Expression that will match the given time of day, 
+    # Builds a Predicate that will match the given time of day, 
     #   at the given precision (hour, minute, or second)
     # 
     #   now = Time.now
@@ -109,8 +109,8 @@ module Clockwork
     # @param [Array(Integer)] time_array
     #   an array of hour, minute[, second] Integer values
     # 
-    # @return [Clockwork::Assertion, Clockwork::Intersection]
-    #   an Expression that matches the given time of day, 
+    # @return [Clockwork::ComparisonPredicate, Clockwork::IntersectionPredicate]
+    #   a Predicate that matches the given time of day, 
     #   at the precision of the +time_array+ component[s]
     def at(time_array)
       hh, mm, ss = *time_array
@@ -136,18 +136,18 @@ module Clockwork
     MAX_MM = 59
     MAX_SS = 60
 
-    # Builds an Expression that will match the given range of time of day, 
+    # Builds a Predicate that will match the given range of time of day, 
     #   at the given precision (hour, minute, or second)
     #
     # @param [Range(Array(Integer)..Array(Integer))] time_range
     #   a Range bounded at each end by an array of
     #   hour, minute[, second] Integers
     #
-    # @return [Clockwork::Intersection, Clockwork::Union]
-    #   an Expression that matches the given range of time of day,
+    # @return [Clockwork::IntersectionPredicate, Clockwork::UnionPredicate]
+    #   a Predicate that matches the given range of time of day,
     #   at the precision of the +time_range+ endpoints
     # 
-    # Implementation unrolls +time_range+ into Union expressions:
+    # Implementation unrolls +time_range+ into UnionPredicate predicates:
     #   Clockwork::Dsl.from([9,15]..[12,45])
     #   # => (hour(9) & min(15..59)) | hour(10..11) | (hour(12) & min (0..45))
     # Or:
@@ -157,10 +157,14 @@ module Clockwork
     #   Clockwork::Dsl.from([9,15]..[12,45,55])
     #   # => (hour(9) & min(15..59)) | hour(10..11) | (hour(12) & (min(0..44) | (min(45) & sec(0..55))))
     def from(time_range)
-      unless time_range.respond_to?(:end) && time_range.end.respond_to?(:to_ary) && (1..3).include?(time_range.end.size) &&
-        time_range.respond_to?(:begin) && time_range.begin.respond_to?(:to_ary) && (1..3).include?(time_range.begin.size)
-        raise ArgumentError, "expected range with Array endpoints"
-      end
+      raise ArgumentError, "expected Range with Array endpoints" unless
+        time_range.respond_to?(:end) &&
+        time_range.end.respond_to?(:to_ary) &&
+        (1..3).include?(time_range.end.size) &&
+        time_range.respond_to?(:begin) &&
+        time_range.begin.respond_to?(:to_ary) &&
+        (1..3).include?(time_range.begin.size)
+
       begin_hh, begin_mm, begin_ss = *time_range.begin
       end_hh,   end_mm,   end_ss   = *time_range.end
       delta_hh = end_hh - begin_hh  # hh is required
@@ -173,47 +177,47 @@ module Clockwork
         when nil
           middle = nil
           if begin_mm
-            beginning = unroll_hhmmss_into_partial_hour_expression(time_range.begin)
+            beginning = unroll_hhmmss_into_partial_hour_predicate(time_range.begin)
             ending    = hour((begin_hh + 1)..end_hh)
           elsif end_mm
             beginning = hour(begin_hh..(end_hh - 1))
-            ending    = unroll_hhmmss_into_partial_hour_expression(time_range.end, true)
+            ending    = unroll_hhmmss_into_partial_hour_predicate(time_range.end, true)
           else
             beginning = hour(begin_hh..end_hh)
             ending    = nil
           end
         when -MAX_MM..MAX_MM
-          beginning = unroll_hhmmss_into_partial_hour_expression(time_range.begin)
+          beginning = unroll_hhmmss_into_partial_hour_predicate(time_range.begin)
           middle    = hour((begin_hh + 1)..(end_hh - 1))
-          ending    = unroll_hhmmss_into_partial_hour_expression(time_range.end, true)
+          ending    = unroll_hhmmss_into_partial_hour_predicate(time_range.end, true)
         else
           raise ArgumentError, "Invalid begin_mm (#{begin_mm.inspect}) and end_mm (#{end_mm.inspect})"
         end
         return beginning | middle | ending
       when 2          # => from([9,45,15]..[11,47,45])
-        beginning = unroll_hhmmss_into_partial_hour_expression(time_range.begin)
+        beginning = unroll_hhmmss_into_partial_hour_predicate(time_range.begin)
         middle    = hour(begin_hh + 1)
-        ending    = unroll_hhmmss_into_partial_hour_expression(time_range.end, true)
+        ending    = unroll_hhmmss_into_partial_hour_predicate(time_range.end, true)
         return beginning | middle | ending
       when 1          # => from([9,45,15]..[10,47,45])
-        beginning = unroll_hhmmss_into_partial_hour_expression(time_range.begin)
-        ending    = unroll_hhmmss_into_partial_hour_expression(time_range.end, true)
+        beginning = unroll_hhmmss_into_partial_hour_predicate(time_range.begin)
+        ending    = unroll_hhmmss_into_partial_hour_predicate(time_range.end, true)
         return beginning | ending
       when 0            # => from([9,15]..[9,45])
         case delta_mm
         when 3..MAX_MM  # => from([9,15]..[9,18])
-          beginning = unroll_mmss_into_partial_minute_expression(begin_mm, begin_ss)
+          beginning = unroll_mmss_into_partial_minute_predicate(begin_mm, begin_ss)
           middle    = min((begin_mm + 1)..(end_mm - 1))
-          ending    = unroll_mmss_into_partial_minute_expression(end_mm, end_ss, true)
+          ending    = unroll_mmss_into_partial_minute_predicate(end_mm, end_ss, true)
           rest      = beginning | middle | ending
         when 2          # => from([9,45,15]..[9,47,45])
-          beginning = unroll_mmss_into_partial_minute_expression(begin_mm, begin_ss)
+          beginning = unroll_mmss_into_partial_minute_predicate(begin_mm, begin_ss)
           middle    = min(begin_mm + 1)
-          ending    = unroll_mmss_into_partial_minute_expression(end_mm, end_ss, true)
+          ending    = unroll_mmss_into_partial_minute_predicate(end_mm, end_ss, true)
           rest      = beginning | middle | ending
         when 1          # => from([9,45,15]..[9,46,45])
-          beginning = unroll_mmss_into_partial_minute_expression(begin_mm, begin_ss)
-          ending    = unroll_mmss_into_partial_minute_expression(end_mm, end_ss, true)
+          beginning = unroll_mmss_into_partial_minute_predicate(begin_mm, begin_ss)
+          ending    = unroll_mmss_into_partial_minute_predicate(end_mm, end_ss, true)
           rest      = beginning | ending
         when 0          # => from([9,45,10]..[9,45,45])
           case delta_ss
@@ -229,7 +233,7 @@ module Clockwork
           return hour(begin_hh) & minutes
         when nil
           if end_mm       # => from([9]..[9,45])
-            unroll_hhmmss_into_partial_hour_expression(time_range.end, true)
+            unroll_hhmmss_into_partial_hour_predicate(time_range.end, true)
           elsif begin_mm  # => from([9,45]..[9])
             raise ArgumentError, "Invalid endpoints: #{time_range.begin.inspect}..#{time_range.end.inspect}"
           else            # => from([9]..[9])
@@ -245,16 +249,16 @@ module Clockwork
     end
 
     # unrolls a set of mm[, ss] args
-    def unroll_mmss_into_partial_minute_expression(time_array, end_at_beginning=false)
+    def unroll_mmss_into_partial_minute_predicate(time_array, end_at_beginning=false)
       mm, ss = *time_array
       raise ArgumentError, "invalid mm parameter: #{mm.inspect}" unless mm.kind_of?(Fixnum)
       if !ss      # no +ss+ then there's nothing to unroll
         min(mm)
-      elsif end_at_beginning    # unroll the expression towards the beginning of the minute
+      elsif end_at_beginning    # unroll the predicate towards the beginning of the minute
         case ss
-        when 1..MAX_SS    # => unroll_mmss_into_partial_minute_expression([45,30], true)
+        when 1..MAX_SS    # => unroll_mmss_into_partial_minute_predicate([45,30], true)
           seconds = sec(0..ss)
-        when 0            # => unroll_mmss_into_partial_minute_expression([45,0], true)
+        when 0            # => unroll_mmss_into_partial_minute_predicate([45,0], true)
           seconds = sec(ss)
         else
           raise ArgumentError, "Invalid ss argument: #{ss.inspect}"
@@ -273,9 +277,9 @@ module Clockwork
       end
     end
 
-    # unrolls a set of hh[, mm[, ss]] args into an Expression that matches a
+    # unrolls a set of hh[, mm[, ss]] args into a Predicate that matches a
     # partial hour, using +time_array+ to define either the beginning, or the end
-    def unroll_hhmmss_into_partial_hour_expression(time_array, end_at_beginning=false)
+    def unroll_hhmmss_into_partial_hour_predicate(time_array, end_at_beginning=false)
       hh, mm, ss = *time_array
       raise ArgumentError, "invalid hh parameter: #{hh.inspect}" unless hh.kind_of?(Fixnum)
       if !mm      # no +mm+ then there's nothing to unroll
@@ -306,14 +310,14 @@ module Clockwork
         when 2..MAX_MM  # use a range of minutes
           case ss
           when 0..MAX_SS
-            minutes = min(0..(mm-1)) | unroll_mmss_into_partial_minute_expression([mm, ss], true)
+            minutes = min(0..(mm-1)) | unroll_mmss_into_partial_minute_predicate([mm, ss], true)
           else
             raise ArgumentError, "Invalid ss argument: #{ss.inspect}"
           end
         when 1
-          minutes = min(0) | unroll_mmss_into_partial_minute_expression([mm, ss], true)
+          minutes = min(0) | unroll_mmss_into_partial_minute_predicate([mm, ss], true)
         when 0
-          minutes = unroll_mmss_into_partial_minute_expression([mm, ss], true)
+          minutes = unroll_mmss_into_partial_minute_predicate([mm, ss], true)
         else
           raise ArgumentError, "Invalid mm argument: #{mm.inspect}"
         end
@@ -323,21 +327,21 @@ module Clockwork
         when 0..(MAX_MM - 2)
           case ss
           when 0..MAX_SS
-            minutes = min((mm+1)..MAX_MM) | unroll_mmss_into_partial_minute_expression([mm, ss])
+            minutes = min((mm+1)..MAX_MM) | unroll_mmss_into_partial_minute_predicate([mm, ss])
           else
             raise ArgumentError, "Invalid ss argument: #{ss.inspect}"
           end
         when (MAX_MM - 1)
           case ss
           when 0..MAX_SS
-            minutes = min(MAX_MM) | unroll_mmss_into_partial_minute_expression([mm, ss])
+            minutes = min(MAX_MM) | unroll_mmss_into_partial_minute_predicate([mm, ss])
           else
             raise ArgumentError, "Invalid ss argument: #{ss.inspect}"
           end
         when MAX_MM
           case ss
           when 0..MAX_SS
-            minutes = unroll_mmss_into_partial_minute_expression([mm, ss])
+            minutes = unroll_mmss_into_partial_minute_predicate([mm, ss])
           else
             raise ArgumentError, "Invalid ss argument: #{ss.inspect}"
           end
@@ -347,5 +351,6 @@ module Clockwork
         return hour(hh) & minutes
       end
     end
+
   end # module Dsl
 end # module Clockwork
