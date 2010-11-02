@@ -21,5 +21,5 @@ require "clockwork/core_ext"
 # 
 # @return <Clockwork::Predicate> defined by the provided block
 def Clockwork(&block)
-  yield(Clockwork::Dsl)
+  ::Clockwork::Dsl.build_predicate(&block)
 end

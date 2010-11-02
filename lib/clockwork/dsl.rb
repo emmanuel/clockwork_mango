@@ -1,5 +1,13 @@
 module Clockwork
   module Dsl
+    def self.build_predicate(&block)
+      if block.arity.zero?
+        instance_eval(&block)
+      else
+        yield(self)
+      end
+    end
+
     # Adds a method to the Dsl that will accept a single argument
     # 
     # @param name<String, Symbol> the name of the method to create
