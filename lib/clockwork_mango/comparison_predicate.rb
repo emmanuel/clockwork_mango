@@ -10,6 +10,7 @@ module ClockworkMango
   ATTR_RECURRENCE = {
     :year  => :years,
     :month => :years,
+    :mday  => :months,
     :day   => :months,
     :hour  => :days,
     :min   => :hours,
@@ -25,6 +26,7 @@ module ClockworkMango
   ATTR_RESET = {
     :year  => :month,
     :month => :day,
+    :mday  => :hour,
     :day   => :hour,
     :hour  => :min,
     :min   => :sec,
@@ -39,6 +41,7 @@ module ClockworkMango
   }
   ATTR_RESET_VALUES = {
     :month => 1,
+    :mday  => 1,
     :day   => 1,
     :hour  => 0,
     :min   => 0,
