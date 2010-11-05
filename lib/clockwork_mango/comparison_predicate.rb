@@ -1,7 +1,7 @@
 require "enumerator"
 
 module ClockworkMango
-  ASSERTABLE_ATTRIBUTES = [:year, :month, :day, :hour, :min, :sec, :usec,
+  COMPARABLE_ATTRIBUTES = [:year, :month, :day, :hour, :min, :sec, :usec,
     :yday, :yweek, :mweek, :wday, :wday_in_month]
 
   REVERSIBLE_ATTRIBUTES = [:month, :day, :hour, :min, :sec, :usec,
@@ -49,7 +49,7 @@ module ClockworkMango
 
   class ComparisonPredicate < Predicate
     attr_reader :attribute, :value, :reverse
-    attr_reader *ASSERTABLE_ATTRIBUTES
+    attr_reader *COMPARABLE_ATTRIBUTES
 
     def initialize(attribute, value)
       @reverse = false
@@ -75,10 +75,17 @@ module ClockworkMango
 
     def ===(other)
       rval = other.send(@attribute) rescue false
-      @value === rval or rval.nil?
+      compare(rval)
     end
 
-    def next_occurrence(after = Time.now.utc)
+    # nil passes any comparison by default. this is to allow less precise
+    # temporal objects to match all more precise predicates.
+    # In other words, Dates match all hour, min, sec and usec predicates
+    # and DateTimes match all usec predicates
+    def compare(other)
+      other.nil?
+    end
+
       if recurrence_unit = ATTR_RECURRENCE[@attribute]
         reset_primacy = ATTR_RESET[@attribute]
         reset_index = ATTR_PRIMACY.index(reset_primacy).to_i # convert nil to 0

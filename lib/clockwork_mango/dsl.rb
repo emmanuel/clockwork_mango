@@ -24,7 +24,7 @@ module ClockworkMango
     # 
     # @param name<String, Symbol> the name of the method to create
     # @param attribute<String, Symbol> the attribute that will be asserted
-    # @param value<Integer, Range> the value of the attribute assertion
+    # @param value<Integer, Range> the value of the attribute predicate
     def self.define_arity_zero_predicate_builder(name, attribute, value)
       name, attribute = name.to_sym, attribute.to_sym
       define_method(name) do
@@ -33,7 +33,7 @@ module ClockworkMango
       module_function(name)
     end
     
-    ASSERTABLE_ATTRIBUTES.each do |attribute|
+    COMPARABLE_ATTRIBUTES.each do |attribute|
       define_arity_one_predicate_builder(attribute, attribute)
     end
     
@@ -53,20 +53,21 @@ module ClockworkMango
       :last   => -1,
       :second_to_last => -2,
     }
-    # Build an assertion that matches the named weekday.
+    # Build a predicate that matches the named weekday.
     # 
     # @param [Integer, Symbol] ordinal (optional)
     #   define intersecting :wday_in_month ComparisonPredicate if provided.
     #   Symbols will be used to look up an integer value in ORDINAL_MAP.
-    #   If no value is found, no :wday_in_month assertion will be intersected
+    #   If no value is found, no :wday_in_month predicate will be intersected
     # 
     # @return [ClockworkMango::ComparisonPredicate, ClockworkMango::IntersectionPredicate]
-    #   a :wday ComparisonPredicate or IntersectionPredicate of :wday & :wday_in_month or :wday_in_year
+    #   a :wday ComparisonPredicate or
+    #   an IntersectionPredicate of :wday & :wday_in_month/:wday_in_year
     #   (:wday & :wday_in_month) if ordinal provided and ordinal_scope == :month (default)
     #   (:wday & :wday_in_year) if ordinal provided and ordinal_scope == :year
     WEEKDAYS = %w[sunday monday tuesday wednesday thursday friday saturday]
     WEEKDAYS.each_with_index do |wday, index|
-      method_def = <<-END_EVAL
+      module_eval <<-RUBY, __FILE__, __LINE__
         def #{wday}(ordinal=nil, ordinal_scope=:month)
           ordinal = ORDINAL_MAP[ordinal] if ordinal.is_a?(Symbol)
           wday_assertion = wday(#{index})
@@ -81,8 +82,7 @@ module ClockworkMango
             wday_assertion
           end
         end
-      END_EVAL
-      self.module_eval method_def, __FILE__, __LINE__
+      RUBY
       alias_method :"#{wday}s", :"#{wday}"
       module_function :"#{wday}", :"#{wday}s"
     end
@@ -111,8 +111,8 @@ module ClockworkMango
     #   at the given precision (hour, minute, or second)
     # 
     #   now = Time.now
-    #   exp = ClockworkMango::Dsl.at([9,15])
-    #   exp === Time.utc(now.year, now.month, now.mday, 9, 15)  #=> true
+    #   predicate = ClockworkMango::Dsl.at(9,15)
+    #   predicate === Time.utc(now.year, now.month, now.mday, 9, 15)  #=> true
     # 
     # @param [Array(Integer)] time_array
     #   an array of hour, minute[, second] Integer values
