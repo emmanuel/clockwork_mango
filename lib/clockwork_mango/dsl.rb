@@ -114,8 +114,8 @@ module ClockworkMango
     #   predicate = ClockworkMango::Dsl.at(9,15)
     #   predicate === Time.utc(now.year, now.month, now.mday, 9, 15)  #=> true
     # 
-    # @param [Array(Integer)] time_array
-    #   an array of hour, minute[, second] Integer values
+    # @param [Integer[, Integer[, Integer]]] time_array
+    #   an array of hour[, minute[, second]] Integer values
     # 
     # @return [ClockworkMango::ComparisonPredicate, ClockworkMango::IntersectionPredicate]
     #   a Predicate that matches the given time of day, 
