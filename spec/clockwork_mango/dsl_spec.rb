@@ -74,19 +74,19 @@ describe ClockworkMango::Dsl do
 
   describe "#at" do
     it "should return an :hour ComparisonPredicate if one element in array" do
-      predicate = ClockworkMango::Dsl.at([9])
+      predicate = ClockworkMango::Dsl.at(9)
       predicate.should be_kind_of(ClockworkMango::ComparisonPredicate)
       predicate.to_sexp.should == [:===, :hour, 9]
     end
 
     it "should return an IntersectionPredicate of :hour, :min ComparisonPredicates with two elements" do
-      predicate = ClockworkMango::Dsl.at([9,15])
+      predicate = ClockworkMango::Dsl.at(9,15)
       predicate.should be_kind_of(ClockworkMango::IntersectionPredicate)
       predicate.to_sexp.should == [:&, [:===, :hour, 9], [:===, :min, 15]]
     end
 
     it "should return an IntersectionPredicate of :hour, :min, :sec ComparisonPredicates with three elements" do
-      predicate = ClockworkMango::Dsl.at([9,15, 30])
+      predicate = ClockworkMango::Dsl.at(9,15,30)
       predicate.should be_kind_of(ClockworkMango::IntersectionPredicate)
       predicate.to_sexp.should == [:&, [:===, :hour, 9], [:===, :min, 15], [:===, :sec, 30]]
     end

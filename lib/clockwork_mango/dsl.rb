@@ -99,14 +99,13 @@ module ClockworkMango
       ProcPredicate.new(&block)
     end
     
-    ATTR_VALID_RANGES = {
-      :month => -11..11,
-      :day   => -30..30,
-      :wday  => -6..6,
-      :hour  => -23..23,
-      :min   => -59..59,
-      :sec   => -60..60,
-    }
+    VALID_MONTH_RANGE = -11..11
+    VALID_DAY_RANGE   = -30..30
+    VALID_WDAY_RANGE  = -6..6
+    VALID_HOUR_RANGE  = -23..23
+    VALID_MIN_RANGE   = -59..59
+    VALID_SEC_RANGE   = -60..60
+
     # Builds a Predicate that will match the given time of day, 
     #   at the given precision (hour, minute, or second)
     # 
@@ -118,19 +117,16 @@ module ClockworkMango
     #   an array of hour[, minute[, second]] Integer values
     # 
     # @return [ClockworkMango::ComparisonPredicate, ClockworkMango::IntersectionPredicate]
-    #   a Predicate that matches the given time of day, 
-    #   at the precision of the +time_array+ component[s]
-    def at(time_array)
-      hh, mm, ss = *time_array
-      if not (hh.is_a?(Integer) and ATTR_VALID_RANGES[:hour].include?(hh))
+    #   a Predicate that matches the given time of day, at the precision of the provided args
+    def at(hh, mm = nil, ss = nil)
+      if not (hh.is_a?(Integer) and VALID_HOUR_RANGE.include?(hh))
         raise ArgumentError, "invalid hour specified (#{hh.inspect})"
-      elsif not (mm.nil? or ATTR_VALID_RANGES[:min].include?(mm))
+      elsif not (mm.nil? or VALID_MIN_RANGE.include?(mm))
         raise ArgumentError, "invalid minute specified (#{mm.inspect})"
-      # there can be 61 seconds in a minute to allow second injection
-      elsif not (ss.nil? or ATTR_VALID_RANGES[:sec].include?(ss))
+      elsif not (ss.nil? or VALID_SEC_RANGE.include?(ss))
         raise ArgumentError, "invalid second specified (#{ss.inspect})"
       end
-      
+
       if mm.nil?
         hour(hh)
       elsif ss.nil?
