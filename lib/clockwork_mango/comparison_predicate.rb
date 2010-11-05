@@ -83,9 +83,10 @@ module ClockworkMango
     # In other words, Dates match all hour, min, sec and usec predicates
     # and DateTimes match all usec predicates
     def compare(other)
-      other.nil?
+      other.nil? or @value.send(operator, other)
     end
 
+    def next_occurrence(after = Time.now.utc)
       if recurrence_unit = ATTR_RECURRENCE[@attribute]
         reset_primacy = ATTR_RESET[@attribute]
         reset_index = ATTR_PRIMACY.index(reset_primacy).to_i # convert nil to 0
@@ -123,5 +124,51 @@ module ClockworkMango
       [operator, @attribute, @value]
     end
 
+  end
+
+  class InclusionPredicate < ComparisonPredicate
+    def operator
+      :include?
+    end
+  end
+
+  class ExclusionPredicate < InclusionPredicate
+    def compare(other)
+      !super
+    end
+
+    def operator
+      :"!include?"
+    end
+  end
+
+  class EqualityPredicate < ComparisonPredicate
+    def operator
+      :==
+    end
+  end
+
+  class GreaterThanPredicate < ComparisonPredicate
+    def operator
+      :>
+    end
+  end
+
+  class GreaterThanOrEqualPredicate < ComparisonPredicate
+    def operator
+      :>=
+    end
+  end
+
+  class LessThanPredicate < ComparisonPredicate
+    def operator
+      :<
+    end
+  end
+
+  class LessThanOrEqualPredicate < ComparisonPredicate
+    def operator
+      :<=
+    end
   end
 end
