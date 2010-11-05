@@ -86,7 +86,11 @@ module ClockworkMango
       other.nil? or @value.send(operator, other)
     end
 
-    def next_occurrence(after = Time.now.utc)
+    def next_occurrence
+      next_occurrence_after(Time.now.utc)
+    end
+
+    def next_occurrence_after(after)
       if recurrence_unit = ATTR_RECURRENCE[@attribute]
         reset_primacy = ATTR_RESET[@attribute]
         reset_index = ATTR_PRIMACY.index(reset_primacy).to_i # convert nil to 0

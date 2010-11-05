@@ -64,9 +64,9 @@ module ClockworkMango
       predicate.nil? ? self : DifferencePredicate.new(self, predicate)
     end
 
-    # Gets the next +limit+ occurrences of this predicate, if it recurs that
-    # many times.
-    def next_occurrence(after = Time.now.utc)
+    # Gets the next occurrence of this predicate after +after+, if it recurs
+    # after then.
+    def next_occurrence_after(after)
       nil
     end
 

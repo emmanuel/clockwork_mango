@@ -16,6 +16,11 @@ module ClockworkMango
       [operator, *@predicates.map { |p| p.to_sexp }]
     end
 
+    # FIXME: implement #next_occurrence_after for CompoundPredicate and subclasses
+    def next_occurrence_after(after)
+      raise NotImplementedError, "FIXME: implement #next_occurrence_after for CompoundPredicate and subclasses"
+    end
+
   end # class CompoundPredicate
 
   class UnionPredicate < CompoundPredicate
