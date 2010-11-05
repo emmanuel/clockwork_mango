@@ -1,7 +1,7 @@
 require "spec_helper"
 
 describe ClockworkMango::Dsl do
-  describe "arity one attribute assertions (ASSERTABLE_ATTRIBUTES)" do
+  describe "arity one attribute assertions (COMPARABLE_ATTRIBUTES)" do
     VALUES.each do |attribute, value|
       it "should return a[n] :#{attribute} ComparisonPredicate when Dsl.#{attribute} is called" do
         predicate = ClockworkMango::Dsl.send(attribute, value)
@@ -17,12 +17,18 @@ describe ClockworkMango::Dsl do
     ClockworkMango::Dsl::WEEKDAYS.each_with_index do |weekday, index|
       value = index
 
-      it "should return a :wday ComparisonPredicate with value #{value} when Dsl.#{weekday} is called" do
-        predicate = ClockworkMango::Dsl.send(weekday)
-        predicate .should be_kind_of(ClockworkMango::ComparisonPredicate)
-        predicate.attribute.should == :wday
-        predicate.value.should     == value
-        predicate.to_sexp.should   == [:===, :wday, value]
+      context "Dsl.#{weekday}" do
+        let(:predicate) { ClockworkMango::Dsl.send(weekday) }
+
+        it { predicate.should be_kind_of(ClockworkMango::ComparisonPredicate) }
+
+        it "should return :wday on #attribute" do
+          predicate.attribute.should == :wday
+        end
+
+        it "should return #{value} on #value" do
+          predicate.value.should == value
+        end
       end
 
       it "should return a :wday ComparisonPredicate with value #{value} when Dsl.#{weekday}s is called" do
