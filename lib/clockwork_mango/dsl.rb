@@ -39,8 +39,26 @@ module ClockworkMango
     
     MONTHS = %w[january february march april may june 
       july august september october november december]
+
+    # Build a predicate that matches the named month (and optional month day)
+    # 
+    # @param [Integer] month_day (optional)
+    #   define intersecting :mday ComparisonPredicate if provided.
+    #   If no month_day value is provided, no :mday predicate will be intersected
+    # 
+    # @return [ClockworkMango::ComparisonPredicate, ClockworkMango::IntersectionPredicate]
+    #   a :month ComparisonPredicate (if no month_day provided), or
+    #   an IntersectionPredicate of :month and :mday (if month_day provided)
     MONTHS.each_with_index do |month, index|
-      define_arity_zero_predicate_builder(month, :month, index + 1)
+      module_eval <<-RUBY, __FILE__, __LINE__
+        def #{month}(month_day=nil)
+          if month_day
+            month(#{index + 1}) & mday(month_day)
+          else
+            month(#{index + 1})
+          end
+        end
+      RUBY
     end
     
     ORDINAL_MAP = {
