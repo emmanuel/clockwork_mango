@@ -1,14 +1,18 @@
 * Spec everything!
-* Spec Clockwork::Dsl#at
-* Spec Clockwork::Dsl#from
 * Spec Clockwork::CoreExt::HumanDateValues#*_reverse
-* Decompose ComparisonPredicate into EqualityPredicate and RangePredicate
-* Add GreaterThanOrEqualPredicate and LessThanOrEqualPredicate
-** GreaterThan and LessThan will allow, eg. Dsl.from(9,30).until(18,15), Dsl.at([9,30]..[18,15])
-*** two explicit endpoints will be much simpler than Dsl.from currently is
-*** I think it will also make #next_occurrence feasible for these kinds of predicates
+* Update Dsl.from to use GreaterThanPredicate, and add Dsl.until (LessThanPredicate)
+** eg., Clockwork { from(9,30) & until(18,15) }
+** two explicit endpoints will be much simpler than Dsl.from currently is
+** I think it will also make #next_occurrence feasible for these kinds of predicates
+* Update Dsl.at to use Dsl.from and Dsl.until when given a Range
+** eg., Clockwork { at([9,30]..[18,15]) }
 * Figure out a better way to override Date#hour, #min, #sec, #usec and 
   DateTime#usec (Clockwork::CoreExt::DayPrecision is *ugly*)
+
+Lower priority:
 * Implement and test PrecisionDate and TemporalRange (Runt compatibility)
 * Test and implement more Runt compatibility: REDay, REMonth, DIMonth, etc.
 * Add lunar calendar support to Date, DateTime, and Time (longer term)
+
+Longer term:
+* Investigate lunar calendar semantics & existing tools (Perl libs for lunar dates?)
