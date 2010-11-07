@@ -55,6 +55,10 @@ module ClockworkMango
     attr_reader *COMPARABLE_ATTRIBUTES
 
     def initialize(attribute, value)
+      unless value.respond_to?(operator)
+        raise ArgumentError, "expected value to respond to :#{operator}"
+      end
+
       @reverse = false
       case value
       when Integer
@@ -140,12 +144,8 @@ module ClockworkMango
   end
 
   class ExclusionPredicate < InclusionPredicate
-    def compare(other)
-      !super
-    end
-
     def operator
-      :"!include?"
+      :exclude?
     end
   end
 

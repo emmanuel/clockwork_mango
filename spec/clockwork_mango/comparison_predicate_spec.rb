@@ -98,21 +98,43 @@ module ClockworkMango
     describe "#to_sexp" do
       ClockworkMango::COMPARABLE_ATTRIBUTES.each do |attribute|
         context ":#{attribute} EqualityPredicates" do
-          (0..4).each do |wday|
-            context "with value #{wday}" do
-              it "should return [:===, :#{attribute}, #{wday}]" do
-                ComparisonPredicate.new(attribute, wday).to_sexp.should == [:===, attribute, wday]
+          (0..4).each do |value|
+            context "with value #{value}" do
+              describe EqualityPredicate do
+                it "should return [:===, :#{attribute}, #{value}]" do
+                  ComparisonPredicate.new(attribute, value).to_sexp.should == [:===, attribute, value]
+                end
               end
 
               describe EqualityPredicate do
-                it "should return [:==, :#{attribute}, #{wday}] with value #{wday}" do
-                  EqualityPredicate.new(attribute, wday).to_sexp.should == [:==, attribute, wday]
+                it "should return [:==, :#{attribute}, #{value}] with value #{value}" do
+                  EqualityPredicate.new(attribute, value).to_sexp.should == [:==, attribute, value]
                 end
               end
 
               describe InclusionPredicate do
-                it "should return [:include?, :#{attribute}, #{wday}] with value #{wday}" do
-                  InclusionPredicate.new(attribute, wday).to_sexp.should == [:include?, attribute, wday]
+                it "should return [:include?, :#{attribute}, #{value}] with value #{value}" do
+                  range = value..(value + 3)
+                  InclusionPredicate.new(attribute, range).to_sexp.should == [:include?, attribute, range]
+                end
+              end
+
+              describe ExclusionPredicate do
+                it "should return [:exclude?, :#{attribute}, #{value}] with value #{value}" do
+                  range = value..(value + 3)
+                  ExclusionPredicate.new(attribute, range).to_sexp.should == [:exclude?, attribute, range]
+                end
+              end
+
+              describe GreaterThanPredicate do
+                it "should return [:>, :#{attribute}, #{value}] with value #{value}" do
+                  GreaterThanPredicate.new(attribute, value).to_sexp.should == [:>, attribute, value]
+                end
+              end
+
+              describe LessThanPredicate do
+                it "should return [:<, :#{attribute}, #{value}] with value #{value}" do
+                  LessThanPredicate.new(attribute, value).to_sexp.should == [:<, attribute, value]
                 end
               end
             end
