@@ -118,13 +118,6 @@ module ClockworkMango
     def proc(&block)
       ProcPredicate.new(&block)
     end
-    
-    VALID_MONTH_RANGE = -11..11
-    VALID_DAY_RANGE   = -30..30
-    VALID_WDAY_RANGE  = -6..6
-    VALID_HOUR_RANGE  = -23..23
-    VALID_MIN_RANGE   = -59..59
-    VALID_SEC_RANGE   = -60..60
 
     # Builds a Predicate that will match the given time of day, 
     #   at the given precision (hour, minute, or second)
