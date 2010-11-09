@@ -84,7 +84,7 @@ module ClockworkMango
     end
 
     describe "#from" do
-      describe "when both endpoints do not have the same number of elements" do
+      context "when both endpoints do not have the same number of elements" do
         it "should return a UnionPredicate of :hour EqualityPredicates if one element in array" do
           predicate = Dsl.from([9]..[12,30])
           predicate.should be_kind_of(UnionPredicate)
@@ -98,8 +98,8 @@ module ClockworkMango
         end
       end
 
-      describe "when both endpoints have the same number of elements" do
-        it "should return a EqualityPredicate on :hour if one element in array" do
+      context "when both endpoints have the same number of elements" do
+        it "should return an EqualityPredicate on :hour if one element in array" do
           predicate = Dsl.from([9]..[12])
           predicate.should be_kind_of(EqualityPredicate)
           predicate.to_sexp.should == [:==, :hour, 9..12]
@@ -118,9 +118,34 @@ module ClockworkMango
         end
       end
 
-      describe "both endpoints have three elements" do
+      context "when both endpoints have three elements" do
+      end
+    end # describe "#from"
+
+    describe "#until" do
+      context "when given a single arg" do
+        it "should return a LessThanOrEqualPredicate" do
+          predicate = Dsl.until(9)
+          predicate.should be_kind_of(LessThanOrEqualPredicate)
+          predicate.to_sexp.should == [:<=, :hour, 9]
+        end
       end
 
-    end # describe "#from"
+      context "when given two args" do
+        it "should return a UnionPredicate of EqualityPredicate and LessThanPredicate" do
+          predicate = Dsl.until(9,30)
+          predicate.should be_kind_of(UnionPredicate)
+          predicate.to_sexp.should == [:|, [:<, :hour, 9], [:&, [:==, :hour, 9], [:<=, :min, 30]]]
+        end
+      end
+
+      context "when given three args" do
+        it "should return a UnionPredicate of EqualityPredicate and LessThanPredicate" do
+          predicate = Dsl.until(9,30,15)
+          predicate.should be_kind_of(UnionPredicate)
+          predicate.to_sexp.should == [:|, [:<, :hour, 9], [:&, [:==, :hour, 9], [:|, [:<, :min, 30], [:&, [:==, :min, 30], [:<=, :sec, 15]]]]]
+        end
+      end
+    end # describe "#until"
   end # describe Dsl
 end # module ClockworkMango

@@ -132,13 +132,7 @@ module ClockworkMango
     # @return [ClockworkMango::EqualityPredicate, ClockworkMango::IntersectionPredicate]
     #   a Predicate that matches the given time of day, at the precision of the provided args
     def at(hh, mm = nil, ss = nil)
-      if not (hh.is_a?(Integer) and VALID_HOUR_RANGE.include?(hh))
-        raise ArgumentError, "invalid hour specified (#{hh.inspect})"
-      elsif not (mm.nil? or VALID_MIN_RANGE.include?(mm))
-        raise ArgumentError, "invalid minute specified (#{mm.inspect})"
-      elsif not (ss.nil? or VALID_SEC_RANGE.include?(ss))
-        raise ArgumentError, "invalid second specified (#{ss.inspect})"
-      end
+      ClockworkMango::Dsl.validate_hhmmss(hh,mm,ss)
 
       if mm.nil?
         hour(hh)
@@ -146,6 +140,33 @@ module ClockworkMango
         hour(hh) & min(mm)
       else
         hour(hh) & min(mm) & sec(ss)
+      end
+    end
+
+    def self.validate_hhmmss(hh, mm, ss)
+      if not (hh.is_a?(Integer) and VALID_HOUR_RANGE.include?(hh))
+        raise ArgumentError, "invalid hour specified (#{hh.inspect})"
+      elsif not (mm.nil? or VALID_MIN_RANGE.include?(mm))
+        raise ArgumentError, "invalid minute specified (#{mm.inspect})"
+      elsif not (ss.nil? or VALID_SEC_RANGE.include?(ss))
+        raise ArgumentError, "invalid second specified (#{ss.inspect})"
+      end
+    end
+
+    def until(hh, mm = nil, ss = nil)
+      ClockworkMango::Dsl.validate_hhmmss(hh,mm,ss)
+
+      if mm.nil?
+        LessThanOrEqualPredicate.new(:hour, hh)
+      elsif ss.nil?
+        LessThanPredicate.new(:hour, hh) | (
+          EqualityPredicate.new(:hour, hh) &
+          LessThanOrEqualPredicate.new(:min, mm))
+      else
+        LessThanPredicate.new(:hour, hh) | (
+          EqualityPredicate.new(:hour, hh) & (
+            LessThanPredicate.new(:min, mm) | (
+            EqualityPredicate.new(:min, mm) & LessThanOrEqualPredicate.new(:sec, ss))))
       end
     end
 
