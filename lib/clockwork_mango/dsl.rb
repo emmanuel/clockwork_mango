@@ -58,6 +58,8 @@ module ClockworkMango
             month(#{index + 1})
           end
         end
+
+        module_function :#{month}
       RUBY
     end
     
