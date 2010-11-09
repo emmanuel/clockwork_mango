@@ -3,6 +3,9 @@ require "date"
 
 # require "bundler"
 # Bundler.setup(:default)
+unless $LOAD_PATH.include?(File.dirname(__FILE__))
+  $LOAD_PATH << File.dirname(__FILE__)
+end
 
 require "clockwork_mango/version"
 require "clockwork_mango/predicate"
