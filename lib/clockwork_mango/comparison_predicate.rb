@@ -115,7 +115,7 @@ module ClockworkMango
     def next_occurrence_after(after)
       if recurrence_unit = ATTR_RECURRENCE[@attribute]
         reset_primacy = ATTR_RESET[@attribute]
-        reset_index = ATTR_PRIMACY.index(reset_primacy).to_i # convert nil to 0
+        reset_index = ATTR_PRIMACY.index(reset_primacy) || 0
         updated_attr = { @attribute => @value }
         ATTR_PRIMACY.each_with_index do |attr, i|
           updated_attr[attr] = ATTR_RESET_VALUES[attr] if i <= reset_index

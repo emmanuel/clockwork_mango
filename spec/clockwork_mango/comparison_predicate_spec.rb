@@ -143,7 +143,7 @@ module ClockworkMango
       end
     end # describe "#to_sexp"
 
-    describe "#next_occurrence" do
+    describe "#next_occurrence_after" do
       let(:start)     { Time.parse("Sun Feb 01 00:00:00 UTC 2004") }
       let(:next_29th) { Time.parse("Sun Feb 29 00:00:00 UTC 2004") }
       let(:date)      { start.to_date }
