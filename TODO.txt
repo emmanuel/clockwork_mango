@@ -1,5 +1,4 @@
 * Spec everything!
-* Spec Clockwork::CoreExt::HumanDateValues#*_reverse
 * Update Dsl.from to use GreaterThanPredicate, and add Dsl.until (LessThanPredicate)
 ** eg., Clockwork { from(9,30) & until(18,15) }
 ** two explicit endpoints will be much simpler than Dsl.from currently is
