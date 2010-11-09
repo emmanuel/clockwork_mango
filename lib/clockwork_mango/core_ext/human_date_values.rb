@@ -26,13 +26,16 @@ module ClockworkMango
       # how many Sundays have already occurred this year (before today)?
       # (similar to DateTime#cweek)
       # 
-      # @return [Integer] count of Sundays before today in the current year
+      #   DateTime.parse("2011-01-01").yweek # => 0
+      #   DateTime.parse("2011-01-03").yweek # => 1
+      #   DateTime.parse("2004-02-29").yweek # => 8
+      #   DateTime.parse("2010-11-08").yweek # => 44
       # 
-      # TODO: spec
+      # @return [Integer] count of Sundays before today in the current year
       def yweek
-        (self.yday - self.wday).div(7)
+        -(self.wday - self.yday).div(7)
       end
-      
+
       # how many Sundays are left this year (after today)?
       # (similar to DateTime#cweek)
       # 

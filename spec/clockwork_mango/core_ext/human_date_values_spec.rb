@@ -32,7 +32,22 @@ module ClockworkMango
       end
     end # describe "#leap_year?, #days_in_month, #days_in_year"
 
+    describe "#yweek" do
+      it "should return 0 when called before the first Sunday of the year" do
+        DateTime.parse("2011-01-01").yweek.should == 0
+      end
 
+      it "should return 1 when called after the first Sunday of the year, before the second" do
+        DateTime.parse("2011-01-03").yweek.should == 1
+      end
+
+      it "should return 8 when called on 2004-02-29" do
+        DateTime.parse("2004-02-29").yweek.should == 8
+      end
+
+      it "should return 44 when called on 2010-11-08" do
+        DateTime.parse("2010-11-08").yweek.should == 44
+      end
     end
 
     end
