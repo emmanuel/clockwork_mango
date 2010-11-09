@@ -15,7 +15,7 @@ module ClockworkMango
     def self.define_arity_one_predicate_builder(name, attribute)
       name, attribute = name.to_sym, attribute.to_sym
       define_method(name) do |value|
-        ComparisonPredicate.new(attribute, value)
+        EqualityPredicate.new(attribute, value)
       end
       module_function(name)
     end
@@ -28,7 +28,7 @@ module ClockworkMango
     def self.define_arity_zero_predicate_builder(name, attribute, value)
       name, attribute = name.to_sym, attribute.to_sym
       define_method(name) do
-        ComparisonPredicate.new(attribute, value)
+        EqualityPredicate.new(attribute, value)
       end
       module_function(name)
     end
@@ -43,11 +43,11 @@ module ClockworkMango
     # Build a predicate that matches the named month (and optional month day)
     # 
     # @param [Integer] month_day (optional)
-    #   define intersecting :mday ComparisonPredicate if provided.
+    #   define intersecting :mday EqualityPredicate if provided.
     #   If no month_day value is provided, no :mday predicate will be intersected
     # 
-    # @return [ClockworkMango::ComparisonPredicate, ClockworkMango::IntersectionPredicate]
-    #   a :month ComparisonPredicate (if no month_day provided), or
+    # @return [ClockworkMango::EqualityPredicate, ClockworkMango::IntersectionPredicate]
+    #   a :month EqualityPredicate (if no month_day provided), or
     #   an IntersectionPredicate of :month and :mday (if month_day provided)
     MONTHS.each_with_index do |month, index|
       module_eval <<-RUBY, __FILE__, __LINE__
@@ -76,12 +76,12 @@ module ClockworkMango
     # Build a predicate that matches the named weekday.
     # 
     # @param [Integer, Symbol] ordinal (optional)
-    #   define intersecting :wday_in_month ComparisonPredicate if provided.
+    #   define intersecting :wday_in_month EqualityPredicate if provided.
     #   Symbols will be used to look up an integer value in ORDINAL_MAP.
     #   If no value is found, no :wday_in_month predicate will be intersected
     # 
-    # @return [ClockworkMango::ComparisonPredicate, ClockworkMango::IntersectionPredicate]
-    #   a :wday ComparisonPredicate or
+    # @return [ClockworkMango::EqualityPredicate, ClockworkMango::IntersectionPredicate]
+    #   a :wday EqualityPredicate or
     #   an IntersectionPredicate of :wday & :wday_in_month/:wday_in_year
     #   (:wday & :wday_in_month) if ordinal provided and ordinal_scope == :month (default)
     #   (:wday & :wday_in_year) if ordinal provided and ordinal_scope == :year
@@ -136,7 +136,7 @@ module ClockworkMango
     # @param [Integer[, Integer[, Integer]]] time_array
     #   an array of hour[, minute[, second]] Integer values
     # 
-    # @return [ClockworkMango::ComparisonPredicate, ClockworkMango::IntersectionPredicate]
+    # @return [ClockworkMango::EqualityPredicate, ClockworkMango::IntersectionPredicate]
     #   a Predicate that matches the given time of day, at the precision of the provided args
     def at(hh, mm = nil, ss = nil)
       if not (hh.is_a?(Integer) and VALID_HOUR_RANGE.include?(hh))
