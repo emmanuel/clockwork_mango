@@ -85,41 +85,76 @@ module ClockworkMango
 
     describe "#from" do
       context "with a Range argument" do
-        context "when both endpoints do not have the same number of elements" do
-          it "should return a UnionPredicate of :hour EqualityPredicates if one element in array" do
-            predicate = Dsl.from([9]..[12,30])
-            predicate.should be_kind_of(UnionPredicate)
-            predicate.to_sexp.should == [:|, [:include?, :hour, 9..11], [:&, [:==, :hour, 12], [:include?, :min, 0..30]]]
+        context "when range.begin is before range.end" do
+          context "and both endpoints do not have the same number of elements" do
+            it "should return a UnionPredicate of :hour EqualityPredicates if one element in array" do
+              predicate = Dsl.from([9]..[12,30])
+              predicate.should be_kind_of(UnionPredicate)
+              predicate.to_sexp.should == [:|, [:include?, :hour, 9..11], [:&, [:==, :hour, 12], [:include?, :min, 0..30]]]
+            end
+
+            it "should return a UnionPredicate of :hour EqualityPredicates if two elements in array" do
+              predicate = Dsl.from([9,30]..[12])
+              predicate.should be_kind_of(UnionPredicate)
+              predicate.to_sexp.should == [:|, [:&, [:==, :hour, 9], [:include?, :min, 30..59]], [:include?, :hour, 10..12]]
+            end
           end
 
-          it "should return a UnionPredicate of :hour EqualityPredicates if two elements in array" do
-            predicate = Dsl.from([9,30]..[12])
-            predicate.should be_kind_of(UnionPredicate)
-            predicate.to_sexp.should == [:|, [:&, [:==, :hour, 9], [:include?, :min, 30..59]], [:include?, :hour, 10..12]]
+          context "and both endpoints have the same number of elements" do
+            it "should return an EqualityPredicate on :hour if one element in array" do
+              predicate = Dsl.from([9]..[12])
+              predicate.should be_kind_of(InclusionPredicate)
+              predicate.to_sexp.should == [:include?, :hour, 9..12]
+            end
+
+            it "should return a UnionPredicate of :hour EqualityPredicates with two elements in array" do
+              predicate = Dsl.from([9,30]..[12,15])
+              predicate.should be_kind_of(UnionPredicate)
+              predicate.to_sexp.should == [:|, [:&, [:==, :hour, 9], [:include?, :min, 30..59]], [:include?, :hour, 10..11], [:&, [:==, :hour, 12], [:include?, :min, 0..15]]]
+            end
+
+            it "should return an IntersectionPredicate of :hour, :min, :sec EqualityPredicates with three elements" do
+              predicate = Dsl.from([9,15,30]..[14,45,5])
+              predicate.should be_kind_of(UnionPredicate)
+              predicate.to_sexp.should == [:|, [:&, [:==, :hour, 9], [:|, [:include?, :min, 16..59], [:&, [:==, :min, 15], [:include?, :sec, 30..60]]]], [:include?, :hour, 10..13], [:&, [:==, :hour, 14], [:|, [:include?, :min, 0..44], [:&, [:==, :min, 45], [:include?, :sec, 0..5]]]]]
+            end
           end
         end
 
-        context "when both endpoints have the same number of elements" do
-          it "should return an EqualityPredicate on :hour if one element in array" do
-            predicate = Dsl.from([9]..[12])
-            predicate.should be_kind_of(InclusionPredicate)
-            predicate.to_sexp.should == [:include?, :hour, 9..12]
+        context "when begin is after end (ie., it defines a wrap-around)" do
+          context "and both endpoints do not have the same number of elements" do
+            it "should return a UnionPredicate of :hour EqualityPredicates if one element in array" do
+              predicate = Dsl.from([19]..[6,30])
+              predicate.should be_kind_of(UnionPredicate)
+              predicate.to_sexp.should == [:|, [:include?, :hour, 19..23], [:include?, :hour, 0..5], [:&, [:==, :hour, 6], [:include?, :min, 0..30]]]
+            end
+
+            it "should return a UnionPredicate of :hour EqualityPredicates if two elements in array" do
+              predicate = Dsl.from([19,30]..[6])
+              predicate.should be_kind_of(UnionPredicate)
+              predicate.to_sexp.should == [:|, [:include?, :hour, 20..23], [:include?, :hour, 0..6], [:&, [:==, :hour, 19], [:include?, :min, 30..59]]]
+            end
           end
 
-          it "should return a UnionPredicate of :hour EqualityPredicates with two elements in array" do
-            predicate = Dsl.from([9,30]..[12,15])
-            predicate.should be_kind_of(UnionPredicate)
-            predicate.to_sexp.should == [:|, [:&, [:==, :hour, 9], [:include?, :min, 30..59]], [:include?, :hour, 10..11], [:&, [:==, :hour, 12], [:include?, :min, 0..15]]]
-          end
+          context "and both endpoints have the same number of elements" do
+            it "should return a UnionPredicate of :hour, :min, :sec EqualityPredicates with three elements" do
+              predicate = Dsl.from([21]..[4])
+              predicate.should be_kind_of(UnionPredicate)
+              predicate.to_sexp.should == [:|, [:include?, :hour, 21..23], [:include?, :hour, 0..4]]
+            end
 
-          it "should return an IntersectionPredicate of :hour, :min, :sec EqualityPredicates with three elements" do
-            predicate = Dsl.from([9,15,30]..[14,45,5])
-            predicate.should be_kind_of(UnionPredicate)
-            predicate.to_sexp.should == [:|, [:&, [:==, :hour, 9], [:|, [:include?, :min, 16..59], [:&, [:==, :min, 15], [:include?, :sec, 30..60]]]], [:include?, :hour, 10..13], [:&, [:==, :hour, 14], [:|, [:include?, :min, 0..44], [:&, [:==, :min, 45], [:include?, :sec, 0..5]]]]]
-          end
-        end
+            it "should return a UnionPredicate of :hour, :min, :sec EqualityPredicates with three elements" do
+              predicate = Dsl.from([21,15]..[4,45])
+              predicate.should be_kind_of(UnionPredicate)
+              predicate.to_sexp.should == [:|, [:&, [:==, :hour, 21], [:include?, :min, 15..59]], [:|, [:include?, :hour, 0..3], [:include?, :hour, 22..23]], [:&, [:==, :hour, 4], [:include?, :min, 0..45]]]
+            end
 
-        context "when both endpoints have three elements" do
+            it "should return a UnionPredicate of :hour, :min, :sec EqualityPredicates with three elements" do
+              predicate = Dsl.from([21,15,30]..[4,45,25])
+              predicate.should be_kind_of(UnionPredicate)
+              predicate.to_sexp.should == [:|, [:&, [:==, :hour, 21], [:|, [:include?, :min, 16..59], [:&, [:==, :min, 15], [:include?, :sec, 30..60]]]], [:|, [:include?, :hour, 0..3], [:include?, :hour, 22..23]], [:&, [:==, :hour, 4], [:|, [:include?, :min, 0..44], [:&, [:==, :min, 45], [:include?, :sec, 0..25]]]]]
+            end
+          end
         end
       end # context "with a Range argument"
 

@@ -268,7 +268,7 @@ module ClockworkMango
             beginning = hour(begin_hh..end_hh)
             ending    = nil
           end
-        when -MAX_MM..MAX_MM
+        when VALID_MIN_RANGE
           beginning = unroll_hhmmss_into_partial_hour_predicate(time_range.begin)
           middle    = hour((begin_hh + 1)..(end_hh - 1))
           ending    = unroll_hhmmss_into_partial_hour_predicate(time_range.end, true)
@@ -325,6 +325,30 @@ module ClockworkMango
           raise ArgumentError, "Invalid begin_mm (#{begin_mm.inspect}) and end_mm (#{end_mm.inspect})"
         end
         return hour(begin_hh) & rest
+      when -23..-1
+        case delta_mm
+        when nil
+          middle = nil
+          if begin_mm
+            beginning = hour((begin_hh + 1)..MAX_HH)
+            middle    = hour(0..end_hh)
+            ending    = unroll_hhmmss_into_partial_hour_predicate(time_range.begin)
+          elsif end_mm
+            beginning = hour(begin_hh..MAX_HH)
+            middle    = hour(0..(end_hh - 1))
+            ending    = unroll_hhmmss_into_partial_hour_predicate(time_range.end, true)
+          else
+            beginning = hour(begin_hh..MAX_HH)
+            ending    = hour(0..end_hh)
+          end
+        when VALID_MIN_RANGE
+          beginning = unroll_hhmmss_into_partial_hour_predicate(time_range.begin)
+          middle    = hour(0..(end_hh - 1)) | hour((begin_hh + 1)..MAX_HH)
+          ending    = unroll_hhmmss_into_partial_hour_predicate(time_range.end, true)
+        else
+          raise ArgumentError, "Invalid begin_mm (#{begin_mm.inspect}) and end_mm (#{end_mm.inspect})"
+        end
+        return beginning | middle | ending
       else
         raise ArgumentError, "Invalid begin_hh (#{begin_hh.inspect}) and end_hh (#{end_hh.inspect})"
       end

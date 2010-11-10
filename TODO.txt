@@ -1,10 +1,10 @@
 * Spec everything!
 * [DONE] Update Dsl.from to accept range of time or individual args
-* include wrap-around
+* [DONE] include wrap-around
 ** [DONE] Dsl.from to use Union of Equality and GreaterThanPredicate,
 ** [DONE] and add Dsl.until (Union of Equality and LessThanPredicate)
 ** [DONE] can use from(hh[,mm[,ss]]) & until(hh[,mm[,ss]]) for time range (no wrap-arounds)
-** or use from([hh,mm,ss]..[hh,mm,ss]) for time range (with wrap-arounds)
+** [DONE] or use from([hh,mm,ss]..[hh,mm,ss]) for time range (with wrap-arounds)
 ** [DONE] eg., Clockwork { from(9,30) & until(18,15) }
 ** [DONE] or,  Clockwork { from([9,30]..[18,15]) }
 ** NO,  Clockwork { from(22,30) & until(9,15) }
