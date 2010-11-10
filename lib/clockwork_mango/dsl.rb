@@ -15,7 +15,11 @@ module ClockworkMango
     def self.define_arity_one_predicate_builder(name, attribute)
       name, attribute = name.to_sym, attribute.to_sym
       define_method(name) do |value|
-        EqualityPredicate.new(attribute, value)
+        if value.respond_to?(:include?)
+          InclusionPredicate.new(attribute, value)
+        else
+          EqualityPredicate.new(attribute, value)
+        end
       end
       module_function(name)
     end
@@ -27,9 +31,16 @@ module ClockworkMango
     # @param value<Integer, Range> the value of the attribute predicate
     def self.define_arity_zero_predicate_builder(name, attribute, value)
       name, attribute = name.to_sym, attribute.to_sym
-      define_method(name) do
-        EqualityPredicate.new(attribute, value)
+      if value.respond_to?(:include?)
+        define_method(name) do
+          InclusionPredicate.new(attribute, value)
+        end
+      else
+        define_method(name) do
+          EqualityPredicate.new(attribute, value)
+        end
       end
+
       module_function(name)
     end
     
@@ -153,6 +164,18 @@ module ClockworkMango
       end
     end
 
+    def self.validate_time_range(time_range)
+      unless time_range.respond_to?(:end) && time_range.end.respond_to?(:to_ary) &&
+        time_range.respond_to?(:begin) && time_range.begin.respond_to?(:to_ary)
+
+        if (1..3).include?(time_range.end.size) && (1..3).include?(time_range.begin.size)
+          raise ArgumentError, "expected Range with Array endpoints"
+        else
+          raise ArgumentError, "Array endpoints must have length within 1..3"
+        end
+      end
+    end
+
     def until(hh, mm = nil, ss = nil)
       ClockworkMango::Dsl.validate_hhmmss(hh,mm,ss)
 
@@ -167,6 +190,35 @@ module ClockworkMango
           EqualityPredicate.new(:hour, hh) & (
             LessThanPredicate.new(:min, mm) | (
             EqualityPredicate.new(:min, mm) & LessThanOrEqualPredicate.new(:sec, ss))))
+      end
+    end
+
+    def from(*args)
+      if args.length == 1 and args.first.is_a?(Range)
+        time_range = args.first
+        ClockworkMango::Dsl.validate_time_range(time_range)
+        from_time_range(time_range)
+      else
+        hh, mm, ss = args
+        ClockworkMango::Dsl.validate_hhmmss(hh, mm, ss)
+        from_hhmmss(hh, mm, ss)
+      end
+    end
+
+    def from_hhmmss(hh, mm = nil, ss = nil)
+      ClockworkMango::Dsl.validate_hhmmss(hh,mm,ss)
+
+      if mm.nil?
+        GreaterThanOrEqualPredicate.new(:hour, hh)
+      elsif ss.nil?
+        GreaterThanPredicate.new(:hour, hh) | (
+          EqualityPredicate.new(:hour, hh) &
+          GreaterThanOrEqualPredicate.new(:min, mm))
+      else
+        GreaterThanPredicate.new(:hour, hh) | (
+          EqualityPredicate.new(:hour, hh) & (
+            GreaterThanPredicate.new(:min, mm) | (
+            EqualityPredicate.new(:min, mm) & GreaterThanOrEqualPredicate.new(:sec, ss))))
       end
     end
 
@@ -194,15 +246,7 @@ module ClockworkMango
     # Also:
     #   ClockworkMango::Dsl.from([9,15]..[12,45,55])
     #   # => (hour(9) & min(15..59)) | hour(10..11) | (hour(12) & (min(0..44) | (min(45) & sec(0..55))))
-    def from(time_range)
-      raise ArgumentError, "expected Range with Array endpoints" unless
-        time_range.respond_to?(:end) &&
-        time_range.end.respond_to?(:to_ary) &&
-        (1..3).include?(time_range.end.size) &&
-        time_range.respond_to?(:begin) &&
-        time_range.begin.respond_to?(:to_ary) &&
-        (1..3).include?(time_range.begin.size)
-
+    def from_time_range(time_range)
       begin_hh, begin_mm, begin_ss = *time_range.begin
       end_hh,   end_mm,   end_ss   = *time_range.end
       delta_hh = end_hh - begin_hh  # hh is required
