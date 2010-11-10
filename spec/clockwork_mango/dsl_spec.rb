@@ -84,6 +84,30 @@ module ClockworkMango
     end
 
     describe "#from" do
+      context "with one arg (hh)" do
+        it "should return a GreaterThanOrEqualPredicate" do
+          predicate = Dsl.from(9)
+          predicate.should be_kind_of(GreaterThanOrEqualPredicate)
+          predicate.to_sexp.should == [:>=, :hour, 9]
+        end
+      end
+
+      context "with two args (hh,mm)" do
+        it "should return a UnionPredicate of EqualityPredicate and GreaterThanPredicate" do
+          predicate = Dsl.from(9,15)
+          predicate.should be_kind_of(UnionPredicate)
+          predicate.to_sexp.should == [:|, [:>, :hour, 9], [:&, [:==, :hour, 9], [:>=, :min, 15]]]
+        end
+      end
+
+      context "with three arg (hh,mm,ss)" do
+        it "should return a UnionPredicate of EqualityPredicate and GreaterThanPredicate" do
+          predicate = Dsl.from(9,15,30)
+          predicate.should be_kind_of(UnionPredicate)
+          predicate.to_sexp.should == [:|, [:>, :hour, 9], [:&, [:==, :hour, 9], [:|, [:>, :min, 15], [:&, [:==, :min, 15], [:>=, :sec, 30]]]]]
+        end
+      end
+
       context "with a Range argument" do
         context "when range.begin is before range.end" do
           context "and both endpoints do not have the same number of elements" do
@@ -157,30 +181,6 @@ module ClockworkMango
           end
         end
       end # context "with a Range argument"
-
-      context "with one arg (hh)" do
-        it "should return a GreaterThanOrEqualPredicate" do
-          predicate = Dsl.from(9)
-          predicate.should be_kind_of(GreaterThanOrEqualPredicate)
-          predicate.to_sexp.should == [:>=, :hour, 9]
-        end
-      end
-
-      context "with two args (hh,mm)" do
-        it "should return a UnionPredicate of EqualityPredicate and GreaterThanPredicate" do
-          predicate = Dsl.from(9,15)
-          predicate.should be_kind_of(UnionPredicate)
-          predicate.to_sexp.should == [:|, [:>, :hour, 9], [:&, [:==, :hour, 9], [:>=, :min, 15]]]
-        end
-      end
-
-      context "with three arg (hh,mm,ss)" do
-        it "should return a UnionPredicate of EqualityPredicate and GreaterThanPredicate" do
-          predicate = Dsl.from(9,15,30)
-          predicate.should be_kind_of(UnionPredicate)
-          predicate.to_sexp.should == [:|, [:>, :hour, 9], [:&, [:==, :hour, 9], [:|, [:>, :min, 15], [:&, [:==, :min, 15], [:>=, :sec, 30]]]]]
-        end
-      end
     end # describe "#from"
 
     describe "#until" do
