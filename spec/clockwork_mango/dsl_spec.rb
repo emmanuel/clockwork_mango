@@ -208,5 +208,24 @@ module ClockworkMango
         end
       end
     end # describe "#until"
+
+    describe "Predicate#from" do
+      it "should return IntersectionPredicate" do
+        predicate = Dsl.mondays.from([19,00]..[21,30])
+        predicate.should be_kind_of(IntersectionPredicate)
+        predicate.to_sexp.should ==
+          [:&, [:==, :wday, 1], [:|, [:&, [:==, :hour, 19], [:include?, :min, 00..59]], [:==, :hour, 20], [:&, [:==, :hour, 21], [:include?, :min, 0..30]]]]
+      end
+    end
+
+    describe "Predicate#at" do
+      it "should return IntersectionPredicate" do
+        predicate = Dsl.mondays.at(19,00)
+        predicate.should be_kind_of(IntersectionPredicate)
+        predicate.to_sexp.should ==
+          [:&, [:==, :wday, 1], [:&, [:==, :hour, 19], [:==, :min, 0]]]
+      end
+    end
+
   end # describe Dsl
 end # module ClockworkMango

@@ -1,3 +1,5 @@
+require "clockwork_mango/predicate"
+
 module ClockworkMango
   module Dsl
     def self.build_predicate(&block)
@@ -459,4 +461,16 @@ module ClockworkMango
     end
 
   end # module Dsl
+
+  module PredicateExtensions
+    def from(*args)
+      IntersectionPredicate.new(self, Dsl.from(*args))
+    end
+
+    def at(*args)
+      IntersectionPredicate.new(self, Dsl.at(*args))
+    end
+  end
+
+  Predicate.send(:include, PredicateExtensions)
 end # module ClockworkMango

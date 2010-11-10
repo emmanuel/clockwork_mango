@@ -54,13 +54,22 @@ forms, but plurals are coming soon).
   mon_wed_fri = Clockwork { |c| c.mondays | c.wednesdays | c.fridays }
   christmas   = Clockwork { |c| c.december & c.mday(25) }
 
+OR with the optional mday arg to month
+
+  christmas   = Clockwork { december(25) }
+
 Some additional methods are available to deal with particular types of dates: 
 #yweek (week of the year, similar to DateTime#cweek), #wday_in_month (ordinal 
 occurrence of weekday in month, eg. Thanksgiving in the US: the 3rd thursday 
 of November).
 
   seattle_art_walk = Clockwork { |c| c.thursday & c.wday_in_month(1) }
-  thanksgiving = Clockwork { |c| c.november & c.thursday & c.wday_in_month(3) }
+  thanksgiving = Clockwork { |c| c.november & c.thursday & c.wday_in_month(4) }
+
+OR use a couple of shortcuts
+
+  seattle_art_walk = Clockwork { thursday(:first) }
+  thanksgiving = Clockwork { november & thursday(4) }
 
 Times of day and time ranges can be specified with the #at and #from methods, 
 which accept hours, minutes and optionally seconds as arrays of integers in 
@@ -69,12 +78,24 @@ which accept hours, minutes and optionally seconds as arrays of integers in
   work_week    = Clockwork { |c| c.from([9,15]..[17,45]) & c.wday(1..5) }
   back_to_work = Clockwork { |c| c.at([9,15]) & c.mondays }
 
+OR with another shortcut
+
+  back_to_work = Clockwork { mondays.at(9,15) }
+
 As mentioned, expressions can be composed as needed, but be aware of 
 precedence when building complex expressions:
 
   class_time = Clockwork do |c|
     ((c.mondays | c.wednesdays | c.thursdays) & c.from([19,00]..[21,30])) |
       (c.sundays & c.from([12,00]..[13,30]))
+  end
+
+OR use a couple of shortcuts defined directly on Predicate;
+the above Predicate could be simplified as follows:
+
+  class_time = Clockwork do
+    (mondays | wednesdays | thursdays).from([19,00]..[21,30]) |
+      sundays.from([12,00]..[13,30])
   end
 
 So, what do you do with these objects? Clockwork::Expression objects provide 
@@ -123,17 +144,17 @@ The module is called Clockwork::Holidays, and it's a separate require:
 
 == REQUIREMENTS:
 
-* Ruby. Only tested on MRI 1.8.6 and 1.8.7.
+* Ruby. Tested on MRI 1.8.7 and 1.9.2.
 
 == INSTALL:
 
-* sudo gem install clockwork
+* gem install clockwork
 
 == LICENSE:
 
 (The MIT License)
 
-Copyright (c) 2008 Emmanuel Gomez
+Copyright (c) 2008-2010 Emmanuel Gomez
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
