@@ -18,7 +18,7 @@ module ClockworkMango
 
     # FIXME: implement #next_occurrence_after for CompoundPredicate and subclasses
     def next_occurrence_after(after)
-      raise NotImplementedError, "FIXME: implement #next_occurrence_after for CompoundPredicate and subclasses"
+      raise NotImplementedError, "CompoundPredicate#next_occurrence_after not implemented"
     end
 
   end # class CompoundPredicate

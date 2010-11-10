@@ -1,19 +1,6 @@
-* Spec everything!
-* [DONE] Update Dsl.from to accept range of time or individual args
-* [DONE] include wrap-around
-** [DONE] Dsl.from to use Union of Equality and GreaterThanPredicate,
-** [DONE] and add Dsl.until (Union of Equality and LessThanPredicate)
-** [DONE] can use from(hh[,mm[,ss]]) & until(hh[,mm[,ss]]) for time range (no wrap-arounds)
-** [DONE] or use from([hh,mm,ss]..[hh,mm,ss]) for time range (with wrap-arounds)
-** [DONE] eg., Clockwork { from(9,30) & until(18,15) }
-** [DONE] or,  Clockwork { from([9,30]..[18,15]) }
-** NO,  Clockwork { from(22,30) & until(9,15) }
-** YES, Clockwork { from([22,30]..[9,15]) }
-** [DONE] two explicit endpoints will be much simpler than Dsl.from currently is
-** [DONE] Dsl.from_hhmmss is a simple inverse of Dsl.until, and complex logic is now in Dsl.from_time_range
-** I think it will also make #next_occurrence feasible for these kinds of predicates
-* [SKIP] Update Dsl.at to use Dsl.from and Dsl.until when given a Range
-** eg., Clockwork { at([9,30]..[18,15]) }
+* Implement CompoundPredicate#next_occurrence_after
+* [DONE] Update Dsl.from to use Union of Equality and GreaterThanPredicate
+** I think this will also make #next_occurrence feasible
 * Figure out a better way to override Date#hour, #min, #sec, #usec and 
   DateTime#usec (Clockwork::CoreExt::DayPrecision is *ugly*)
 
