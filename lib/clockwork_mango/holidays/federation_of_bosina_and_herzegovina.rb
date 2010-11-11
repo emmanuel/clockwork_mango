@@ -5,9 +5,9 @@ module ClockworkMango
     module FederationOfBosniaAndHerzegovina
       extend HolidayCollection
 
-      NEW_YEARS_DAY = Clockwork{|c| c.january & c.mday(1)}
+      NEW_YEARS_DAY = Clockwork { january(1) }
       #Easter
-      MAY_DAY = Clockwork{|c| c.may & c.mday(1)}
+      MAY_DAY       = Clockwork { may(1) }
       #Christmas
 
     end

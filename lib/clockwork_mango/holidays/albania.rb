@@ -5,14 +5,14 @@ module ClockworkMango
     module Albania
       extend HolidayCollection
 
-      NEW_YEARS_DAY = Clockwork{|c| c.january & c.mday(1)}
-      MOTHERS_DAY_AND_TEACHERS_DAY = Clockwork{|c| c.march & c.mday(7)}
-      SULTAN_NOURUZ_REMEMBRANCE = Clockwork{|c| c.march & c.mday(22)}
-      LABOUR_DAY = Clockwork{|c| c.may & c.mday(1)}
-      MOTHER_TERESA_DAY = Clockwork{|c| c.october & c.mday(19)}
-      INDEPENDENCE_DAY = Clockwork{|c| c.november & c.mday(28)}
-      CHRISTMAS_DAY = Clockwork{|c| c.december & c.mday(25)}
-      INNOCENTS_DAY = Clockwork{|c| c.december & c.mday(28)}
+      NEW_YEARS_DAY                = Clockwork { january(1) }
+      MOTHERS_DAY_AND_TEACHERS_DAY = Clockwork { march(7) }
+      SULTAN_NOURUZ_REMEMBRANCE    = Clockwork { march(22) }
+      LABOUR_DAY                   = Clockwork { may(1) }
+      MOTHER_TERESA_DAY            = Clockwork { october(19) }
+      INDEPENDENCE_DAY             = Clockwork { november(28) }
+      CHRISTMAS_DAY                = Clockwork { december(25) }
+      INNOCENTS_DAY                = Clockwork { december(28) }
     end
   end
 end

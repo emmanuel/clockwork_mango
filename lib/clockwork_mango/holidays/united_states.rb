@@ -12,49 +12,45 @@ module ClockworkMango
 
       MARTIN_LUTHER_KING_JR_DAY = Clockwork { january & monday(3) } # January 21 (3rd Monday of January, traditionally Jan. 15)
 
-      GROUNDHOG_DAY = Clockwork { february(2) } # February 2
+      GROUNDHOG_DAY     = Clockwork { february(2) } # February 2
       SUPER_BOWL_SUNDAY = Clockwork { february & sunday(1) } # February 3 (currently the first Sunday of February)
-      VALENTINES_DAY = Clockwork { february(14) } # February 14
+      VALENTINES_DAY    = Clockwork { february(14) } # February 14
 
-      PRESIDENTS_DAY = Clockwork { february & monday(3) } # February 18 (officially Washington's Birthday; 3rd Monday of February, traditionally Feb. 22)
-      ST_PATRICKS_DAY = Clockwork { march(17) } # March 17
+      PRESIDENTS_DAY    = Clockwork { february & monday(3) } # February 18 (officially Washington's Birthday; 3rd Monday of February, traditionally Feb. 22)
+      ST_PATRICKS_DAY   = Clockwork { march(17) } # March 17
 
-      APRIL_FOOLS_DAY = Clockwork { april(1) } # April 1
+      APRIL_FOOLS_DAY   = Clockwork { april(1) } # April 1
 
       PATRIOTS_DAYMARATHON_MONDAY = Clockwork {  april & monday(3) } # April 21 (New England and Wisconsin only) (3rd Monday of April)
-      EARTH_DAY = Clockwork { april(22) }
-      ARBOR_DAY = Clockwork { april(25) }
+      EARTH_DAY       = Clockwork { april(22) }
+      ARBOR_DAY       = Clockwork { april(25) }
 
-      MOTHERS_DAY = Clockwork { may & sunday(2) }  #(2nd Sunday of may),
-      FATHERS_DAY = Clockwork { june & sunday(3) }  #(3rd Sunday of june)
+      MOTHERS_DAY     = Clockwork { may & sunday(2) }  #(2nd Sunday of may),
+      FATHERS_DAY     = Clockwork { june & sunday(3) }  #(3rd Sunday of june)
 
-      CINCO_DE_MAYO = Clockwork { may(5) } # (Mexican holiday often observed in US)
+      CINCO_DE_MAYO   = Clockwork { may(5) } # (Mexican holiday often observed in US)
 
-      LABOR_DAY = Clockwork { september & monday(1) }  #(first Monday of September)
-      COLUMBUS_DAY = Clockwork { october & monday(2) } # (2nd Monday of october, traditionally Oct. 12)
+      LABOR_DAY       = Clockwork { september & monday(1) }  #(first Monday of September)
+      COLUMBUS_DAY    = Clockwork { october & monday(2) } # (2nd Monday of october, traditionally Oct. 12)
 
-      MISCHIEF_NIGHT = Clockwork { october(30) }
-      HALLOWEEN = Clockwork { october(31) }
-      ALL_SAINTS_DAY = Clockwork { november(1) }
+      MISCHIEF_NIGHT  = Clockwork { october(30) }
+      HALLOWEEN       = Clockwork { october(31) }
+      ALL_SAINTS_DAY  = Clockwork { november(1) }
       DAY_OF_THE_DEAD = Clockwork { november(1) }  #(Mexico)
 
-      ELECTION_DAY = Clockwork do |c| # (Tuesday after the first Monday of november)
-        first_monday_in_nov = november & monday(1)
-        proc { |dt| first_monday_in_nov === (dt - 1) }
-      end
+      # (Tuesday after the first Monday of november)
+      ELECTION_DAY = Clockwork { (november & monday(1)) >> [:days, 1] }
 
-      FLAG_DAY = Clockwork { june(14) }
+      FLAG_DAY         = Clockwork { june(14) }
       INDEPENDENCE_DAY = Clockwork { july(4) }
-      MEMORIAL_DAY = Clockwork { may & monday(-1) } # (last Monday of may, traditionally may 30)
-      VETERANS_DAY = Clockwork { november(11) }
+      MEMORIAL_DAY     = Clockwork { may & monday(-1) } # (last Monday of may, traditionally may 30)
+      VETERANS_DAY     = Clockwork { november(11) }
 
       THANKSGIVING = Clockwork { november & thursday(4) } # (4th Thursday of november)
-      BLACK_FRIDAY = Clockwork do |c| # (Friday after Thanksgiving Day)
-        proc { |dt| THANKSGIVING === (dt - 1) }
-      end
+      BLACK_FRIDAY = Clockwork { THANKSGIVING >> [:days, 1] } # (Friday after Thanksgiving Day)
 
       PEARL_HARBOR_REMEMBRANCE_DAY = Clockwork { december(7) }
-      FIRST_DAY_OF_KWANZAA = Clockwork { december(26) }
+      FIRST_DAY_OF_KWANZAA         = Clockwork { december(26) }
 
       # (Kwanzaa is celebrated until January 1, 2009)
 
