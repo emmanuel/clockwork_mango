@@ -122,16 +122,6 @@ module ClockworkMango
     
     module_function
     
-    # Builds a ProcPredicate using the provided block
-    # 
-    # @param [Proc] block
-    #   will be called with a Date-ish object being tested with #===
-    # @return [ClockworkMango::ProcPredicate]
-    #   a ProcPredicate configured with the provided block
-    def proc(&block)
-      ProcPredicate.new(&block)
-    end
-
     # Builds a Predicate that will match the given time of day, 
     #   at the given precision (hour, minute, or second)
     # 

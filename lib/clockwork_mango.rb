@@ -11,7 +11,6 @@ require "clockwork_mango/version"
 require "clockwork_mango/predicate"
 require "clockwork_mango/comparison_predicate"
 require "clockwork_mango/compound_predicate"
-require "clockwork_mango/proc_predicate"
 require "clockwork_mango/dsl"
 require "clockwork_mango/core_ext"
 
