@@ -101,5 +101,49 @@ module ClockworkMango
       end
     end # describe DifferencePredicate
 
+    describe OffsetPredicate do
+      let(:predicate) {
+        EqualityPredicate.new(:month, 11) &         # November
+          EqualityPredicate.new(:wday, 4) &         # Thursday
+          EqualityPredicate.new(:wday_in_month, 4)  # Fourth Thursday of the month
+      }
+
+      context "when initialized with a positive value" do
+        subject { OffsetPredicate.new(predicate, :days, 1) }
+
+        it { should be_kind_of(OffsetPredicate) }
+        it { subject.to_temporal_expression.should == [:>>, predicate.to_temporal_expression, :days, 1] }
+        it "should equal itself initialized with a singular" do
+          should == OffsetPredicate.new(predicate, :day, 1)
+        end
+        # 2010-11-25 is the 4th Thursday
+        it { should === DateTime.parse("2010-11-26") }
+      end
+
+      context "when initialized with a negative value" do
+        subject { OffsetPredicate.new(predicate, :days, -1) }
+
+        it { should be_kind_of(OffsetPredicate) }
+        it { subject.to_temporal_expression.should == [:>>, predicate.to_temporal_expression, :days, -1] }
+        it "should equal itself initialized with a singular" do
+          should == OffsetPredicate.new(predicate, :day, -1)
+        end
+        # 2010-11-25 is the 4th Thursday
+        it { should === DateTime.parse("2010-11-24") }
+      end
+
+      context "when initialized with a zero value" do
+        subject { OffsetPredicate.new(predicate, :days, 0) }
+
+        it { should be_kind_of(OffsetPredicate) }
+        it { subject.to_temporal_expression.should == [:>>, predicate.to_temporal_expression, :days, 0] }
+        it "should equal itself initialized with a singular" do
+          should == OffsetPredicate.new(predicate, :day, 0)
+        end
+        # 2010-11-25 is the 4th Thursday
+        it { should === DateTime.parse("2010-11-25") }
+      end
+    end
+
   end # describe CompoundPredicate
 end # module ClockworkMango

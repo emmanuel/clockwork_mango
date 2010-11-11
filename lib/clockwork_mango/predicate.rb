@@ -86,6 +86,19 @@ module ClockworkMango
       predicate.is_a?(Predicate) ? DifferencePredicate.new(self, predicate) : self
     end
 
+    # Offset from this predicate
+    # 
+    # @param [Array(Symbol, Numeric)] unit_value
+    #   the unit and value to offset from +self+
+    # 
+    # @return [ClockworkMango::OffsetPredicate]
+    #   the offset of +self+ and +unit_value+
+    def >>(unit_value)
+      unit, value = unit_value
+      raise ArgumentError, "expected two-element array" unless unit && value
+      OffsetPredicate.new(self, unit, value)
+    end
+
     # Gets the next occurrence of this predicate after +after+, if it recurs
     # after then.
     def next_occurrence_after(after)
