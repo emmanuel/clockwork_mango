@@ -1,5 +1,9 @@
 * Implement OffsetPredicate to handle Holidays::UnitedStates::BLACK_FRIDAY and ELECTION_DAY
 ** they are each defined as one day after a certain predicate.
+** then remove ProcPredicate, which was a bad idea in the first place
+*** they can't be serialized, which is a huge downside
+*** they have so far only been used for offsets
+*** current uses can be replaced with a simple new predicate subclass
 * Implement CompoundPredicate#next_occurrence_after
 * [DONE] Update Dsl.from to use Union of Equality and GreaterThanPredicate
 ** I think this will also make #next_occurrence feasible
