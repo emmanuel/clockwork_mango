@@ -9,12 +9,17 @@ module ClockworkMango
     # 
     # @return [Array(Symbol, Symbol, Object)]
     #   typically [operator, attribute, value]
-    def to_sexp
+    def to_temporal_expression
       []
     end
 
     def ==(other)
-      other if other.respond_to?(:to_sexp) and self.to_sexp == other.to_sexp
+      other if other.respond_to?(:to_temporal_expression) and
+        self.to_temporal_expression == other.to_temporal_expression
+    end
+
+    def inspect
+      "<#{self.class}:#{object_id.to_s(16)} temporal_expression=#{to_temporal_expression.inspect}>"
     end
 
     # Disclose which attributes this Predicate is concerned with
@@ -54,7 +59,7 @@ module ClockworkMango
     # @return [ClockworkMango::IntersectionPredicate]
     #   the intersection of +self+ and +predicate+
     def &(predicate)
-      predicate.nil? ? self : IntersectionPredicate.new(self, predicate)
+      predicate.is_a?(Predicate) ? IntersectionPredicate.new(self, predicate) : self
     end
 
     # Union self with another Predicate. The returned UnionPredicate will
@@ -66,7 +71,7 @@ module ClockworkMango
     # @return [ClockworkMango::UnionPredicate]
     #   the union of +self+ and +predicate+
     def |(predicate)
-      predicate.nil? ? self : UnionPredicate.new(self, predicate)
+      predicate.is_a?(Predicate) ? UnionPredicate.new(self, predicate) : self
     end
 
     # Subtract an Predicate from this one. The returned DifferencePredicate will
@@ -78,7 +83,7 @@ module ClockworkMango
     # @return [ClockworkMango::DifferencePredicate]
     #   the difference of +self+ and +predicate+
     def -(predicate)
-      predicate.nil? ? self : DifferencePredicate.new(self, predicate)
+      predicate.is_a?(Predicate) ? DifferencePredicate.new(self, predicate) : self
     end
 
     # Gets the next occurrence of this predicate after +after+, if it recurs

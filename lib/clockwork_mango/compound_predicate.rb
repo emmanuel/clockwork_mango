@@ -14,8 +14,8 @@ module ClockworkMango
       self.predicates.map { |p| p.values }.flatten
     end
 
-    def to_sexp
-      [operator, *self.predicates.map { |p| p.to_sexp }]
+    def to_temporal_expression
+      [operator, *self.predicates.map { |p| p.to_temporal_expression }]
     end
 
     # FIXME: implement #next_occurrence_after for CompoundPredicate and subclasses
