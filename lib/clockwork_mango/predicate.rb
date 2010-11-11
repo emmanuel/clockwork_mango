@@ -1,5 +1,11 @@
+require "clockwork_mango/loader"
+
 module ClockworkMango
   class Predicate
+    def self.load(*expression)
+      Loader.load(*expression)
+    end
+
     # Get the operator of this Predicate
     def operator
       nil

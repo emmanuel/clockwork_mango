@@ -18,6 +18,17 @@ module ClockworkMango
     let(:yweek) { EqualityPredicate.new(:day, 0) }
     let(:wday)  { EqualityPredicate.new(:wday, 3) }
 
+    describe ".load" do
+      context "when initializing with a simple expression" do
+        subject { Predicate.load(:==, :wday, 4) }
+
+        it "should return a Predicate object who's temporal expression is the same as it was initialized with" do
+          subject.to_temporal_expression.should == [:==, :wday, 4]
+          subject.should == EqualityPredicate.new(:wday, 4)
+        end
+      end
+    end
+
     describe "#inspect" do
       it "should return itself as #to_temporal_expression" do
         year.inspect.should ==
