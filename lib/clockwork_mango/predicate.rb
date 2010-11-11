@@ -1,5 +1,22 @@
 module ClockworkMango
   class Predicate
+    # Get the operator of this Predicate
+    def operator
+      nil
+    end
+
+    # Get a representation of this Predicate as an s-expression
+    # 
+    # @return [Array(Symbol, Symbol, Object)]
+    #   typically [operator, attribute, value]
+    def to_sexp
+      []
+    end
+
+    def ==(other)
+      other if other.respond_to?(:to_sexp) and self.to_sexp == other.to_sexp
+    end
+
     # Disclose which attributes this Predicate is concerned with
     # 
     # @return [Array(Symbol)]
@@ -68,16 +85,6 @@ module ClockworkMango
     # after then.
     def next_occurrence_after(after)
       nil
-    end
-
-    # Get the operator of this Predicate
-    def operator
-      nil
-    end
-
-    # Get a representation of this Predicate as an s-expression
-    def to_sexp
-      [operator]
     end
 
   end
