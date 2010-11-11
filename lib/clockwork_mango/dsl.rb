@@ -56,17 +56,17 @@ module ClockworkMango
     # Build a predicate that matches the named month (and optional month day)
     # 
     # @param [Integer] month_day (optional)
-    #   define intersecting :mday EqualityPredicate if provided.
-    #   If no month_day value is provided, no :mday predicate will be intersected
+    #   define intersecting :day EqualityPredicate if provided.
+    #   If no month_day value is provided, no :day predicate will be intersected
     # 
     # @return [ClockworkMango::EqualityPredicate, ClockworkMango::IntersectionPredicate]
     #   a :month EqualityPredicate (if no month_day provided), or
-    #   an IntersectionPredicate of :month and :mday (if month_day provided)
+    #   an IntersectionPredicate of :month and :day (if month_day provided)
     MONTHS.each_with_index do |month, index|
       module_eval <<-RUBY, __FILE__, __LINE__
         def #{month}(month_day=nil)
           if month_day
-            month(#{index + 1}) & mday(month_day)
+            month(#{index + 1}) & day(month_day)
           else
             month(#{index + 1})
           end
@@ -137,7 +137,7 @@ module ClockworkMango
     # 
     #   now = Time.now
     #   predicate = ClockworkMango::Dsl.at(9,15)
-    #   predicate === Time.utc(now.year, now.month, now.mday, 9, 15)  #=> true
+    #   predicate === Time.utc(now.year, now.month, now.day, 9, 15)  #=> true
     # 
     # @param [Integer[, Integer[, Integer]]] time_array
     #   an array of hour[, minute[, second]] Integer values

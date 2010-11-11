@@ -9,20 +9,20 @@ module ClockworkMango
 
       @year  = ComparisonPredicate.new(:year, 2008)
       @month = ComparisonPredicate.new(:month, 9)
-      @mday  = ComparisonPredicate.new(:mday, 24)
+      @day  = ComparisonPredicate.new(:day, 24)
 
       @hour = ComparisonPredicate.new(:hour, 18)
       @min  = ComparisonPredicate.new(:min, 30)
       @sec  = ComparisonPredicate.new(:sec, 15)
 
       @yday  = ComparisonPredicate.new(:yday, 268)
-      @yweek = ComparisonPredicate.new(:mday, 0)
+      @yweek = ComparisonPredicate.new(:day, 0)
       @wday  = ComparisonPredicate.new(:wday, 3)
     end
 
     describe "Predicate" do
       before :all do
-        @sep_24 = IntersectionPredicate.new(@year, @mday)
+        @sep_24 = IntersectionPredicate.new(@year, @day)
       end
 
       it "should report the attribute(s) it asserts wrong"

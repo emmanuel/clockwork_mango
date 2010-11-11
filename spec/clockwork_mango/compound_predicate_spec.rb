@@ -8,18 +8,18 @@ module ClockworkMango
 
     let(:year_08) { EqualityPredicate.new(:year, 2008) }
     let(:month)   { EqualityPredicate.new(:month, 9) }
-    let(:mday)    { EqualityPredicate.new(:mday, 24) }
+    let(:day)    { EqualityPredicate.new(:day, 24) }
 
     let(:hour) { EqualityPredicate.new(:hour, 18) }
     let(:min)  { EqualityPredicate.new(:min, 30) }
     let(:sec)  { EqualityPredicate.new(:sec, 15) }
 
     let(:yday)  { EqualityPredicate.new(:yday, 268) }
-    let(:yweek) { EqualityPredicate.new(:mday, 0) }
+    let(:yweek) { EqualityPredicate.new(:day, 0) }
     let(:wday)  { EqualityPredicate.new(:wday, 3) }
 
     describe IntersectionPredicate do
-      subject { IntersectionPredicate.new(year_08, mday) }
+      subject { IntersectionPredicate.new(year_08, day) }
 
       it "should match Times when both expressions match" do
         should === time
@@ -94,7 +94,9 @@ module ClockworkMango
         should === date
       end
 
-      it "should not match Dates when the 1st expression matches and the 2nd does, too" do
+      it "should not match Dates when the 1st expression matches and the 2nd does, too"
+
+      it "should not match Dates when the 1st expression doesn't match and the 2nd one does" do
         should_not === (date - 365)
       end
     end # describe DifferencePredicate

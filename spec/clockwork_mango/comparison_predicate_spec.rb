@@ -149,49 +149,49 @@ module ClockworkMango
       let(:date)      { start.to_date }
       let(:date_time) { start.to_datetime }
       let(:time)      { start }
-      let(:mday_1)    { EqualityPredicate.new(:day, 1) }
-      let(:mday_29)   { EqualityPredicate.new(:day, 29) }
+      let(:day_1)    { EqualityPredicate.new(:day, 1) }
+      let(:day_29)   { EqualityPredicate.new(:day, 29) }
 
       context "with no arguments" do
         it "should return a single Time object" do
-          mday_1.next_occurrence.should be_an_instance_of(Time)
+          day_1.next_occurrence.should be_an_instance_of(Time)
         end
 
         it "should return a value that matches the receiver" do
-          mday_1.should === mday_1.next_occurrence
+          day_1.should === day_1.next_occurrence
         end
       end
 
       context "with a single Time argument" do
         it "should return an object representing the next occurrence of the receiver" do
           next_occurrence = Time.utc(start.year, start.month + 1, 1)
-          mday_1.next_occurrence_after(start).should == next_occurrence
+          day_1.next_occurrence_after(start).should == next_occurrence
         end
 
         it "should return a Time object that occurs after its argument" do
-          mday_1.next_occurrence_after(start).should > start
+          day_1.next_occurrence_after(start).should > start
         end
 
         it "should return a Time object in the UTC zone with no argument" do
-          mday_1.next_occurrence.zone.should == "UTC"
+          day_1.next_occurrence.zone.should == "UTC"
         end
 
         it "should return a Time object with the same zone as its argument" do
           time_in_utc = Time.parse("Sun Feb 01 00:00:00 UTC 2004")
-          mday_1.next_occurrence_after(time_in_utc).zone.should == time_in_utc.zone
+          day_1.next_occurrence_after(time_in_utc).zone.should == time_in_utc.zone
           local = Time.parse("Sun Feb 01 00:00:00 -0800 2004")
-          mday_1.next_occurrence_after(local).zone.should == local.zone
+          day_1.next_occurrence_after(local).zone.should == local.zone
         end
       end
 
       it "should return a temporal object of the same class as its argument" do
-        mday_1.next_occurrence_after(date).should      be_instance_of(Date)
-        mday_1.next_occurrence_after(date_time).should be_instance_of(DateTime)
-        mday_1.next_occurrence_after(time).should      be_instance_of(Time)
+        day_1.next_occurrence_after(date).should      be_instance_of(Date)
+        day_1.next_occurrence_after(date_time).should be_instance_of(DateTime)
+        day_1.next_occurrence_after(time).should      be_instance_of(Time)
       end
 
       it "should return a value that matches the receiver" do
-        mday_1.should === mday_1.next_occurrence_after(start)
+        day_1.should === day_1.next_occurrence_after(start)
       end
 
       context "when @attribute is :sec" do
@@ -248,14 +248,14 @@ module ClockworkMango
         end
       end
 
-      context "when @attribute is :day (or :mday)" do
+      context "when @attribute is :day" do
         it "should return 'Sun Feb 29 00:00:00 UTC 2004' when asked for the next 29th day after 'Sun Feb 01 00:00:00 UTC 2004'" do
-          mday_29.next_occurrence_after(start).should == next_29th
+          day_29.next_occurrence_after(start).should == next_29th
         end
 
         it "should reset hours, minutes, and seconds when advancing day" do
           start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
-          mday_29.next_occurrence_after(start).should == next_29th
+          day_29.next_occurrence_after(start).should == next_29th
         end
 
         it "should return a time within the current month when value is greater than start.day" do
@@ -270,8 +270,8 @@ module ClockworkMango
           start = Time.parse("Mon Feb 02 12:15:12 UTC 2004")
           next_time = Time.parse("Mon Mar 01 00:00:00 UTC 2004")
           start.should < next_time
-          start.mday.should > next_time.day
-          mday_1.next_occurrence_after(start).should == next_time
+          start.day.should > next_time.day
+          day_1.next_occurrence_after(start).should == next_time
         end
       end
 
