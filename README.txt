@@ -15,7 +15,7 @@ differs significantly from the one that Fowler describes there.
 == FEATURES/PROBLEMS:
 
 * Describe event recurrence with a simple DSL.
-* Simple, clean, well-specified (TODO) codebase.
+* Simple, clean, well-spec'd codebase.
 * Unified implementation for recurrence, Precisioned Dates (TODO), and 
   Temporal Ranges (TODO).
 

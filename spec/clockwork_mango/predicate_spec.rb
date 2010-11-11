@@ -26,15 +26,33 @@ module ClockworkMango
     end # describe "#inspect"
 
     describe "#|" do
-      
+      subject { year | Dsl.month(0..6) }
+
+      it { should be_kind_of(UnionPredicate) }
+
+      it "should be unioned with the receiver" do
+        should == UnionPredicate.new(year, Dsl.month(0..6))
+      end
     end # describe "#|"
 
     describe "#&" do
-      
+      subject { year & Dsl.month(0..6) }
+
+      it { should be_kind_of(IntersectionPredicate) }
+
+      it "should be intersected with the receiver" do
+        should == IntersectionPredicate.new(year, Dsl.month(0..6))
+      end
     end # describe "#&"
 
     describe "#-" do
-      
+      subject { year - Dsl.month(0..6) }
+
+      it { should be_kind_of(DifferencePredicate) }
+
+      it "should be a DifferencePredicate of the receiver and the arg" do
+        should == DifferencePredicate.new(year, Dsl.month(0..6))
+      end
     end # describe "#-"
 
     describe "#>>" do
