@@ -1,13 +1,13 @@
-= Clockwork
+= ClockworkMango
 
 * http://clockwork.rubyforge.org
 
 == DESCRIPTION:
 
-Briefly, Clockwork simplifies the process of describing many types of 
+Briefly, ClockworkMango simplifies the process of describing many types of 
 recurrence: think Cron expressions in plain English, but that's not all!
 
-Clockwork provides an implementation of Temporal Expressions, (roughly) as 
+ClockworkMango provides an implementation of Temporal Expressions, (roughly) as 
 described by Martin Fowler in his paper "Recurring Events for Calendars" 
 (http://martinfowler.com/apsupp/recurring.pdf). The implementation itself 
 differs significantly from the one that Fowler describes there.
@@ -22,7 +22,7 @@ differs significantly from the one that Fowler describes there.
 == SYNOPSIS:
 
 The main interface is the Clockwork method, which accepts a block 
-that defines the returned Clockwork::Predicate object. The most basic 
+that defines the returned ClockworkMango::Predicate object. The most basic 
 Predicate matches on a single attribute (a ComparisonPredicate). Predicate builder 
 methods are named after the attribute they assert, and accept integers or 
 ranges.
@@ -49,14 +49,13 @@ operations &, |, and -.
   end
 
 The block argument is optional. If omitted, the block will be instance_eval'd
-in the context of the Predicate builder (Clockwork::Dsl). The above could be:
+in the context of the Predicate builder (ClockworkMango::Dsl). The above could be:
 
   not_work  = Clockwork do
     wday(0) | wday(6) | (wday(1..5) - hour(9..17))
   end
 
-Named shortcuts for weekdays and months are provided (currently only singular 
-forms, but plurals are coming soon).
+Named shortcuts for weekdays and months are provided (singular or plural).
 
   mon_wed_fri = Clockwork { |c| c.mondays | c.wednesdays | c.fridays }
   christmas   = Clockwork { |c| c.december & c.mday(25) }
@@ -106,7 +105,7 @@ the above Predicate could be simplified as follows:
       sundays.from([12,00]..[14,00])
   end
 
-So, what do you do with these objects? Clockwork::Predicate objects provide 
+So, what do you do with these objects? ClockworkMango::Predicate objects provide 
 a #=== method to test inclusion of a Date, Time, DateTime, or other similar 
 object. Any object that quacks like a Time object can be tested: attributes 
 #year, #month, #mday, #hour, #min, #sec, and #usec, as well as the previously 
@@ -134,14 +133,14 @@ the "when christmas" clause would fire repeatedly throughout the day
 (whenever tested). You have to take any necessary steps to prevent multiple 
 executions of your code.
 
-Clockwork includes a module of expressions for commonly observed holidays 
+ClockworkMango includes a module of expressions for commonly observed holidays 
 (fairly United States-centric, at this point) to get you started nice and easy. 
-The module is called Clockwork::Holidays, and it's a separate require:
+The module is called ClockworkMango::Holidays, and it's a separate require:
 
   require 'clockwork'
   require 'clockwork/holidays'
   
-  include Clockwork::Holidays::UnitedStates
+  include ClockworkMango::Holidays::UnitedStates
   
   case Date.today
   when MOTHERS_DAY : # call your mom
