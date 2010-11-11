@@ -1,19 +1,21 @@
 module ClockworkMango
   class CompoundPredicate < Predicate
-    def initialize(left, right)
-      @predicates = [left, right]
+    attr_reader :predicates
+
+    def initialize(*predicates)
+      @predicates = predicates
     end
 
     def attributes
-      @predicates.map { |p| p.attributes }.flatten
+      self.predicates.map { |p| p.attributes }.flatten
     end
 
     def values
-      @predicates.map { |p| p.values }.flatten
+      self.predicates.map { |p| p.values }.flatten
     end
 
     def to_sexp
-      [operator, *@predicates.map { |p| p.to_sexp }]
+      [operator, *self.predicates.map { |p| p.to_sexp }]
     end
 
     # FIXME: implement #next_occurrence_after for CompoundPredicate and subclasses
@@ -25,14 +27,15 @@ module ClockworkMango
 
   class UnionPredicate < CompoundPredicate
     def |(predicate)
-      unless predicate.nil?
-        @predicates << predicate
+      if predicate.is_a?(Predicate)
+        UnionPredicate.new(*(self.predicates.dup << predicate))
+      else
+        predicate
       end
-      self
     end
 
     def ===(other)
-      @predicates.any? { |p| p === other }
+      self.predicates.any? { |p| p === other }
     end
 
     def operator
@@ -43,10 +46,11 @@ module ClockworkMango
 
   class IntersectionPredicate < CompoundPredicate
     def &(predicate)
-      unless predicate.nil?
-        @predicates << predicate
+      if predicate.is_a?(Predicate)
+        IntersectionPredicate.new(*(self.predicates.dup << predicate))
+      else
+        predicate
       end
-      self
     end
 
     def ===(other)
@@ -60,18 +64,18 @@ module ClockworkMango
   end # class IntersectionPredicate
 
   class DifferencePredicate < CompoundPredicate
-    def initialize(left, right)
-      @positive = left
-      @negatives = Array(right)
+    def initialize(positive, *negatives)
+      @positive = positive
+      @negatives = negatives
       @predicates = [@positive, *@negatives]
     end
 
     def -(predicate)
-      unless predicate.nil?
-        @negatives << predicate
-        @predicates << predicate
+      if predicate.is_a?(Predicate)
+        DifferencePredicate.new(@positive, @negatives.dup << predicate)
+      else
+        self
       end
-      self
     end
 
     def ===(other)
