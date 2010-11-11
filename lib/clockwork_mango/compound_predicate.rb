@@ -54,7 +54,7 @@ module ClockworkMango
     end
 
     def ===(other)
-      @predicates.all? { |p| p === other }
+      self.predicates.all? { |p| p === other }
     end
 
     def operator
@@ -67,14 +67,14 @@ module ClockworkMango
     def initialize(positive, *negatives)
       @positive = positive
       @negatives = negatives
-      @predicates = [@positive, *@negatives]
+      @predicates = [positive] + negatives
     end
 
     def -(predicate)
       if predicate.is_a?(Predicate)
-        DifferencePredicate.new(@positive, @negatives.dup << predicate)
+        DifferencePredicate.new(@positive, *(@negatives + [predicate]))
       else
-        self
+        predicate
       end
     end
 
