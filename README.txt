@@ -22,8 +22,8 @@ differs significantly from the one that Fowler describes there.
 == SYNOPSIS:
 
 The main interface is the Clockwork method, which accepts a block 
-that defines the returned Clockwork::Expression object. The most basic 
-Expression matches on a single attribute (an Assertion). Assertion builder 
+that defines the returned Clockwork::Predicate object. The most basic 
+Predicate matches on a single attribute (a ComparisonPredicate). Predicate builder 
 methods are named after the attribute they assert, and accept integers or 
 ranges.
 
@@ -32,12 +32,12 @@ ranges.
   nine_to_five = Clockwork { |c| c.hour(9..17) }
   this_year    = Clockwork { |c| c.year(Time.now.year) }
 
-Single value assertions and ranges are not terribly useful on their own, so 
+Single value assertions and ranges are only mildly useful on their own, so 
 they can be composed into (arbitrarily complex) expressions using the set 
 operations &, |, and -. 
  * Intersections (created with "&") match when _all_ of their members match. 
  * Unions (created with "|") match when _any_ of their members match.
- * Differences (created with "-") match when the first Expression (receiver) 
+ * Differences (created with "-") match when the first Predicate (receiver) 
    matches, and the second expression (argument) does not.
 
   now = Time.now
@@ -48,19 +48,26 @@ operations &, |, and -.
     c.wday(0) | c.wday(6) | (c.wday(1..5) - c.hour(9..17))
   end
 
+The block argument is optional. If omitted, the block will be instance_eval'd
+in the context of the Predicate builder (Clockwork::Dsl). The above could be:
+
+  not_work  = Clockwork do
+    wday(0) | wday(6) | (wday(1..5) - hour(9..17))
+  end
+
 Named shortcuts for weekdays and months are provided (currently only singular 
 forms, but plurals are coming soon).
 
   mon_wed_fri = Clockwork { |c| c.mondays | c.wednesdays | c.fridays }
   christmas   = Clockwork { |c| c.december & c.mday(25) }
 
-OR with the optional mday arg to month
+OR omit the optional block arg, and provide the optional _mday_ arg to month:
 
   christmas   = Clockwork { december(25) }
 
 Some additional methods are available to deal with particular types of dates: 
 #yweek (week of the year, similar to DateTime#cweek), #wday_in_month (ordinal 
-occurrence of weekday in month, eg. Thanksgiving in the US: the 3rd thursday 
+occurrence of weekday in month, eg. Thanksgiving in the US: the 4th Thursday 
 of November).
 
   seattle_art_walk = Clockwork { |c| c.thursday & c.wday_in_month(1) }
@@ -76,11 +83,12 @@ which accept hours, minutes and optionally seconds as arrays of integers in
 24 hour format (hour, minute[, second]):
 
   work_week    = Clockwork { |c| c.from([9,15]..[17,45]) & c.wday(1..5) }
-  back_to_work = Clockwork { |c| c.at([9,15]) & c.mondays }
+  back_to_work = Clockwork { |c| c.at([9,15]) & c.monday }
 
-OR with another shortcut
+OR with shortcuts
 
-  back_to_work = Clockwork { mondays.at(9,15) }
+  work_week    = Clockwork { wday(1..5).from([9,15]..[17,30]) }
+  back_to_work = Clockwork { monday.at(9,15) }
 
 As mentioned, expressions can be composed as needed, but be aware of 
 precedence when building complex expressions:
@@ -90,15 +98,15 @@ precedence when building complex expressions:
       (c.sundays & c.from([12,00]..[13,30]))
   end
 
-OR use a couple of shortcuts defined directly on Predicate;
+OR, using a couple of shortcuts defined directly on Predicate,
 the above Predicate could be simplified as follows:
 
   class_time = Clockwork do
-    (mondays | wednesdays | thursdays).from([19,00]..[21,30]) |
-      sundays.from([12,00]..[13,30])
+    (mondays | wednesdays | thursdays).from([19,00]..[21,00]) |
+      sundays.from([12,00]..[14,00])
   end
 
-So, what do you do with these objects? Clockwork::Expression objects provide 
+So, what do you do with these objects? Clockwork::Predicate objects provide 
 a #=== method to test inclusion of a Date, Time, DateTime, or other similar 
 object. Any object that quacks like a Time object can be tested: attributes 
 #year, #month, #mday, #hour, #min, #sec, and #usec, as well as the previously 
@@ -115,8 +123,8 @@ One possible usage is a scheduler:
     else
       # nothing happening right now
     end
-    
-    # you need Extlib or ActiveSupport for this to work
+
+    # you need ActiveSupport (or Extlib) for this to work
     sleep 15.minutes
   end
 
@@ -133,12 +141,14 @@ The module is called Clockwork::Holidays, and it's a separate require:
   require 'clockwork'
   require 'clockwork/holidays'
   
+  include Clockwork::Holidays::UnitedStates
+  
   case Date.today
-  when Clockwork::Holidays::UnitedStates::MOTHERS_DAY : # call your mom
-  when Clockwork::Holidays::UnitedStates::FATHERS_DAY : # call your dad
-  when Clockwork::Holidays::UnitedStates::EARTH_DAY : # thank the planet
-  when Clockwork::Holidays::UnitedStates::LABOR_DAY : # complain if you're at work
-  when Clockwork::Holidays::UnitedStates::ELECTION_DAY : # cast your vote
+  when MOTHERS_DAY : # call your mom
+  when FATHERS_DAY : # call your dad
+  when EARTH_DAY : # thank the planet
+  when LABOR_DAY : # complain if you're at work
+  when ELECTION_DAY : # cast your vote
   end
 
 

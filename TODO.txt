@@ -1,3 +1,5 @@
+* Implement OffsetPredicate to handle Holidays::UnitedStates::BLACK_FRIDAY and ELECTION_DAY
+** they are each defined as one day after a certain predicate.
 * Implement CompoundPredicate#next_occurrence_after
 * [DONE] Update Dsl.from to use Union of Equality and GreaterThanPredicate
 ** I think this will also make #next_occurrence feasible
