@@ -88,15 +88,14 @@ module ClockworkMango
 
   end # class DifferencePredicate
 
-  # exploring a possible factory strategy for OffsetPredicates
   class OffsetPredicate < CompoundPredicate
     def initialize(predicate, unit, value)
       unless predicate.is_a?(Predicate)
         raise ArgumentError, "expected a Predicate, got: #{predicate.inspect}"
       end
       @predicate = predicate
-      @unit = unit.to_s.pluralize.to_sym
-      @value = value
+      @unit      = unit.to_s.pluralize.to_sym
+      @value     = value
     end
 
     def predicates
@@ -104,10 +103,7 @@ module ClockworkMango
     end
 
     def ===(other)
-      if other.respond_to?(:advance) and
-        advanced = other.advance(@unit => -@value) and
-        @predicate === advanced
-
+      if other.respond_to?(:advance) and @predicate === other.advance(@unit => -@value)
         other
       else
         false
@@ -121,6 +117,6 @@ module ClockworkMango
     def operator
       :>>
     end
-  end
+  end # class OffsetPredicate
 
 end # module ClockworkMango

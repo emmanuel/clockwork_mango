@@ -1,4 +1,4 @@
-* Implement Predicate.load_temporal_express
+* Implement Predicate.load_temporal_expression
 ** create a Predicate network from a temporal expression
 * Implement CompoundPredicate#next_occurrence_after
 * [DONE] Update Dsl.from to use Union of Equality and GreaterThanPredicate
