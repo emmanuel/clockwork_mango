@@ -7,7 +7,7 @@ module ClockworkMango
         subject { Loader.load(:==, :month, 11) }
 
         it { should be_kind_of(EqualityPredicate) }
-        it { subject.to_temporal_expression.should == [:==, :month, 11] }
+        it { subject.should express([:==, :month, 11]) }
       end # describe :==
 
       describe :| do
@@ -15,7 +15,7 @@ module ClockworkMango
 
         it { should be_kind_of(UnionPredicate) }
         it "should de-serialize two sub-expressions correctly" do
-          subject.to_temporal_expression.should == [:|, [:==, :month, 11], [:==, :wday, 4]]
+          subject.should express([:|, [:==, :month, 11], [:==, :wday, 4]])
         end
 
         it "should de-serialize three sub-expressions correctly" do
@@ -30,7 +30,7 @@ module ClockworkMango
         it { should be_kind_of(IntersectionPredicate) }
 
         it "should de-serialize two sub-expressions correctly" do
-          subject.to_temporal_expression.should == [:&, [:==, :month, 11], [:==, :wday, 4]]
+          subject.should express([:&, [:==, :month, 11], [:==, :wday, 4]])
         end
 
         it "should de-serialize three sub-expressions correctly" do
@@ -44,7 +44,7 @@ module ClockworkMango
         it { should be_kind_of(OffsetPredicate) }
 
         it "should de-serialize one sub-expression correctly" do
-          subject.to_temporal_expression.should == [:>>, [:==, :month, 11], :wdays, 4]
+          subject.should express([:>>, [:==, :month, 11], :wdays, 4])
         end
       end # describe :|
     end # context "with simple expressions"
@@ -54,8 +54,7 @@ module ClockworkMango
         subject { Loader.load(:|, [:>, :hour, 9], [:&, [:==, :hour, 9], [:|, [:>, :min, 15], [:&, [:==, :min, 15], [:>=, :sec, 30]]]]) }
 
         it "should de-seriealize correctly" do
-          subject.to_temporal_expression.should == 
-            [:|, [:>, :hour, 9], [:&, [:==, :hour, 9], [:|, [:>, :min, 15], [:&, [:==, :min, 15], [:>=, :sec, 30]]]]]
+          subject.should express([:|, [:>, :hour, 9], [:&, [:==, :hour, 9], [:|, [:>, :min, 15], [:&, [:==, :min, 15], [:>=, :sec, 30]]]]])
         end
       end # context "when nested one layer deep"
     end # context "with complex expressions"

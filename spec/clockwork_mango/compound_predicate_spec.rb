@@ -112,7 +112,7 @@ module ClockworkMango
         subject { OffsetPredicate.new(predicate, :days, 1) }
 
         it { should be_kind_of(OffsetPredicate) }
-        it { subject.to_temporal_expression.should == [:>>, predicate.to_temporal_expression, :days, 1] }
+        it { subject.should express([:>>, predicate.to_temporal_expression, :days, 1]) }
         it "should equal itself initialized with a singular" do
           should == OffsetPredicate.new(predicate, :day, 1)
         end
@@ -124,7 +124,7 @@ module ClockworkMango
         subject { OffsetPredicate.new(predicate, :days, -1) }
 
         it { should be_kind_of(OffsetPredicate) }
-        it { subject.to_temporal_expression.should == [:>>, predicate.to_temporal_expression, :days, -1] }
+        it { subject.should express([:>>, predicate.to_temporal_expression, :days, -1]) }
         it "should equal itself initialized with a singular" do
           should == OffsetPredicate.new(predicate, :day, -1)
         end
@@ -136,7 +136,7 @@ module ClockworkMango
         subject { OffsetPredicate.new(predicate, :days, 0) }
 
         it { should be_kind_of(OffsetPredicate) }
-        it { subject.to_temporal_expression.should == [:>>, predicate.to_temporal_expression, :days, 0] }
+        it { subject.should express([:>>, predicate.to_temporal_expression, :days, 0]) }
         it "should equal itself initialized with a singular" do
           should == OffsetPredicate.new(predicate, :day, 0)
         end

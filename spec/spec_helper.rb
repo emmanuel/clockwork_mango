@@ -26,3 +26,16 @@ VALUES = {
   :wday  => 3,
   :wday_in_month => 4,
 }
+
+RSpec::Matchers.define :express do |expression|
+  if expression.respond_to?(:to_temporal_expression)
+    expression = expression.to_temporal_expression
+  end
+  match do |predicate|
+    if predicate.respond_to?(:to_temporal_expression)
+      predicate.to_temporal_expression.should == expression
+    else
+      predicate.should == expression
+    end
+  end
+end

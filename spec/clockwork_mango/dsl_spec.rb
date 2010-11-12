@@ -9,7 +9,7 @@ module ClockworkMango
           subject.should be_kind_of(ComparisonPredicate)
           subject.attribute.should == attribute
           subject.value.should     == value
-          subject.to_temporal_expression.should == [:==, attribute, value]
+          subject.should express([:==, attribute, value])
         end
       end
     end
@@ -22,11 +22,11 @@ module ClockworkMango
           it "should return the expected EqualityPredicate" do
             subject = Dsl.send(weekday)
             subject.should be_kind_of(EqualityPredicate)
-            subject.to_temporal_expression.should == [:==, :wday, value]
+            subject.should express([:==, :wday, value])
           end
 
           it "should be generated with plural :#{weekday}s" do
-            Dsl.send("#{weekday}s").to_temporal_expression.should == [:==, :wday, value]
+            Dsl.send("#{weekday}s").should express([:==, :wday, value])
           end
 
           it "should accept an Integer argument which defines an intersecting :wday_in_month EqualityPredicate" do
@@ -34,8 +34,7 @@ module ClockworkMango
             subject.should be_kind_of(IntersectionPredicate)
             subject.attributes.should == [:wday, :wday_in_month]
             subject.values.should     == [index, 1]
-            subject.to_temporal_expression.should ==
-              [:&, [:==, :wday, index], [:==, :wday_in_month, 1]]
+            subject.should express([:&, [:==, :wday, index], [:==, :wday_in_month, 1]])
           end
 
           it "should accept a Symbol argument which defines an intersecting :wday_in_month EqualityPredicate" do
@@ -43,8 +42,7 @@ module ClockworkMango
             subject.should be_kind_of(IntersectionPredicate)
             subject.attributes.should == [:wday, :wday_in_month]
             subject.values.should     == [index, 2]
-            subject.to_temporal_expression.should ==
-              [:&, [:==, :wday, index], [:==, :wday_in_month, 2]]
+            subject.should express([:&, [:==, :wday, index], [:==, :wday_in_month, 2]])
           end
         end # describe Dsl.#{weekday}s
       end
@@ -60,7 +58,7 @@ module ClockworkMango
           subject.should be_kind_of(EqualityPredicate)
           subject.attribute.should == :month
           subject.value.should     == value
-          subject.to_temporal_expression.should == [:==, :month, value]
+          subject.should express([:==, :month, value])
         end
       end
     end
@@ -69,20 +67,19 @@ module ClockworkMango
       it "should return an :hour EqualityPredicate if one element in array" do
         subject = Dsl.at(9)
         subject.should be_kind_of(EqualityPredicate)
-        subject.to_temporal_expression.should == [:==, :hour, 9]
+        subject.should express([:==, :hour, 9])
       end
 
       it "should return an IntersectionPredicate of :hour, :min EqualityPredicates with two elements" do
         subject = Dsl.at(9,15)
         subject.should be_kind_of(IntersectionPredicate)
-        subject.to_temporal_expression.should == [:&, [:==, :hour, 9], [:==, :min, 15]]
+        subject.should express([:&, [:==, :hour, 9], [:==, :min, 15]])
       end
 
       it "should return an IntersectionPredicate of :hour, :min, :sec EqualityPredicates with three elements" do
         subject = Dsl.at(9,15,30)
         subject.should be_kind_of(IntersectionPredicate)
-        subject.to_temporal_expression.should ==
-          [:&, [:==, :hour, 9], [:==, :min, 15], [:==, :sec, 30]]
+        subject.should express([:&, [:==, :hour, 9], [:==, :min, 15], [:==, :sec, 30]])
       end
     end
 
@@ -91,7 +88,7 @@ module ClockworkMango
         it "should return a GreaterThanOrEqualPredicate" do
           subject = Dsl.from(9)
           subject.should be_kind_of(GreaterThanOrEqualPredicate)
-          subject.to_temporal_expression.should == [:>=, :hour, 9]
+          subject.should express([:>=, :hour, 9])
         end
       end
 
@@ -99,8 +96,7 @@ module ClockworkMango
         it "should return a UnionPredicate of EqualityPredicate and GreaterThanPredicate" do
           subject = Dsl.from(9,15)
           subject.should be_kind_of(UnionPredicate)
-          subject.to_temporal_expression.should ==
-            [:|, [:>, :hour, 9], [:&, [:==, :hour, 9], [:>=, :min, 15]]]
+          subject.should express([:|, [:>, :hour, 9], [:&, [:==, :hour, 9], [:>=, :min, 15]]])
         end
       end
 
@@ -108,8 +104,7 @@ module ClockworkMango
         it "should return a UnionPredicate of EqualityPredicate and GreaterThanPredicate" do
           subject = Dsl.from(9,15,30)
           subject.should be_kind_of(UnionPredicate)
-          subject.to_temporal_expression.should ==
-            [:|, [:>, :hour, 9], [:&, [:==, :hour, 9], [:|, [:>, :min, 15], [:&, [:==, :min, 15], [:>=, :sec, 30]]]]]
+          subject.should express([:|, [:>, :hour, 9], [:&, [:==, :hour, 9], [:|, [:>, :min, 15], [:&, [:==, :min, 15], [:>=, :sec, 30]]]]])
         end
       end
 
@@ -119,15 +114,13 @@ module ClockworkMango
             it "should return a UnionPredicate of :hour EqualityPredicates if one element in array" do
               subject = Dsl.from([9]..[12,30])
               subject.should be_kind_of(UnionPredicate)
-              subject.to_temporal_expression.should ==
-                [:|, [:include?, :hour, 9..11], [:&, [:==, :hour, 12], [:include?, :min, 0..30]]]
+              subject.should express([:|, [:include?, :hour, 9..11], [:&, [:==, :hour, 12], [:include?, :min, 0..30]]])
             end
 
             it "should return a UnionPredicate of :hour EqualityPredicates if two elements in array" do
               subject = Dsl.from([9,30]..[12])
               subject.should be_kind_of(UnionPredicate)
-              subject.to_temporal_expression.should ==
-                [:|, [:&, [:==, :hour, 9], [:include?, :min, 30..59]], [:include?, :hour, 10..12]]
+              subject.should express([:|, [:&, [:==, :hour, 9], [:include?, :min, 30..59]], [:include?, :hour, 10..12]])
             end
           end
 
@@ -135,21 +128,19 @@ module ClockworkMango
             it "should return an EqualityPredicate on :hour if one element in array" do
               subject = Dsl.from([9]..[12])
               subject.should be_kind_of(InclusionPredicate)
-              subject.to_temporal_expression.should == [:include?, :hour, 9..12]
+              subject.should express([:include?, :hour, 9..12])
             end
 
             it "should return a UnionPredicate of :hour EqualityPredicates with two elements in array" do
               subject = Dsl.from([9,30]..[12,15])
               subject.should be_kind_of(UnionPredicate)
-              subject.to_temporal_expression.should ==
-                [:|, [:&, [:==, :hour, 9], [:include?, :min, 30..59]], [:include?, :hour, 10..11], [:&, [:==, :hour, 12], [:include?, :min, 0..15]]]
+              subject.should express([:|, [:&, [:==, :hour, 9], [:include?, :min, 30..59]], [:include?, :hour, 10..11], [:&, [:==, :hour, 12], [:include?, :min, 0..15]]])
             end
 
             it "should return an IntersectionPredicate of :hour, :min, :sec EqualityPredicates with three elements" do
               subject = Dsl.from([9,15,30]..[14,45,5])
               subject.should be_kind_of(UnionPredicate)
-              subject.to_temporal_expression.should ==
-                [:|, [:&, [:==, :hour, 9], [:|, [:include?, :min, 16..59], [:&, [:==, :min, 15], [:include?, :sec, 30..60]]]], [:include?, :hour, 10..13], [:&, [:==, :hour, 14], [:|, [:include?, :min, 0..44], [:&, [:==, :min, 45], [:include?, :sec, 0..5]]]]]
+              subject.should express([:|, [:&, [:==, :hour, 9], [:|, [:include?, :min, 16..59], [:&, [:==, :min, 15], [:include?, :sec, 30..60]]]], [:include?, :hour, 10..13], [:&, [:==, :hour, 14], [:|, [:include?, :min, 0..44], [:&, [:==, :min, 45], [:include?, :sec, 0..5]]]]])
             end
           end
         end
@@ -159,15 +150,13 @@ module ClockworkMango
             it "should return a UnionPredicate of :hour EqualityPredicates if one element in array" do
               subject = Dsl.from([19]..[6,30])
               subject.should be_kind_of(UnionPredicate)
-              subject.to_temporal_expression.should ==
-                [:|, [:include?, :hour, 19..23], [:include?, :hour, 0..5], [:&, [:==, :hour, 6], [:include?, :min, 0..30]]]
+              subject.should express([:|, [:include?, :hour, 19..23], [:include?, :hour, 0..5], [:&, [:==, :hour, 6], [:include?, :min, 0..30]]])
             end
 
             it "should return a UnionPredicate of :hour EqualityPredicates if two elements in array" do
               subject = Dsl.from([19,30]..[6])
               subject.should be_kind_of(UnionPredicate)
-              subject.to_temporal_expression.should ==
-                [:|, [:include?, :hour, 20..23], [:include?, :hour, 0..6], [:&, [:==, :hour, 19], [:include?, :min, 30..59]]]
+              subject.should express([:|, [:include?, :hour, 20..23], [:include?, :hour, 0..6], [:&, [:==, :hour, 19], [:include?, :min, 30..59]]])
             end
           end
 
@@ -175,22 +164,19 @@ module ClockworkMango
             it "should return a UnionPredicate of :hour, :min, :sec EqualityPredicates with three elements" do
               subject = Dsl.from([21]..[4])
               subject.should be_kind_of(UnionPredicate)
-              subject.to_temporal_expression.should ==
-                [:|, [:include?, :hour, 21..23], [:include?, :hour, 0..4]]
+              subject.should express([:|, [:include?, :hour, 21..23], [:include?, :hour, 0..4]])
             end
 
             it "should return a UnionPredicate of :hour, :min, :sec EqualityPredicates with three elements" do
               subject = Dsl.from([21,15]..[4,45])
               subject.should be_kind_of(UnionPredicate)
-              subject.to_temporal_expression.should ==
-                [:|, [:&, [:==, :hour, 21], [:include?, :min, 15..59]], [:|, [:include?, :hour, 0..3], [:include?, :hour, 22..23]], [:&, [:==, :hour, 4], [:include?, :min, 0..45]]]
+              subject.should express([:|, [:&, [:==, :hour, 21], [:include?, :min, 15..59]], [:|, [:include?, :hour, 0..3], [:include?, :hour, 22..23]], [:&, [:==, :hour, 4], [:include?, :min, 0..45]]])
             end
 
             it "should return a UnionPredicate of :hour, :min, :sec EqualityPredicates with three elements" do
               subject = Dsl.from([21,15,30]..[4,45,25])
               subject.should be_kind_of(UnionPredicate)
-              subject.to_temporal_expression.should ==
-                [:|, [:&, [:==, :hour, 21], [:|, [:include?, :min, 16..59], [:&, [:==, :min, 15], [:include?, :sec, 30..60]]]], [:|, [:include?, :hour, 0..3], [:include?, :hour, 22..23]], [:&, [:==, :hour, 4], [:|, [:include?, :min, 0..44], [:&, [:==, :min, 45], [:include?, :sec, 0..25]]]]]
+              subject.should express([:|, [:&, [:==, :hour, 21], [:|, [:include?, :min, 16..59], [:&, [:==, :min, 15], [:include?, :sec, 30..60]]]], [:|, [:include?, :hour, 0..3], [:include?, :hour, 22..23]], [:&, [:==, :hour, 4], [:|, [:include?, :min, 0..44], [:&, [:==, :min, 45], [:include?, :sec, 0..25]]]]])
             end
           end
         end
@@ -202,7 +188,7 @@ module ClockworkMango
         it "should return a LessThanOrEqualPredicate" do
           subject = Dsl.until(9)
           subject.should be_kind_of(LessThanOrEqualPredicate)
-          subject.to_temporal_expression.should == [:<=, :hour, 9]
+          subject.should express([:<=, :hour, 9])
         end
       end
 
@@ -210,8 +196,7 @@ module ClockworkMango
         it "should return a UnionPredicate of EqualityPredicate and LessThanPredicate" do
           subject = Dsl.until(9,30)
           subject.should be_kind_of(UnionPredicate)
-          subject.to_temporal_expression.should ==
-            [:|, [:<, :hour, 9], [:&, [:==, :hour, 9], [:<=, :min, 30]]]
+          subject.should express([:|, [:<, :hour, 9], [:&, [:==, :hour, 9], [:<=, :min, 30]]])
         end
       end
 
@@ -219,8 +204,7 @@ module ClockworkMango
         it "should return a UnionPredicate of EqualityPredicate and LessThanPredicate" do
           subject = Dsl.until(9,30,15)
           subject.should be_kind_of(UnionPredicate)
-          subject.to_temporal_expression.should ==
-            [:|, [:<, :hour, 9], [:&, [:==, :hour, 9], [:|, [:<, :min, 30], [:&, [:==, :min, 30], [:<=, :sec, 15]]]]]
+          subject.should express([:|, [:<, :hour, 9], [:&, [:==, :hour, 9], [:|, [:<, :min, 30], [:&, [:==, :min, 30], [:<=, :sec, 15]]]]])
         end
       end
     end # describe "#until"
@@ -231,8 +215,7 @@ module ClockworkMango
       it "should return IntersectionPredicate" do
         subject = predicate.from([19,00]..[21,30])
         subject.should be_kind_of(IntersectionPredicate)
-        subject.to_temporal_expression.should ==
-          [:&, [:==, :wday, 1], [:|, [:&, [:==, :hour, 19], [:include?, :min, 00..59]], [:==, :hour, 20], [:&, [:==, :hour, 21], [:include?, :min, 0..30]]]]
+        subject.should express([:&, [:==, :wday, 1], [:|, [:&, [:==, :hour, 19], [:include?, :min, 00..59]], [:==, :hour, 20], [:&, [:==, :hour, 21], [:include?, :min, 0..30]]]])
       end
     end
 
@@ -242,8 +225,7 @@ module ClockworkMango
       it "should return IntersectionPredicate" do
         subject = predicate.at(19,00)
         subject.should be_kind_of(IntersectionPredicate)
-        subject.to_temporal_expression.should ==
-          [:&, [:==, :wday, 1], [:&, [:==, :hour, 19], [:==, :min, 0]]]
+        subject.should express([:&, [:==, :wday, 1], [:&, [:==, :hour, 19], [:==, :min, 0]]])
       end
     end
 

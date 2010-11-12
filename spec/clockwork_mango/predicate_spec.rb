@@ -23,7 +23,7 @@ module ClockworkMango
         subject { Predicate.load(:==, :wday, 4) }
 
         it "should return a Predicate object who's temporal expression is the same as it was initialized with" do
-          subject.to_temporal_expression.should == [:==, :wday, 4]
+          subject.should express([:==, :wday, 4])
           subject.should == EqualityPredicate.new(:wday, 4)
         end
       end
@@ -37,46 +37,35 @@ module ClockworkMango
     end # describe "#inspect"
 
     describe "#|" do
-      subject { year | Dsl.month(0..6) }
+      let(:predicate) { InclusionPredicate.new(:month, 0..6) }
+      subject { year | predicate }
 
       it { should be_kind_of(UnionPredicate) }
-
-      it "should be unioned with the receiver" do
-        should == UnionPredicate.new(year, Dsl.month(0..6))
-      end
+      it { should express(UnionPredicate.new(year, predicate)) }
     end # describe "#|"
 
     describe "#&" do
-      subject { year & Dsl.month(0..6) }
+      let(:predicate) { InclusionPredicate.new(:month, 0..6) }
+      subject { year & predicate }
 
       it { should be_kind_of(IntersectionPredicate) }
-
-      it "should be intersected with the receiver" do
-        should == IntersectionPredicate.new(year, Dsl.month(0..6))
-      end
+      it { should express(IntersectionPredicate.new(year, predicate)) }
     end # describe "#&"
 
     describe "#-" do
-      subject { year - Dsl.month(0..6) }
+      let(:predicate) { InclusionPredicate.new(:month, 0..6) }
+      subject { year - predicate }
 
       it { should be_kind_of(DifferencePredicate) }
-
-      it "should be a DifferencePredicate of the receiver and the arg" do
-        should == DifferencePredicate.new(year, Dsl.month(0..6))
-      end
+      it { should express(DifferencePredicate.new(year, predicate)) }
     end # describe "#-"
 
     describe "#>>" do
       context "when called with a two element array" do
         subject { year >> [:years, 1] }
 
-        it "should return an OffsetPredicate" do
-          should be_kind_of(OffsetPredicate)
-        end
-
-        it "should be offsetted from the receiver" do
-          should == OffsetPredicate.new(year, :years, 1)
-        end
+        it { should be_kind_of(OffsetPredicate) }
+        it { should express(OffsetPredicate.new(year, :years, 1)) }
       end # context "when called with a two element array"
     end # describe "#>>"
 
