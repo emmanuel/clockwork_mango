@@ -82,7 +82,7 @@ which accept hours, minutes and optionally seconds as arrays of integers in
 24 hour format (hour, minute[, second]):
 
   work_week    = Clockwork { |c| c.from([9,15]..[17,45]) & c.wday(1..5) }
-  back_to_work = Clockwork { |c| c.at([9,15]) & c.monday }
+  back_to_work = Clockwork { |c| c.at(9,15) & c.monday }
 
 OR with shortcuts
 
@@ -153,11 +153,11 @@ The module is called ClockworkMango::Holidays, and it's a separate require:
 
 == REQUIREMENTS:
 
-* Ruby. Tested on MRI 1.8.7 and 1.9.2.
+* Ruby. Tested on MRI 1.9.2.
 
 == INSTALL:
 
-* gem install clockwork
+* gem install clockwork_mango
 
 == LICENSE:
 
