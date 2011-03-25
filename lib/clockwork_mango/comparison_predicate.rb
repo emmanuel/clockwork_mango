@@ -1,4 +1,6 @@
 require "enumerator"
+require "active_support/core_ext/class/attribute_accessors"
+require "clockwork_mango/predicate"
 
 module ClockworkMango
   COMPARABLE_ATTRIBUTES = [:year, :month, :day, :hour, :min, :sec, :usec,
@@ -63,6 +65,11 @@ module ClockworkMango
   VALID_SEC_RANGE   = VALID_ATTR_RANGES[:sec]
 
   class ComparisonPredicate < Predicate
+    class << self
+      attr_reader :operator
+    end
+    @operator = :===
+
     attr_reader :attribute, :value, :reverse
     attr_reader *COMPARABLE_ATTRIBUTES
 
@@ -82,6 +89,10 @@ module ClockworkMango
       attribute = @reverse ? "#{attribute}_reverse" : attribute
       @attribute, @value = attribute.to_sym, value
       instance_variable_set("@#{@attribute}", @value)
+    end
+
+    def operator
+      self.class.operator
     end
 
     def attributes
@@ -139,55 +150,23 @@ module ClockworkMango
       end
     end
 
-    def operator
-      :===
-    end
-
     def to_temporal_expression
       [operator, @attribute, @value]
     end
 
   end
 
-  class InclusionPredicate < ComparisonPredicate
-    def operator
-      :include?
-    end
+  def self.ComparisonPredicate(operator)
+    Class.new(ComparisonPredicate) { @operator = operator }
   end
 
-  class ExclusionPredicate < InclusionPredicate
-    def operator
-      :exclude?
-    end
-  end
+  # Subclasses
+  InclusionPredicate          = ComparisonPredicate(:include?)
+  ExclusionPredicate          = ComparisonPredicate(:exclude?)
+  EqualityPredicate           = ComparisonPredicate(:==)
+  GreaterThanPredicate        = ComparisonPredicate(:>)
+  GreaterThanOrEqualPredicate = ComparisonPredicate(:>=)
+  LessThanPredicate           = ComparisonPredicate(:<)
+  LessThanOrEqualPredicate    = ComparisonPredicate(:<=)
 
-  class EqualityPredicate < ComparisonPredicate
-    def operator
-      :==
-    end
-  end
-
-  class GreaterThanPredicate < ComparisonPredicate
-    def operator
-      :>
-    end
-  end
-
-  class GreaterThanOrEqualPredicate < ComparisonPredicate
-    def operator
-      :>=
-    end
-  end
-
-  class LessThanPredicate < ComparisonPredicate
-    def operator
-      :<
-    end
-  end
-
-  class LessThanOrEqualPredicate < ComparisonPredicate
-    def operator
-      :<=
-    end
-  end
 end
