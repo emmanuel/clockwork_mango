@@ -1,4 +1,5 @@
 require "spec_helper"
+require 'ruby-debug'
 
 module ClockworkMango
   describe Dsl do

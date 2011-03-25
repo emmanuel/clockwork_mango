@@ -1,10 +1,9 @@
 source :rubygems
 
-gem "activesupport", "~>3.0"
+gem "activesupport", "~>3"
+gem "i18n"
 
 group :test do
-  gem "rspec", "~>2.0"
-  gem "autotest"
-  gem "autotest-growl"
-  gem "autotest-fsevent"
+  gem "rspec", "~>2"
+  gem "ruby-debug"
 end
