@@ -14,15 +14,15 @@ describe ClockworkMango::CoreExt::UnitValues do
     end
 
     it "should convert seconds as a float fraction of days" do
-      Date.unit_value(:second, 10).should be_close(10.0 / (24 * 3600), TOLERANCE)
+      Date.unit_value(:second, 10).should be_within(TOLERANCE).of(10.0 / (24 * 3600))
     end
 
     it "should convert minutes as a float fraction of days" do
-      Date.unit_value(:minute, 10).should be_close(10.0 / (24 * 60), TOLERANCE)
+      Date.unit_value(:minute, 10).should be_within(TOLERANCE).of(10.0 / (24 * 60))
     end
 
     it "should convert hours as a float fraction of days" do
-      Date.unit_value(:hour, 10).should be_close(10.0 / 24, TOLERANCE)
+      Date.unit_value(:hour, 10).should be_within(TOLERANCE).of(10.0 / 24)
     end
 
     it "should convert days as a float multiple of days" do
