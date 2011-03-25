@@ -14,7 +14,7 @@ require "clockwork_mango/compound_predicate"
 require "clockwork_mango/dsl"
 require "clockwork_mango/core_ext"
 
-# Shortcut to the ClockworkMango::Dsl.predicate_builder dsl. 
+# Shortcut to the ClockworkMango::Dsl.build_predicate dsl. 
 # Lets you use the lib from any context like so:
 #   Clockwork { |c| c.november & c.wday_in_month(1) & c.monday }
 # or without the block variable:
