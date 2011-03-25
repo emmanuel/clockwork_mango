@@ -140,7 +140,7 @@ module ClockworkMango
         it "should equal itself initialized with a singular" do
           should == OffsetPredicate.new(predicate, :day, 0)
         end
-        # 2010-11-25 is the 4th Thursday
+        # 2010-11-25 was the 4th Thursday in November
         it { should === DateTime.parse("2010-11-25") }
       end
     end
