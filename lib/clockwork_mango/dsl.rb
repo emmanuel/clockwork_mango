@@ -1,4 +1,6 @@
 require "clockwork_mango/predicate"
+require "clockwork_mango/comparison_predicate"
+require "clockwork_mango/compound_predicate"
 
 module ClockworkMango
   module Dsl
@@ -146,26 +148,33 @@ module ClockworkMango
       end
     end
 
-    def self.validate_hhmmss(hh, mm, ss)
-      if not (hh.is_a?(Integer) and VALID_HOUR_RANGE.include?(hh))
-        raise ArgumentError, "invalid hour specified (#{hh.inspect})"
-      elsif not (mm.nil? or VALID_MIN_RANGE.include?(mm))
-        raise ArgumentError, "invalid minute specified (#{mm.inspect})"
-      elsif not (ss.nil? or VALID_SEC_RANGE.include?(ss))
-        raise ArgumentError, "invalid second specified (#{ss.inspect})"
-      end
-    end
-
     def self.validate_time_range(time_range)
       unless time_range.respond_to?(:end) && time_range.end.respond_to?(:to_ary) &&
         time_range.respond_to?(:begin) && time_range.begin.respond_to?(:to_ary)
 
-        if (1..3).include?(time_range.end.size) && (1..3).include?(time_range.begin.size)
-          raise ArgumentError, "expected Range with Array endpoints"
-        else
-          raise ArgumentError, "Array endpoints must have length within 1..3"
-        end
+        message =
+          if (1..3).include?(time_range.end.size) && (1..3).include?(time_range.begin.size)
+            "expected Range with Array endpoints"
+          else
+            "Array endpoints must have length within 1..3"
+          end
+        raise(ArgumentError, message) if message
+
+        validate_hhmmss(*time_range.begin)
+        validate_hhmmss(*time_range.end)
       end
+    end
+
+    def self.validate_hhmmss(hh, mm, ss)
+      message =
+        if !hh.is_a?(Integer) || !VALID_HOUR_RANGE.include?(hh)
+          "invalid hour specified (#{hh.inspect})"
+        elsif mm && !VALID_MIN_RANGE.include?(mm)
+          "invalid minute specified (#{mm.inspect})"
+        elsif ss && !VALID_SEC_RANGE.include?(ss)
+          "invalid second specified (#{ss.inspect})"
+        end
+      raise(ArgumentError, message) if message
     end
 
     def until(hh, mm = nil, ss = nil)
@@ -189,28 +198,11 @@ module ClockworkMango
       if args.length == 1 and args.first.is_a?(Range)
         time_range = args.first
         ClockworkMango::Dsl.validate_time_range(time_range)
-        from_time_range(time_range)
+        ClockworkMango::Dsl.from_time_range(time_range)
       else
         hh, mm, ss = args
         ClockworkMango::Dsl.validate_hhmmss(hh, mm, ss)
-        from_hhmmss(hh, mm, ss)
-      end
-    end
-
-    def from_hhmmss(hh, mm = nil, ss = nil)
-      ClockworkMango::Dsl.validate_hhmmss(hh,mm,ss)
-
-      if mm.nil?
-        GreaterThanOrEqualPredicate.new(:hour, hh)
-      elsif ss.nil?
-        GreaterThanPredicate.new(:hour, hh) | (
-          EqualityPredicate.new(:hour, hh) &
-          GreaterThanOrEqualPredicate.new(:min, mm))
-      else
-        GreaterThanPredicate.new(:hour, hh) | (
-          EqualityPredicate.new(:hour, hh) & (
-            GreaterThanPredicate.new(:min, mm) | (
-            EqualityPredicate.new(:min, mm) & GreaterThanOrEqualPredicate.new(:sec, ss))))
+        ClockworkMango::Dsl.from_hhmmss(hh, mm, ss)
       end
     end
 
@@ -238,215 +230,294 @@ module ClockworkMango
     # Also:
     #   ClockworkMango::Dsl.from([9,15]..[12,45,55])
     #   # => (hour(9) & min(15..59)) | hour(10..11) | (hour(12) & (min(0..44) | (min(45) & sec(0..55))))
-    def from_time_range(time_range)
+    def self.from_time_range(time_range)
+      begin_hh = time_range.begin.first
+      end_hh   = time_range.end.first
+      delta_hh = end_hh - begin_hh  # hh is required
+
+      validate_time_range(time_range)
+
+      case delta_hh
+      when 3..MAX_HH ; unroll_multihour_delta(time_range)  # => from([9,45,15]..[12,10])
+      when 2         ; unroll_two_hour_delta(time_range)   # => from([9,45,15]..[11,47,45])
+      when 1         ; unroll_one_hour_delta(time_range)   # => from([9,45,15]..[10,47,45])
+      when 0         ; unroll_zero_hour_delta(time_range)  # => from([9,15]..[9,45])
+      when -23..-1   ; unroll_negative_hour_delta(time_range)
+      else
+        message = "Invalid begin_hh (#{time_range.begin.first.inspect}) and end_hh (#{time_range.end.first.inspect})"
+        raise ArgumentError, message
+      end
+    end
+
+    def self.from_hhmmss(hh, mm = nil, ss = nil)
+      ClockworkMango::Dsl.validate_hhmmss(hh,mm,ss)
+
+      if mm.nil?
+        GreaterThanOrEqualPredicate.new(:hour, hh)
+      elsif ss.nil?
+        GreaterThanPredicate.new(:hour, hh) | (
+          EqualityPredicate.new(:hour, hh) &
+          GreaterThanOrEqualPredicate.new(:min, mm))
+      else
+        GreaterThanPredicate.new(:hour, hh) | (
+          EqualityPredicate.new(:hour, hh) & (
+            GreaterThanPredicate.new(:min, mm) | (
+            EqualityPredicate.new(:min, mm) & GreaterThanOrEqualPredicate.new(:sec, ss))))
+      end
+    end
+
+    def self.unroll_multihour_delta(time_range)
       begin_hh, begin_mm, begin_ss = *time_range.begin
       end_hh,   end_mm,   end_ss   = *time_range.end
       delta_hh = end_hh - begin_hh  # hh is required
       delta_mm = (end_mm - begin_mm rescue nil)
       delta_ss = (end_ss - begin_ss rescue nil)
 
-      case delta_hh
-      when 3..MAX_HH  # => from([9,45,15]..[12,10])
-        case delta_mm
-        when nil
-          middle = nil
-          if begin_mm
-            beginning = unroll_hhmmss_into_partial_hour_predicate(time_range.begin)
-            ending    = hour((begin_hh + 1)..end_hh)
-          elsif end_mm
-            beginning = hour(begin_hh..(end_hh - 1))
-            ending    = unroll_hhmmss_into_partial_hour_predicate(time_range.end, true)
-          else
-            beginning = hour(begin_hh..end_hh)
-            ending    = nil
-          end
-        when VALID_MIN_RANGE
+      case delta_mm
+      when nil
+        middle = nil
+        if begin_mm
           beginning = unroll_hhmmss_into_partial_hour_predicate(time_range.begin)
-          middle    = hour((begin_hh + 1)..(end_hh - 1))
+          ending    = hour((begin_hh + 1)..end_hh)
+        elsif end_mm
+          beginning = hour(begin_hh..(end_hh - 1))
+          # ending    = unroll_hhmmss_into_partial_hour_predicate(time_range.end, true)
           ending    = unroll_hhmmss_into_partial_hour_predicate(time_range.end, true)
         else
-          raise ArgumentError, "Invalid begin_mm (#{begin_mm.inspect}) and end_mm (#{end_mm.inspect})"
+          beginning = hour(begin_hh..end_hh)
+          ending    = nil
         end
-        return beginning | middle | ending
-      when 2          # => from([9,45,15]..[11,47,45])
+      when VALID_MIN_RANGE
         beginning = unroll_hhmmss_into_partial_hour_predicate(time_range.begin)
-        middle    = hour(begin_hh + 1)
+        middle    = hour((begin_hh + 1)..(end_hh - 1))
         ending    = unroll_hhmmss_into_partial_hour_predicate(time_range.end, true)
-        return beginning | middle | ending
-      when 1          # => from([9,45,15]..[10,47,45])
-        beginning = unroll_hhmmss_into_partial_hour_predicate(time_range.begin)
-        ending    = unroll_hhmmss_into_partial_hour_predicate(time_range.end, true)
-        return beginning | ending
-      when 0            # => from([9,15]..[9,45])
-        case delta_mm
-        when 3..MAX_MM  # => from([9,15]..[9,18])
-          beginning = unroll_mmss_into_partial_minute_predicate(begin_mm, begin_ss)
-          middle    = min((begin_mm + 1)..(end_mm - 1))
-          ending    = unroll_mmss_into_partial_minute_predicate(end_mm, end_ss, true)
-          rest      = beginning | middle | ending
-        when 2          # => from([9,45,15]..[9,47,45])
-          beginning = unroll_mmss_into_partial_minute_predicate(begin_mm, begin_ss)
-          middle    = min(begin_mm + 1)
-          ending    = unroll_mmss_into_partial_minute_predicate(end_mm, end_ss, true)
-          rest      = beginning | middle | ending
-        when 1          # => from([9,45,15]..[9,46,45])
-          beginning = unroll_mmss_into_partial_minute_predicate(begin_mm, begin_ss)
-          ending    = unroll_mmss_into_partial_minute_predicate(end_mm, end_ss, true)
-          rest      = beginning | ending
-        when 0          # => from([9,45,10]..[9,45,45])
-          case delta_ss
-          when nil        # => from([9,15]..[9,15])
-            minutes = min(begin_mm)
-          when 0          # => from([9,15,45]..[9,15,45])
-            minutes = min(begin_mm) & sec(begin_ss)
-          when 1..MAX_SS  # => from([9,15,15]..[9,15,45])
-            minutes = min(begin_mm) & sec(begin_ss..end_ss)
-          else
-            raise ArgumentError, "Invalid begin_ss (#{begin_ss.inspect}) and end_ss (#{end_ss.inspect})"
-          end
-          return hour(begin_hh) & minutes
-        when nil
-          if end_mm       # => from([9]..[9,45])
-            unroll_hhmmss_into_partial_hour_predicate(time_range.end, true)
-          elsif begin_mm  # => from([9,45]..[9])
-            raise ArgumentError, "Invalid endpoints: #{time_range.begin.inspect}..#{time_range.end.inspect}"
-          else            # => from([9]..[9])
-            return hour(begin_hh)
-          end
-        else
-          raise ArgumentError, "Invalid begin_mm (#{begin_mm.inspect}) and end_mm (#{end_mm.inspect})"
-        end
-        return hour(begin_hh) & rest
-      when -23..-1
-        case delta_mm
-        when nil
-          middle = nil
-          if begin_mm
-            beginning = hour((begin_hh + 1)..MAX_HH)
-            middle    = hour(0..end_hh)
-            ending    = unroll_hhmmss_into_partial_hour_predicate(time_range.begin)
-          elsif end_mm
-            beginning = hour(begin_hh..MAX_HH)
-            middle    = hour(0..(end_hh - 1))
-            ending    = unroll_hhmmss_into_partial_hour_predicate(time_range.end, true)
-          else
-            beginning = hour(begin_hh..MAX_HH)
-            ending    = hour(0..end_hh)
-          end
-        when VALID_MIN_RANGE
-          beginning = unroll_hhmmss_into_partial_hour_predicate(time_range.begin)
-          middle    = hour(0..(end_hh - 1)) | hour((begin_hh + 1)..MAX_HH)
-          ending    = unroll_hhmmss_into_partial_hour_predicate(time_range.end, true)
-        else
-          raise ArgumentError, "Invalid begin_mm (#{begin_mm.inspect}) and end_mm (#{end_mm.inspect})"
-        end
-        return beginning | middle | ending
       else
-        raise ArgumentError, "Invalid begin_hh (#{begin_hh.inspect}) and end_hh (#{end_hh.inspect})"
+        raise ArgumentError, "Invalid begin_mm (#{begin_mm.inspect}) and end_mm (#{end_mm.inspect})"
       end
+      return beginning | middle | ending
+    end
+
+    def self.unroll_two_hour_delta(time_range)
+      begin_hh, begin_mm, begin_ss = *time_range.begin
+
+      beginning = unroll_hhmmss_into_partial_hour_predicate(time_range.begin)
+      middle    = hour(begin_hh + 1)
+      ending    = unroll_hhmmss_into_partial_hour_predicate(time_range.end, true)
+
+      beginning | middle | ending
+    end
+
+    def self.unroll_one_hour_delta(time_range)
+      beginning = unroll_hhmmss_into_partial_hour_predicate(time_range.begin)
+      ending    = unroll_hhmmss_into_partial_hour_predicate(time_range.end, true)
+
+      beginning | ending
+    end
+
+    def self.unroll_zero_hour_delta(time_range)
+      begin_hh, begin_mm, begin_ss = *time_range.begin
+      end_hh,   end_mm,   end_ss   = *time_range.end
+      delta_hh = end_hh - begin_hh  # hh is required
+      delta_mm = (end_mm - begin_mm rescue nil)
+      delta_ss = (end_ss - begin_ss rescue nil)
+
+      case delta_mm
+      when 3..MAX_MM  # => from([9,15]..[9,18])
+        beginning = unroll_mmss_into_partial_minute_predicate(begin_mm, begin_ss)
+        middle    = min((begin_mm + 1)..(end_mm - 1))
+        ending    = unroll_mmss_into_partial_minute_predicate(end_mm, end_ss, true)
+        rest      = beginning | middle | ending
+      when 2          # => from([9,45,15]..[9,47,45])
+        beginning = unroll_mmss_into_partial_minute_predicate(begin_mm, begin_ss)
+        middle    = min(begin_mm + 1)
+        ending    = unroll_mmss_into_partial_minute_predicate(end_mm, end_ss, true)
+        rest      = beginning | middle | ending
+      when 1          # => from([9,45,15]..[9,46,45])
+        beginning = unroll_mmss_into_partial_minute_predicate(begin_mm, begin_ss)
+        ending    = unroll_mmss_into_partial_minute_predicate(end_mm, end_ss, true)
+        rest      = beginning | ending
+      when 0          # => from([9,45,10]..[9,45,45])
+        case delta_ss
+        when nil        # => from([9,15]..[9,15])
+          minutes = min(begin_mm)
+        when 0          # => from([9,15,45]..[9,15,45])
+          minutes = min(begin_mm) & sec(begin_ss)
+        when 1..MAX_SS  # => from([9,15,15]..[9,15,45])
+          minutes = min(begin_mm) & sec(begin_ss..end_ss)
+        else
+          raise ArgumentError, "Invalid begin_ss (#{begin_ss.inspect}) and end_ss (#{end_ss.inspect})"
+        end
+        return hour(begin_hh) & minutes
+      when nil
+        if end_mm       # => from([9]..[9,45])
+          unroll_hhmmss_into_partial_hour_predicate(time_range.end, true)
+        elsif begin_mm  # => from([9,45]..[9])
+          raise ArgumentError, "Invalid endpoints: #{time_range.begin.inspect}..#{time_range.end.inspect}"
+        else            # => from([9]..[9])
+          return hour(begin_hh)
+        end
+      else
+        raise ArgumentError, "Invalid begin_mm (#{begin_mm.inspect}) and end_mm (#{end_mm.inspect})"
+      end
+
+      hour(begin_hh) & rest
+    end
+
+    def self.unroll_negative_hour_delta(time_range)
+      begin_hh, begin_mm, begin_ss = *time_range.begin
+      end_hh,   end_mm,   end_ss   = *time_range.end
+      delta_hh = end_hh - begin_hh  # hh is required
+      delta_mm = (end_mm - begin_mm rescue nil)
+      delta_ss = (end_ss - begin_ss rescue nil)
+
+      case delta_mm
+      when nil
+        middle = nil
+        if begin_mm
+          beginning = hour((begin_hh + 1)..MAX_HH)
+          middle    = hour(0..end_hh)
+          ending    = unroll_hhmmss_into_partial_hour_predicate(time_range.begin)
+        elsif end_mm
+          beginning = hour(begin_hh..MAX_HH)
+          middle    = hour(0..(end_hh - 1))
+          ending    = unroll_hhmmss_into_partial_hour_predicate(time_range.end, true)
+        else
+          beginning = hour(begin_hh..MAX_HH)
+          ending    = hour(0..end_hh)
+        end
+      when VALID_MIN_RANGE
+        beginning = unroll_hhmmss_into_partial_hour_predicate(time_range.begin)
+        middle    = hour(0..(end_hh - 1)) | hour((begin_hh + 1)..MAX_HH)
+        ending    = unroll_hhmmss_into_partial_hour_predicate(time_range.end, true)
+      else
+        raise ArgumentError, "Invalid begin_mm (#{begin_mm.inspect}) and end_mm (#{end_mm.inspect})"
+      end
+
+      beginning | middle | ending
     end
 
     # unrolls a set of mm[, ss] args
-    def unroll_mmss_into_partial_minute_predicate(time_array, end_at_beginning=false)
-      mm, ss = *time_array
+    def self.unroll_mmss_into_partial_minute_predicate(mm, ss, end_at_beginning=false)
       raise ArgumentError, "invalid mm parameter: #{mm.inspect}" unless mm.kind_of?(Fixnum)
-      if !ss      # no +ss+ then there's nothing to unroll
-        min(mm)
-      elsif end_at_beginning    # unroll the predicate towards the beginning of the minute
-        case ss
-        when 1..MAX_SS    # => unroll_mmss_into_partial_minute_predicate([45,30], true)
-          seconds = sec(0..ss)
-        when 0            # => unroll_mmss_into_partial_minute_predicate([45,0], true)
-          seconds = sec(ss)
+      return min(mm) unless ss      # no +ss+ then there's nothing to unroll
+      raise ArgumentError, "Invalid ss argument: #{ss.inspect}" unless (0..MAX_SS).include?(ss)
+
+      seconds =
+        if end_at_beginning    # unroll the predicate towards the beginning of the minute
+          unroll_ss_into_partial_minute_predicate_from_beginning(ss)
         else
-          raise ArgumentError, "Invalid ss argument: #{ss.inspect}"
+          unroll_ss_into_partial_minute_predicate_to_end(ss)
         end
-        return min(mm) & seconds
-      else
-        case ss
-        when 0..(MAX_SS - 1)
-          seconds = sec(ss..MAX_SS)
-        when MAX_SS
-          seconds = sec(ss)
-        else
-          raise ArgumentError, "Invalid ss argument: #{ss.inspect}"
-        end
-        return min(mm) & seconds
+
+      min(mm) & seconds
+    end
+
+    # unrolls a set of mm[, ss] args
+    def self.unroll_ss_into_partial_minute_predicate_from_beginning(ss)
+      if (1..MAX_SS).include?(ss) # => unroll_mmss_into_partial_minute_predicate([45,30], true)
+        sec(0..ss)
+      elsif 0 == ss               # => unroll_mmss_into_partial_minute_predicate([45,0], true)
+        sec(ss)
+      end
+    end
+
+    def self.unroll_ss_into_partial_minute_predicate_to_end(ss)
+      if (0..(MAX_SS - 1)).include?(ss)
+        sec(ss..MAX_SS)
+      elsif MAX_SS == ss
+        sec(ss)
       end
     end
 
     # unrolls a set of hh[, mm[, ss]] args into a Predicate that matches a
     # partial hour, using +time_array+ to define either the beginning, or the end
-    def unroll_hhmmss_into_partial_hour_predicate(time_array, end_at_beginning=false)
+    def self.unroll_hhmmss_into_partial_hour_predicate(time_array, end_at_beginning=false)
       hh, mm, ss = *time_array
+
       raise ArgumentError, "invalid hh parameter: #{hh.inspect}" unless hh.kind_of?(Fixnum)
-      if !mm      # no +mm+ then there's nothing to unroll
-        return hour(hh)
-      elsif !ss   # no +ss+ then the permutations to unroll aren't too bad
-        if end_at_beginning
-          case mm
-          when 1..MAX_MM
-            minutes = min(0..mm)
-          when 0
-            minutes = min(mm)
+      return hour(hh) if !mm      # no +mm+ then there's nothing to unroll
+
+      unless hh.kind_of?(Fixnum)
+        raise ArgumentError, "invalid ss parameter: #{ss.inspect}"
+      end
+
+      minutes = 
+        if !ss   # no +ss+ then the permutations to unroll aren't too bad
+          if end_at_beginning
+            unroll_mm_into_partial_hour_predicate_to_end(mm)
           else
-            raise ArgumentError, "Invalid mm argument: #{mm.inspect}"
+            unroll_mm_into_partial_hour_predicate_from_beginning(mm)
           end
+        elsif end_at_beginning  # with +hh+, +mm+, and +ss+, there are tons of possibilities
+          unroll_mmss_into_partial_hour_predicate_to_end(mm, ss)
         else
-          case mm
-          when 0..(MAX_MM - 1)
-            minutes = min(mm..MAX_MM)
-          when MAX_MM
-            minutes = min(mm)
-          else
-            raise ArgumentError, "Invalid mm argument: #{mm.inspect}"
-          end
+          unroll_mmss_into_partial_hour_predicate_from_beginning(mm, ss)
         end
-        return hour(hh) & minutes
-      elsif end_at_beginning  # with +hh+, +mm+, and +ss+, there are tons of possibilities
-        case mm
-        when 2..MAX_MM  # use a range of minutes
-          case ss
-          when 0..MAX_SS
-            minutes = min(0..(mm-1)) | unroll_mmss_into_partial_minute_predicate([mm, ss], true)
-          else
-            raise ArgumentError, "Invalid ss argument: #{ss.inspect}"
-          end
-        when 1
-          minutes = min(0) | unroll_mmss_into_partial_minute_predicate([mm, ss], true)
-        when 0
-          minutes = unroll_mmss_into_partial_minute_predicate([mm, ss], true)
-        else
-          raise ArgumentError, "Invalid mm argument: #{mm.inspect}"
-        end
-        return hour(hh) & minutes
+
+      hour(hh) & minutes
+    end
+
+    def self.unroll_mm_into_partial_hour_predicate_to_end(mm)
+      if (1..MAX_MM).include?(mm)
+        min(0..mm)
+      elsif 0 == mm
+        min(mm)
       else
-        case mm
-        when 0..(MAX_MM - 2)
-          case ss
-          when 0..MAX_SS
-            minutes = min((mm+1)..MAX_MM) | unroll_mmss_into_partial_minute_predicate([mm, ss])
-          else
-            raise ArgumentError, "Invalid ss argument: #{ss.inspect}"
-          end
-        when (MAX_MM - 1)
-          case ss
-          when 0..MAX_SS
-            minutes = min(MAX_MM) | unroll_mmss_into_partial_minute_predicate([mm, ss])
-          else
-            raise ArgumentError, "Invalid ss argument: #{ss.inspect}"
-          end
-        when MAX_MM
-          case ss
-          when 0..MAX_SS
-            minutes = unroll_mmss_into_partial_minute_predicate([mm, ss])
-          else
-            raise ArgumentError, "Invalid ss argument: #{ss.inspect}"
-          end
+        raise ArgumentError, "Invalid mm argument: #{mm.inspect}"
+      end
+    end
+
+    def self.unroll_mm_into_partial_hour_predicate_from_beginning(mm)
+      if (0..(MAX_MM - 1)).include?(mm)
+        min(mm..MAX_MM)
+      elsif MAX_MM == mm
+        min(mm)
+      else
+        raise ArgumentError, "Invalid mm argument: #{mm.inspect}"
+      end
+    end
+
+    def self.unroll_mmss_into_partial_hour_predicate_to_end(mm, ss)
+      case mm
+      when 2..MAX_MM  # use a range of minutes
+        case ss
+        when 0..MAX_SS
+          min(0..(mm-1)) | unroll_mmss_into_partial_minute_predicate(mm, ss, true)
         else
-          raise ArgumentError, "Invalid mm argument: #{mm.inspect}"
+          raise ArgumentError, "Invalid ss argument: #{ss.inspect}"
         end
-        return hour(hh) & minutes
+      when 1
+        min(0) | unroll_mmss_into_partial_minute_predicate(mm, ss, true)
+      when 0
+        unroll_mmss_into_partial_minute_predicate(mm, ss, true)
+      else
+        raise ArgumentError, "Invalid mm argument: #{mm.inspect}"
+      end
+    end
+
+    def self.unroll_mmss_into_partial_hour_predicate_from_beginning(mm, ss)
+      unless (0..MAX_SS).include?(ss)
+        raise ArgumentError, "Invalid ss argument: #{ss.inspect}"
+      end
+
+      case mm
+      when 0..(MAX_MM - 2)
+        case ss
+        when 0..MAX_SS
+          min((mm+1)..MAX_MM) | unroll_mmss_into_partial_minute_predicate(mm, ss)
+        end
+      when (MAX_MM - 1)
+        case ss
+        when 0..MAX_SS
+          min(MAX_MM) | unroll_mmss_into_partial_minute_predicate(mm, ss)
+        end
+      when MAX_MM
+        case ss
+        when 0..MAX_SS
+          unroll_mmss_into_partial_minute_predicate(mm, ss)
+        end
+      else
+        raise ArgumentError, "Invalid mm argument: #{mm.inspect}"
       end
     end
 
