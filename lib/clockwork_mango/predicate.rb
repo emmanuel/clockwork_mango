@@ -2,13 +2,18 @@ require "clockwork_mango/loader"
 
 module ClockworkMango
   class Predicate
+    class << self
+      attr_reader :operator
+    end
+    @operator = nil
+
     def self.load(*expression)
       Loader.load(*expression)
     end
 
     # Get the operator of this Predicate
     def operator
-      nil
+      self.class.operator
     end
 
     # Get a representation of this Predicate as an s-expression

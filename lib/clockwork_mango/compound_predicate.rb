@@ -29,6 +29,8 @@ module ClockworkMango
   end # class CompoundPredicate
 
   class UnionPredicate < CompoundPredicate
+    @operator = :|
+
     def |(predicate)
       if predicate.is_a?(Predicate)
         UnionPredicate.new(*(self.predicates + [predicate]))
@@ -41,13 +43,11 @@ module ClockworkMango
       self.predicates.any? { |p| p === other }
     end
 
-    def operator
-      :|
-    end
-
   end # class UnionPredicate
 
   class IntersectionPredicate < CompoundPredicate
+    @operator = :&
+
     def &(predicate)
       if predicate.is_a?(Predicate)
         IntersectionPredicate.new(*(self.predicates + [predicate]))
@@ -60,13 +60,11 @@ module ClockworkMango
       self.predicates.all? { |p| p === other }
     end
 
-    def operator
-      :&
-    end
-
   end # class IntersectionPredicate
 
   class DifferencePredicate < CompoundPredicate
+    @operator = :-
+
     def initialize(positive, *negatives)
       @positive = positive
       @negatives = negatives
@@ -85,13 +83,11 @@ module ClockworkMango
       @positive === other and not @negatives.any? { |p| p === other }
     end
 
-    def operator
-      :-
-    end
-
   end # class DifferencePredicate
 
   class OffsetPredicate < CompoundPredicate
+    @operator = :>>
+
     def initialize(predicate, unit, value)
       unless predicate.is_a?(Predicate)
         raise ArgumentError, "expected a Predicate, got: #{predicate.inspect}"
@@ -118,9 +114,6 @@ module ClockworkMango
       super + [@unit, @value]
     end
 
-    def operator
-      :>>
-    end
   end # class OffsetPredicate
 
 end # module ClockworkMango

@@ -65,9 +65,6 @@ module ClockworkMango
   VALID_SEC_RANGE   = VALID_ATTR_RANGES[:sec]
 
   class ComparisonPredicate < Predicate
-    class << self
-      attr_reader :operator
-    end
     @operator = :===
 
     attr_reader :attribute, :value, :reverse
@@ -89,10 +86,6 @@ module ClockworkMango
       attribute = @reverse ? "#{attribute}_reverse" : attribute
       @attribute, @value = attribute.to_sym, value
       instance_variable_set("@#{@attribute}", @value)
-    end
-
-    def operator
-      self.class.operator
     end
 
     def attributes
