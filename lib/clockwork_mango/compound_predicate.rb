@@ -1,3 +1,6 @@
+require 'active_support/core_ext/string/inflections'
+require 'clockwork_mango/predicate'
+
 module ClockworkMango
   class CompoundPredicate < Predicate
     attr_reader :predicates
@@ -15,7 +18,7 @@ module ClockworkMango
     end
 
     def to_temporal_expression
-      [operator, *self.predicates.map { |p| p.to_temporal_expression }]
+      [operator] + self.predicates.map { |p| p.to_temporal_expression }
     end
 
     # FIXME: implement #next_occurrence_after for CompoundPredicate and subclasses
@@ -28,7 +31,7 @@ module ClockworkMango
   class UnionPredicate < CompoundPredicate
     def |(predicate)
       if predicate.is_a?(Predicate)
-        UnionPredicate.new(*(self.predicates.dup << predicate))
+        UnionPredicate.new(*(self.predicates + [predicate]))
       else
         predicate
       end
@@ -47,7 +50,7 @@ module ClockworkMango
   class IntersectionPredicate < CompoundPredicate
     def &(predicate)
       if predicate.is_a?(Predicate)
-        IntersectionPredicate.new(*(self.predicates.dup << predicate))
+        IntersectionPredicate.new(*(self.predicates + [predicate]))
       else
         predicate
       end
@@ -94,7 +97,8 @@ module ClockworkMango
         raise ArgumentError, "expected a Predicate, got: #{predicate.inspect}"
       end
       @predicate = predicate
-      @unit      = unit.to_s.pluralize.to_sym
+      # @unit      = unit.to_s.pluralize.to_sym   # why not :day => :days?
+      @unit      = /s$/ =~ unit.to_s ? unit.to_sym : :"#{unit}s"
       @value     = value
     end
 
