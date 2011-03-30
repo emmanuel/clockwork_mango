@@ -1,4 +1,5 @@
 require "spec_helper"
+require "clockwork_mango/core_ext/unit_values"
 
 describe ClockworkMango::CoreExt::UnitValues do
   TOLERANCE = 0.000000001   # floats get reeeaally close

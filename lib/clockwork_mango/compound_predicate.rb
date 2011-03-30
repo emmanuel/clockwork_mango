@@ -1,4 +1,4 @@
-require 'active_support/core_ext/string/inflections'
+# require 'active_support/core_ext/string/inflections'  # see #L96
 require 'clockwork_mango/predicate'
 
 module ClockworkMango

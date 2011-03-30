@@ -1,8 +1,5 @@
 Bundler.setup(:default, :test)
 
-require "pathname"
-require "clockwork_mango"
-
 DATE_ATTRIBUTES = [:year, :month, :day]
 DATETIME_ATTRS  = DATE_ATTRIBUTES + [:hour, :min, :sec]
 TIME_ATTRIBUTES = DATETIME_ATTRS + [:usec]

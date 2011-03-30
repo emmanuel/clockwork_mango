@@ -1,5 +1,4 @@
-require "enumerator"
-require "active_support/core_ext/class/attribute_accessors"
+require "clockwork_mango/core_ext"
 require "clockwork_mango/predicate"
 
 module ClockworkMango

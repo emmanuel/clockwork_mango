@@ -1,4 +1,5 @@
 require "spec_helper"
+require "clockwork_mango/comparison_predicate"
 
 module ClockworkMango
   describe ComparisonPredicate do

@@ -1,4 +1,8 @@
+require "date"
+require "time"
+
 require "spec_helper"
+require "clockwork_mango/core_ext/human_date_values"
 
 module ClockworkMango
   describe CoreExt::HumanDateValues do

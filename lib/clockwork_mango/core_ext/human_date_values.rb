@@ -1,3 +1,7 @@
+%w[date date_time time].each do |temporal|
+  require "active_support/core_ext/#{temporal}/calculations"
+end
+
 module ClockworkMango
   module CoreExt
     module HumanDateValues

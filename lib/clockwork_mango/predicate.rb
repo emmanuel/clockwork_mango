@@ -1,5 +1,4 @@
-require "clockwork_mango/loader"
-
+# requires at end
 module ClockworkMango
   class Predicate
     class << self
@@ -118,3 +117,6 @@ module ClockworkMango
 
   end
 end
+
+require "clockwork_mango/compound_predicate"
+require "clockwork_mango/loader"

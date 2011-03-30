@@ -1,4 +1,6 @@
 require "spec_helper"
+require "clockwork_mango/comparison_predicate"
+require "clockwork_mango/compound_predicate"
 
 module ClockworkMango
   describe CompoundPredicate do
