@@ -21,10 +21,11 @@ module ClockworkMango
       end
 
       # is the current year a leap year?
+      # NOTE: this implementation very likely fails in some circumstances
       # 
-      # @return [Boolean] true if self.year is a leap year
+      # @return [Boolean] true if +self.year+ is a leap year
       def leap_year?
-        @leap_year ||= year % 4 == 0 and not year % 100 == 0 or year % 400 == 0
+        year % 4 == 0 and not year % 100 == 0 or year % 400 == 0
       end
 
       # how many Sundays have already occurred this year (before today)?
