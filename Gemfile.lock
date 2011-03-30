@@ -2,6 +2,7 @@ GEM
   remote: http://rubygems.org/
   specs:
     activesupport (3.0.5)
+    columnize (0.3.2)
     configuration (1.2.0)
     diff-lcs (1.1.2)
     growl (1.0.3)
@@ -14,6 +15,7 @@ GEM
     launchy (0.3.7)
       configuration (>= 0.0.5)
       rake (>= 0.8.1)
+    linecache (0.43)
     open_gem (1.4.2)
       launchy (~> 0.3.5)
     rake (0.8.7)
@@ -26,7 +28,11 @@ GEM
     rspec-expectations (2.5.0)
       diff-lcs (~> 1.1.2)
     rspec-mocks (2.5.0)
-    ruby-debug (0.10.47)
+    ruby-debug (0.10.4)
+      columnize (>= 0.1)
+      ruby-debug-base (~> 0.10.4.0)
+    ruby-debug-base (0.10.4)
+      linecache (>= 0.3)
     thor (0.14.6)
 
 PLATFORMS
