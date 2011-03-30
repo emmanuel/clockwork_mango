@@ -151,10 +151,10 @@ module ClockworkMango
     end # describe "#to_temporal_sexp"
 
     describe "#next_occurrence_after" do
-      let(:start)     { Time.parse("Sun Feb 01 00:00:00 UTC 2004") }
-      let(:next_29th) { Time.parse("Sun Feb 29 00:00:00 UTC 2004") }
-      let(:date)      { start.to_date }
-      let(:date_time) { start.to_datetime }
+      let(:start)     { Time.utc(2004, 2, 1, 12, 15, 12) }
+      let(:next_29th) { Time.utc(2004, 2, 29) }
+      let(:date)      { Date.new(2004, 2, 1) }
+      let(:date_time) { DateTime.new(2004, 2, 1, 12, 15, 12) }
       let(:time)      { start }
       let(:day_1)    { EqualityPredicate.new(:day, 1) }
       let(:day_29)   { EqualityPredicate.new(:day, 29) }
@@ -170,24 +170,57 @@ module ClockworkMango
       end
 
       context "with a single Time argument" do
-        it "should return an object representing the next occurrence of the receiver" do
-          next_occurrence = Time.utc(start.year, start.month + 1, 1)
-          day_1.next_occurrence_after(start).should == next_occurrence
+        let(:predicate)  { day_1 }
+        subject { predicate.next_occurrence_after(@given_time) }
+
+        context "with no argument" do
+          subject { predicate.next_occurrence }
+
+          it "returns a Time in UTC" do
+            subject.should be_utc
+          end
+
+          it "returns an object that matches the receiver" do
+            predicate.should === subject
+          end
         end
 
-        it "should return a Time object that occurs after its argument" do
-          day_1.next_occurrence_after(start).should > start
-        end
+        context "when given a Time" do
+          context "regardless of zone" do
+            before { @given_time = start }
 
-        it "should return a Time object in the UTC zone with no argument" do
-          day_1.next_occurrence.zone.should == "UTC"
-        end
+            it "returns an object that matches the receiver" do
+              predicate.should === subject
+            end
 
-        it "should return a Time object with the same zone as its argument" do
-          time_in_utc = Time.parse("Sun Feb 01 00:00:00 UTC 2004")
-          day_1.next_occurrence_after(time_in_utc).zone.should == time_in_utc.zone
-          local = Time.parse("Sun Feb 01 00:00:00 -0800 2004")
-          day_1.next_occurrence_after(local).zone.should == local.zone
+            it "returns a Time object that occurs after its argument" do
+              subject.should > start
+            end
+          end
+
+          context "in UTC" do
+            before { @given_time = Time.utc(2004, 2, 1) }
+
+            it "checks argument" do
+              @given_time.should be_utc
+            end
+
+            it "returns a Time in UTC" do
+              subject.zone.should == @given_time.zone
+            end
+          end
+
+          context "with zone" do
+            before { @given_time = Time.local(2004, 2, 1) }
+
+            it "checks argument" do
+              @given_time.should_not be_utc
+            end
+
+            it "returns a Time in the original zone" do
+              subject.zone.should == @given_time.zone
+            end
+          end
         end
       end
 
@@ -203,16 +236,14 @@ module ClockworkMango
 
       context "when @attribute is :sec" do
         it "should return a time within the current minute when value is greater than start.sec" do
-          start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
-          next_time = Time.parse("Sun Feb 01 12:15:29 UTC 2004")
+          next_time = Time.utc(2004, 2, 1, 12, 15, 29)
           start.should < next_time
           start.sec.should < next_time.sec
           EqualityPredicate.new(:sec, 29).next_occurrence_after(start).should == next_time
         end
 
         it "should return a time within the next minute when value is less than start.sec" do
-          start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
-          next_time = Time.parse("Sun Feb 01 12:16:02 UTC 2004")
+          next_time = Time.utc(2004, 2, 1, 12, 16, 02)
           start.should < next_time
           start.sec.should > next_time.sec
           EqualityPredicate.new(:sec, 2).next_occurrence_after(start).should == next_time
@@ -221,16 +252,14 @@ module ClockworkMango
 
       context "when @attribute is :min" do
         it "should return a time within the current hour when value is greater than start.min" do
-          start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
-          next_time = Time.parse("Sun Feb 01 12:18:00 UTC 2004")
+          next_time = Time.utc(2004, 2, 1, 12, 18)
           start.should < next_time
           start.min.should < next_time.min
           EqualityPredicate.new(:min, 18).next_occurrence_after(start).should == next_time
         end
 
         it "should return a time within the next hour when value is less than start.min" do
-          start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
-          next_time = Time.parse("Sun Feb 01 13:02:00 UTC 2004")
+          next_time = Time.utc(2004, 2, 1, 13, 2)
           start.should < next_time
           start.min.should > next_time.min
           EqualityPredicate.new(:min, 2).next_occurrence_after(start).should == next_time
@@ -239,16 +268,14 @@ module ClockworkMango
 
       context "when @attribute is :hour" do
         it "should return a time within the current day when value is greater than start.hour" do
-          start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
-          next_time = Time.parse("Sun Feb 01 16:00:00 UTC 2004")
+          next_time = Time.utc(2004, 2, 1, 16)
           start.should < next_time
           start.hour.should < next_time.hour
           EqualityPredicate.new(:hour, 16).next_occurrence_after(start).should == next_time
         end
 
         it "should return a time within the next day when value is less than start.hour" do
-          start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
-          next_time = Time.parse("Mon Feb 02 06:00:00 UTC 2004")
+          next_time = Time.utc(2004, 2, 2, 6)
           start.should < next_time
           start.hour.should > next_time.hour
           EqualityPredicate.new(:hour, 6).next_occurrence_after(start).should == next_time
@@ -261,21 +288,20 @@ module ClockworkMango
         end
 
         it "should reset hours, minutes, and seconds when advancing day" do
-          start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
+          start = Time.utc(2004, 2, 1, 12, 15, 12)
           day_29.next_occurrence_after(start).should == next_29th
         end
 
         it "should return a time within the current month when value is greater than start.day" do
-          start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
-          next_time = Time.parse("Mon Feb 09 00:00:00 UTC 2004")
+          next_time = Time.utc(2004, 2, 9)
           start.should < next_time
           start.day.should < next_time.day
           EqualityPredicate.new(:day, 9).next_occurrence_after(start).should == next_time
         end
 
         it "should return a time within the next month when value is less than start.day" do
-          start = Time.parse("Mon Feb 02 12:15:12 UTC 2004")
-          next_time = Time.parse("Mon Mar 01 00:00:00 UTC 2004")
+          start = Time.utc(2004, 2, 15)
+          next_time = Time.utc(2004, 3, 1)
           start.should < next_time
           start.day.should > next_time.day
           day_1.next_occurrence_after(start).should == next_time
@@ -284,16 +310,14 @@ module ClockworkMango
 
       context "when @attribute is :month" do
         it "should return a time within the current year when value is greater than start.month" do
-          start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
-          next_time = Time.parse("Mon Mar 01 00:00:00 UTC 2004")
+          next_time = Time.utc(2004, 3, 1)
           start.should < next_time
           start.month.should < next_time.month
           EqualityPredicate.new(:month, 3).next_occurrence_after(start).should == next_time
         end
 
         it "should return a time within the next year when value is less than start.month" do
-          start = Time.parse("Mon Feb 02 12:15:12 UTC 2004")
-          next_time = Time.parse("Sat Jan 01 00:00:00 UTC 2005")
+          next_time = Time.utc(2005, 1, 1)
           start.should < next_time
           start.month.should > next_time.month
           EqualityPredicate.new(:month, 1).next_occurrence_after(start).should == next_time
@@ -301,14 +325,13 @@ module ClockworkMango
       end
 
       context "when @attribute is :year" do
+        let(:next_time) { Time.utc(2006, 1, 1, 00, 00, 00) }
+
         it "should return nil when value is less than start.year" do
-          start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
           EqualityPredicate.new(:year, 2003).next_occurrence_after(start).should == nil
         end
 
         it "should return the beginning of the asserted year when value is greater than start.year" do
-          start = Time.parse("Sun Feb 01 12:15:12 UTC 2004")
-          next_time = Time.parse("Sun Jan 01 00:00:00 UTC 2006")
           start.should < next_time
           start.year.should < next_time.year
           EqualityPredicate.new(:year, 2006).next_occurrence_after(start).should == next_time
