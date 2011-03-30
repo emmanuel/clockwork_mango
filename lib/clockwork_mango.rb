@@ -1,18 +1,12 @@
-require "pathname"
-require "date"
-
-# require "bundler"
-# Bundler.setup(:default)
-unless $LOAD_PATH.include?(File.dirname(__FILE__))
-  $LOAD_PATH << File.dirname(__FILE__)
-end
+lib = File.dirname(__FILE__)
+$LOAD_PATH << lib unless $LOAD_PATH.include?(lib)
 
 require "clockwork_mango/version"
+require "clockwork_mango/core_ext"
 require "clockwork_mango/predicate"
 require "clockwork_mango/comparison_predicate"
 require "clockwork_mango/compound_predicate"
 require "clockwork_mango/dsl"
-require "clockwork_mango/core_ext"
 
 # Shortcut to the ClockworkMango::Dsl.build_predicate dsl. 
 # Lets you use the lib from any context like so:
