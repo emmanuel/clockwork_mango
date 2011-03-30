@@ -30,9 +30,9 @@ module ClockworkMango
     end
 
     describe "#inspect" do
-      it "should return itself as #to_temporal_expression" do
+      it "should return itself as #to_temporal_sexp" do
         year.inspect.should ==
-          "<ClockworkMango::EqualityPredicate:#{year.object_id.to_s(16)} temporal_expression=#{year.to_temporal_expression.inspect}>"
+          "<#{year.class.to_s}:#{year.object_id.to_s(16)} expression=#{year.to_temporal_sexp.inspect}>"
       end
     end # describe "#inspect"
 

@@ -28,12 +28,12 @@ VALUES = {
 }
 
 RSpec::Matchers.define :express do |expression|
-  if expression.respond_to?(:to_temporal_expression)
-    expression = expression.to_temporal_expression
+  if expression.respond_to?(:to_temporal_sexp)
+    expression = expression.to_temporal_sexp
   end
   match do |predicate|
-    if predicate.respond_to?(:to_temporal_expression)
-      predicate.to_temporal_expression.should == expression
+    if predicate.respond_to?(:to_temporal_sexp)
+      predicate.to_temporal_sexp.should == expression
     else
       predicate.should == expression
     end

@@ -10,15 +10,15 @@ module ClockworkMango
     end
 
     def attributes
-      self.predicates.map { |p| p.attributes }.flatten
+      predicates.map { |p| p.attributes }.flatten
     end
 
     def values
-      self.predicates.map { |p| p.values }.flatten
+      predicates.map { |p| p.values }.flatten
     end
 
-    def to_temporal_expression
-      [operator] + self.predicates.map { |p| p.to_temporal_expression }
+    def to_temporal_sexp
+      [operator] + predicates.map { |p| p.to_temporal_sexp }
     end
 
     # FIXME: implement #next_occurrence_after for CompoundPredicate and subclasses
@@ -40,7 +40,7 @@ module ClockworkMango
     end
 
     def ===(other)
-      self.predicates.any? { |p| p === other }
+      predicates.any? { |p| p === other }
     end
 
   end # class UnionPredicate
@@ -110,7 +110,7 @@ module ClockworkMango
       end
     end
 
-    def to_temporal_expression
+    def to_temporal_sexp
       super + [@unit, @value]
     end
 

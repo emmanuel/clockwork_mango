@@ -7,10 +7,6 @@ module ClockworkMango
     end
     @operator = nil
 
-    def self.load(*expression)
-      Loader.load(*expression)
-    end
-
     # Get the operator of this Predicate
     def operator
       self.class.operator
@@ -20,17 +16,21 @@ module ClockworkMango
     # 
     # @return [Array(Symbol, Symbol, Object)]
     #   typically [operator, attribute, value]
-    def to_temporal_expression
+    def to_temporal_sexp
       []
     end
 
+    def self.load(*expression)
+      Loader.load(*expression)
+    end
+
     def ==(other)
-      other if other.respond_to?(:to_temporal_expression) and
-        self.to_temporal_expression == other.to_temporal_expression
+      other.respond_to?(:to_temporal_sexp) and
+        self.to_temporal_sexp == other.to_temporal_sexp
     end
 
     def inspect
-      "<#{self.class}:#{object_id.to_s(16)} temporal_expression=#{to_temporal_expression.inspect}>"
+      "<#{self.class}:#{object_id.to_s(16)} expression=#{to_temporal_sexp.inspect}>"
     end
 
     # Disclose which attributes this Predicate is concerned with

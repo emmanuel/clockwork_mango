@@ -143,7 +143,7 @@ module ClockworkMango
       end
     end
 
-    def to_temporal_expression
+    def to_temporal_sexp
       [operator, @attribute, @value]
     end
 

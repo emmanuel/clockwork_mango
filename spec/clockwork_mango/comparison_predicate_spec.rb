@@ -95,7 +95,7 @@ module ClockworkMango
       end
     end # describe "USECOND_PRECISION_UNITS"
 
-    describe "#to_temporal_expression" do
+    describe "#to_temporal_sexp" do
       ClockworkMango::COMPARABLE_ATTRIBUTES.each do |attribute|
         context ":#{attribute} EqualityPredicates" do
           (0..4).each do |value|
@@ -103,14 +103,14 @@ module ClockworkMango
               describe ComparisonPredicate do
                 it "should return [:===, :#{attribute}, #{value}]" do
                   predicate = ComparisonPredicate.new(attribute, value)
-                  predicate.to_temporal_expression.should == [:===, attribute, value]
+                  predicate.to_temporal_sexp.should == [:===, attribute, value]
                 end
               end
 
               describe EqualityPredicate do
                 it "should return [:==, :#{attribute}, #{value}] with value #{value}" do
                   predicate = EqualityPredicate.new(attribute, value)
-                  predicate.to_temporal_expression.should == [:==, attribute, value]
+                  predicate.to_temporal_sexp.should == [:==, attribute, value]
                 end
               end
 
@@ -118,7 +118,7 @@ module ClockworkMango
                 it "should return [:include?, :#{attribute}, #{value}] with value #{value}" do
                   range = value..(value + 3)
                   predicate = InclusionPredicate.new(attribute, range)
-                  predicate.to_temporal_expression.should == [:include?, attribute, range]
+                  predicate.to_temporal_sexp.should == [:include?, attribute, range]
                 end
               end
 
@@ -126,28 +126,28 @@ module ClockworkMango
                 it "should return [:exclude?, :#{attribute}, #{value}] with value #{value}" do
                   range = value..(value + 3)
                   predicate = ExclusionPredicate.new(attribute, range)
-                  predicate.to_temporal_expression.should == [:exclude?, attribute, range]
+                  predicate.to_temporal_sexp.should == [:exclude?, attribute, range]
                 end
               end
 
               describe GreaterThanPredicate do
                 it "should return [:>, :#{attribute}, #{value}] with value #{value}" do
                   predicate = GreaterThanPredicate.new(attribute, value)
-                  predicate.to_temporal_expression.should == [:>, attribute, value]
+                  predicate.to_temporal_sexp.should == [:>, attribute, value]
                 end
               end
 
               describe LessThanPredicate do
                 it "should return [:<, :#{attribute}, #{value}] with value #{value}" do
                   predicate = LessThanPredicate.new(attribute, value)
-                  predicate.to_temporal_expression.should == [:<, attribute, value]
+                  predicate.to_temporal_sexp.should == [:<, attribute, value]
                 end
               end
             end
           end
         end
       end
-    end # describe "#to_temporal_expression"
+    end # describe "#to_temporal_sexp"
 
     describe "#next_occurrence_after" do
       let(:start)     { Time.parse("Sun Feb 01 00:00:00 UTC 2004") }
