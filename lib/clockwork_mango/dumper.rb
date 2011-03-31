@@ -13,7 +13,7 @@ module ClockworkMango
 
     def dumper_for_predicate(predicate)
       MAPPING.detect { |(k,d)| k === predicate }.try(:last) or
-        fail(ArgumentError, "expected Comparison, or Compound Predicate")
+        fail(ArgumentError, "expected one of #{MAPPING.map { |m| m[0] }.join(', ')}")
     end
 
     module Comparison
