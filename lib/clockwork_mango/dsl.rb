@@ -6,7 +6,9 @@ require "clockwork_mango/unroll"
 module ClockworkMango
   module Dsl
     def self.build_predicate(&block)
-      if block.arity.zero?
+      # TODO: why do I get arity -1 with `Clockwork { monday(3) }`?
+      # if block.arity.zero?
+      if block.arity != 1
         instance_eval(&block)
       else
         yield(self)
