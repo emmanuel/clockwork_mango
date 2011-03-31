@@ -109,6 +109,7 @@ module ClockworkMango
       end
 
       def to_temporal_sexp
+        require "clockwork_mango/dumper"
         Dumper.dump(self)
       end
 
@@ -126,4 +127,3 @@ module ClockworkMango
 end # module ClockworkMango
 
 require "clockwork_mango/predicate/compound"
-require "clockwork_mango/dumper"
