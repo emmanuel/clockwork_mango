@@ -6,8 +6,8 @@ require "clockwork_mango/core_ext"
 require "clockwork_mango/predicate/base"
 require "clockwork_mango/predicate/comparison"
 require "clockwork_mango/predicate/compound"
-require "clockwork_mango/dsl"
 require "clockwork_mango/loader"
+require "clockwork_mango/dsl"
 
 # Shortcut to the ClockworkMango::Dsl.build_predicate dsl. 
 # Lets you use the lib from any context like so:

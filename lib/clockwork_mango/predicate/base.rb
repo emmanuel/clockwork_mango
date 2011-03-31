@@ -126,4 +126,4 @@ module ClockworkMango
 end # module ClockworkMango
 
 require "clockwork_mango/predicate/compound"
-require "clockwork_mango/predicate/dumper"
+require "clockwork_mango/dumper"
