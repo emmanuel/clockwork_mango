@@ -108,6 +108,10 @@ module ClockworkMango
         Predicate::Offset.new(self, unit, value)
       end
 
+      def to_temporal_sexp
+        Dumper.dump(self)
+      end
+
       def next_occurrence(after = Time.now.utc)
         next_occurrence_after(after)
       end
@@ -122,3 +126,4 @@ module ClockworkMango
 end # module ClockworkMango
 
 require "clockwork_mango/predicate/compound"
+require "clockwork_mango/predicate/dumper"

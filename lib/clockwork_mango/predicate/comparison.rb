@@ -83,10 +83,6 @@ module ClockworkMango
         end
       end
 
-      def to_temporal_sexp
-        [operator, @attribute, @value]
-      end
-
       def self.predicate_for(operator)
         Class.new(self) { @operator = operator }
       end

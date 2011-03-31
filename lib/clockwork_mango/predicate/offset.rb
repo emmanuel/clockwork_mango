@@ -28,10 +28,6 @@ module ClockworkMango
         end
       end
 
-      def to_temporal_sexp
-        super + [@unit, @value]
-      end
-
     end # class Offset
   end # module Predicate
 end # module ClockworkMango
