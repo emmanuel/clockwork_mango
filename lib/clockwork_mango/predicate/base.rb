@@ -14,21 +14,22 @@ module ClockworkMango
         self.class.operator
       end
 
-      # Get a representation of this Predicate as an s-expression
-      # 
-      # @return [Array(Symbol, Symbol, Object)]
-      #   typically [operator, attribute, value]
-      def to_temporal_sexp
-        []
-      end
-
       def ==(other)
         other.respond_to?(:to_temporal_sexp) and
           self.to_temporal_sexp == other.to_temporal_sexp
       end
 
-      def inspect
-        "<#{self.class}:#{object_id.to_s(16)} expression=#{to_temporal_sexp.inspect}>"
+      # Test whether +self+ matches +other+.
+      # Subclasses should override to provide meaningful match semantics, ex:
+      #   Predicate::Comparison#===
+      # 
+      # @param [Object] other
+      #   an Object to be tested against this predicate
+      # 
+      # @return [TrueClass, FalseClass]
+      #   does +self+ include +other+?
+      def ===(other)
+        false
       end
 
       # Disclose which attributes this Predicate is concerned with
@@ -45,18 +46,6 @@ module ClockworkMango
       #   attribute values asserted in this predicate
       def values
         []
-      end
-
-      # Test matchiness of "other" in "self". Subclasses should override this
-      # method to provide meaningful match semantics (eg., Predicate::Comparison#===).
-      # 
-      # @param [Object] other
-      #   an Object to be tested against this predicate
-      # 
-      # @return [TrueClass, FalseClass]
-      #   does +self+ include +other+?
-      def ===(other)
-        false
       end
 
       # Intersect self with another Predicate. The returned Predicate::Intersection
@@ -108,6 +97,14 @@ module ClockworkMango
         Predicate::Offset.new(self, unit, value)
       end
 
+      def inspect
+        "<#{self.class}:#{object_id.to_s(16)} expression=#{to_temporal_sexp.inspect}>"
+      end
+
+      # Get a representation of this Predicate as an s-expression
+      # 
+      # @return [Array(Symbol, Symbol, Object)]
+      #   typically [operator, attribute, value]
       def to_temporal_sexp
         require "clockwork_mango/dumper"
         Dumper.dump(self)
@@ -121,7 +118,6 @@ module ClockworkMango
       # after then.
       def next_occurrence_after(after)
       end
-
     end # class Base
   end # module Predicate
 end # module ClockworkMango
