@@ -1,5 +1,10 @@
 require "singleton"
 require "active_support/basic_object"
+require "clockwork_mango/predicate/base"
+require "clockwork_mango/predicate/comparison"
+require "clockwork_mango/predicate/compound"
+
+fail "no Predicate::Union" unless defined?(ClockworkMango::Predicate::Union)
 
 module ClockworkMango
   class Loader < ::ActiveSupport::BasicObject
@@ -10,39 +15,39 @@ module ClockworkMango
     end
 
     def ==(unit, value)
-      EqualityPredicate.new(unit, value)
+      Predicate::Equality.new(unit, value)
     end
 
     def >(unit, value)
-      GreaterThanPredicate.new(unit, value)
+      Predicate::GreaterThan.new(unit, value)
     end
 
     def >=(unit, value)
-      GreaterThanOrEqualPredicate.new(unit, value)
+      Predicate::GreaterThanOrEqual.new(unit, value)
     end
 
     def <(unit, value)
-      LessThanPredicate.new(unit, value)
+      Predicate::LessThan.new(unit, value)
     end
 
     def <=(unit, value)
-      LessThanOrEqualPredicate.new(unit, value)
+      Predicate::LessThanOrEqual.new(unit, value)
     end
 
     def |(*expressions)
-      UnionPredicate.new(*expressions.map { |e| Loader.load(*e) })
+      Predicate::Union.new(*expressions.map { |e| Loader.load(*e) })
     end
 
     def &(*expressions)
-      IntersectionPredicate.new(*expressions.map { |e| Loader.load(*e) })
+      Predicate::Intersection.new(*expressions.map { |e| Loader.load(*e) })
     end
 
     def -(*expressions)
-      DifferencePredicate.new(*expressions.map { |e| Loader.load(*e) })
+      Predicate::Difference.new(*expressions.map { |e| Loader.load(*e) })
     end
 
     def >>(expression, unit, value)
-      OffsetPredicate.new(Loader.load(*expression), unit, value)
+      Predicate::Offset.new(Loader.load(*expression), unit, value)
     end
   end
 end

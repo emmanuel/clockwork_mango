@@ -1,15 +1,12 @@
 require "spec_helper"
-require "clockwork_mango/comparison_predicate"
+require "clockwork_mango/predicate/comparison"
 
 module ClockworkMango
-  describe ComparisonPredicate do
+  describe Predicate::Comparison do
     let(:date)      { Date.new(*DATE_ATTRIBUTES.map { |a| VALUES[a] }) }
     let(:datetime)  { DateTime.new(*DATETIME_ATTRS.map { |a| VALUES[a] }) }
     let(:time)      { Time.local(*TIME_ATTRIBUTES.map { |a| VALUES[a] }) }
-
-    before :all do
-      @values = { Date => date, DateTime => datetime, Time => time }
-    end
+    let(:values)    { { Date => date, DateTime => datetime, Time => time } }
 
     describe "DAY_PRECISION_UNITS" do
       DAY_PRECISION_UNITS.each do |attr|
@@ -18,17 +15,17 @@ module ClockworkMango
 
         [::Time, ::DateTime, ::Date].each do |klass|
           it "should match #{klass}s on asserted #{attr} integer value" do
-            EqualityPredicate.new(attr, value).should === @values[klass]
+            Predicate::Equality.new(attr, value).should === values[klass]
           end
 
           it "should match #{klass}s on asserted #{attr} range value" do
-            InclusionPredicate.new(attr, (value - 1)..(value + 1)).should === @values[klass]
+            Predicate::Inclusion.new(attr, (value - 1)..(value + 1)).should === values[klass]
           end
 
           it "should not match #{klass}s on any other #{attr} value" do
-            EqualityPredicate.new(attr, value - 1).should_not === @values[klass]
-            EqualityPredicate.new(attr, value + 1).should_not === @values[klass]
-            EqualityPredicate.new(attr, value + random).should_not === @values[klass]
+            Predicate::Equality.new(attr, value - 1).should_not === values[klass]
+            Predicate::Equality.new(attr, value + 1).should_not === values[klass]
+            Predicate::Equality.new(attr, value + random).should_not === values[klass]
           end
         end
       end
@@ -41,24 +38,24 @@ module ClockworkMango
 
         {::Time => true, ::DateTime => true, ::Date => false}.each do |klass, specific|
           it "should match #{klass} objects on asserted #{attr} integer value" do
-            EqualityPredicate.new(attr, value).should === @values[klass]
+            Predicate::Equality.new(attr, value).should === values[klass]
           end
 
           it "should match #{klass} objects on asserted #{attr} range value" do
-            InclusionPredicate.new(attr, (value - 1)..(value + 1)).should === @values[klass]
+            Predicate::Inclusion.new(attr, (value - 1)..(value + 1)).should === values[klass]
           end
 
           if specific
             it "should not match #{klass} objects on any other #{attr} value" do
-              EqualityPredicate.new(attr, value - 1).should_not === @values[klass]
-              EqualityPredicate.new(attr, value + 1).should_not === @values[klass]
-              EqualityPredicate.new(attr, value + random).should_not === @values[klass]
+              Predicate::Equality.new(attr, value - 1).should_not === values[klass]
+              Predicate::Equality.new(attr, value + 1).should_not === values[klass]
+              Predicate::Equality.new(attr, value + random).should_not === values[klass]
             end
           else
             it "should match #{klass} objects on any other #{attr} value" do
-              EqualityPredicate.new(attr, value - 1).should === @values[klass]
-              EqualityPredicate.new(attr, value + 1).should === @values[klass]
-              EqualityPredicate.new(attr, value + random).should === @values[klass]
+              Predicate::Equality.new(attr, value - 1).should === values[klass]
+              Predicate::Equality.new(attr, value + 1).should === values[klass]
+              Predicate::Equality.new(attr, value + random).should === values[klass]
             end
           end
         end
@@ -72,24 +69,24 @@ module ClockworkMango
 
         {::Time => true, ::DateTime => false, ::Date => false}.each do |klass, specific|
           it "should match #{klass} objects on asserted #{attr} integer value" do
-            EqualityPredicate.new(attr, value).should === @values[klass]
+            Predicate::Equality.new(attr, value).should === values[klass]
           end
 
           it "should match #{klass} objects on asserted #{attr} range value" do
-            InclusionPredicate.new(attr, (value - 1)..(value + 1)).should === @values[klass]
+            Predicate::Inclusion.new(attr, (value - 1)..(value + 1)).should === values[klass]
           end
 
           if specific
             it "should not match #{klass} objects on any other #{attr} value" do
-              EqualityPredicate.new(attr, value - 1).should_not === @values[klass]
-              EqualityPredicate.new(attr, value + 1).should_not === @values[klass]
-              EqualityPredicate.new(attr, value + random).should_not === @values[klass]
+              Predicate::Equality.new(attr, value - 1).should_not === values[klass]
+              Predicate::Equality.new(attr, value + 1).should_not === values[klass]
+              Predicate::Equality.new(attr, value + random).should_not === values[klass]
             end
           else
             it "should match #{klass} objects on any other #{attr} value" do
-              EqualityPredicate.new(attr, value - 1).should === @values[klass]
-              EqualityPredicate.new(attr, value + 1).should === @values[klass]
-              EqualityPredicate.new(attr, value + random).should === @values[klass]
+              Predicate::Equality.new(attr, value - 1).should === values[klass]
+              Predicate::Equality.new(attr, value + 1).should === values[klass]
+              Predicate::Equality.new(attr, value + random).should === values[klass]
             end
           end
         end
@@ -97,50 +94,50 @@ module ClockworkMango
     end # describe "USECOND_PRECISION_UNITS"
 
     describe "#to_temporal_sexp" do
-      ClockworkMango::COMPARABLE_ATTRIBUTES.each do |attribute|
-        context ":#{attribute} EqualityPredicates" do
+      ClockworkMango::Constants::COMPARABLE_ATTRIBUTES.each do |attribute|
+        context ":#{attribute} Predicate::Equalitys" do
           (0..4).each do |value|
             context "with value #{value}" do
-              describe ComparisonPredicate do
+              describe Predicate::Comparison do
                 it "should return [:===, :#{attribute}, #{value}]" do
-                  predicate = ComparisonPredicate.new(attribute, value)
+                  predicate = Predicate::Comparison.new(attribute, value)
                   predicate.to_temporal_sexp.should == [:===, attribute, value]
                 end
               end
 
-              describe EqualityPredicate do
+              describe Predicate::Equality do
                 it "should return [:==, :#{attribute}, #{value}] with value #{value}" do
-                  predicate = EqualityPredicate.new(attribute, value)
+                  predicate = Predicate::Equality.new(attribute, value)
                   predicate.to_temporal_sexp.should == [:==, attribute, value]
                 end
               end
 
-              describe InclusionPredicate do
+              describe Predicate::Inclusion do
                 it "should return [:include?, :#{attribute}, #{value}] with value #{value}" do
                   range = value..(value + 3)
-                  predicate = InclusionPredicate.new(attribute, range)
+                  predicate = Predicate::Inclusion.new(attribute, range)
                   predicate.to_temporal_sexp.should == [:include?, attribute, range]
                 end
               end
 
-              describe ExclusionPredicate do
+              describe Predicate::Exclusion do
                 it "should return [:exclude?, :#{attribute}, #{value}] with value #{value}" do
                   range = value..(value + 3)
-                  predicate = ExclusionPredicate.new(attribute, range)
+                  predicate = Predicate::Exclusion.new(attribute, range)
                   predicate.to_temporal_sexp.should == [:exclude?, attribute, range]
                 end
               end
 
-              describe GreaterThanPredicate do
+              describe Predicate::GreaterThan do
                 it "should return [:>, :#{attribute}, #{value}] with value #{value}" do
-                  predicate = GreaterThanPredicate.new(attribute, value)
+                  predicate = Predicate::GreaterThan.new(attribute, value)
                   predicate.to_temporal_sexp.should == [:>, attribute, value]
                 end
               end
 
-              describe LessThanPredicate do
+              describe Predicate::LessThan do
                 it "should return [:<, :#{attribute}, #{value}] with value #{value}" do
-                  predicate = LessThanPredicate.new(attribute, value)
+                  predicate = Predicate::LessThan.new(attribute, value)
                   predicate.to_temporal_sexp.should == [:<, attribute, value]
                 end
               end
@@ -150,14 +147,14 @@ module ClockworkMango
       end
     end # describe "#to_temporal_sexp"
 
-    describe "#next_occurrence_after" do
+    describe "#next_occurrence" do
       let(:start)     { Time.utc(2004, 2, 1, 12, 15, 12) }
       let(:next_29th) { Time.utc(2004, 2, 29) }
       let(:date)      { Date.new(2004, 2, 1) }
       let(:date_time) { DateTime.new(2004, 2, 1, 12, 15, 12) }
       let(:time)      { start }
-      let(:day_1)    { EqualityPredicate.new(:day, 1) }
-      let(:day_29)   { EqualityPredicate.new(:day, 29) }
+      let(:day_1)    { Predicate::Equality.new(:day, 1) }
+      let(:day_29)   { Predicate::Equality.new(:day, 29) }
 
       context "with no arguments" do
         it "should return a single Time object" do
@@ -239,14 +236,14 @@ module ClockworkMango
           next_time = Time.utc(2004, 2, 1, 12, 15, 29)
           start.should < next_time
           start.sec.should < next_time.sec
-          EqualityPredicate.new(:sec, 29).next_occurrence_after(start).should == next_time
+          Predicate::Equality.new(:sec, 29).next_occurrence_after(start).should == next_time
         end
 
         it "should return a time within the next minute when value is less than start.sec" do
           next_time = Time.utc(2004, 2, 1, 12, 16, 02)
           start.should < next_time
           start.sec.should > next_time.sec
-          EqualityPredicate.new(:sec, 2).next_occurrence_after(start).should == next_time
+          Predicate::Equality.new(:sec, 2).next_occurrence_after(start).should == next_time
         end
       end
 
@@ -255,14 +252,14 @@ module ClockworkMango
           next_time = Time.utc(2004, 2, 1, 12, 18)
           start.should < next_time
           start.min.should < next_time.min
-          EqualityPredicate.new(:min, 18).next_occurrence_after(start).should == next_time
+          Predicate::Equality.new(:min, 18).next_occurrence_after(start).should == next_time
         end
 
         it "should return a time within the next hour when value is less than start.min" do
           next_time = Time.utc(2004, 2, 1, 13, 2)
           start.should < next_time
           start.min.should > next_time.min
-          EqualityPredicate.new(:min, 2).next_occurrence_after(start).should == next_time
+          Predicate::Equality.new(:min, 2).next_occurrence_after(start).should == next_time
         end
       end
 
@@ -271,14 +268,14 @@ module ClockworkMango
           next_time = Time.utc(2004, 2, 1, 16)
           start.should < next_time
           start.hour.should < next_time.hour
-          EqualityPredicate.new(:hour, 16).next_occurrence_after(start).should == next_time
+          Predicate::Equality.new(:hour, 16).next_occurrence_after(start).should == next_time
         end
 
         it "should return a time within the next day when value is less than start.hour" do
           next_time = Time.utc(2004, 2, 2, 6)
           start.should < next_time
           start.hour.should > next_time.hour
-          EqualityPredicate.new(:hour, 6).next_occurrence_after(start).should == next_time
+          Predicate::Equality.new(:hour, 6).next_occurrence_after(start).should == next_time
         end
       end
 
@@ -296,7 +293,7 @@ module ClockworkMango
           next_time = Time.utc(2004, 2, 9)
           start.should < next_time
           start.day.should < next_time.day
-          EqualityPredicate.new(:day, 9).next_occurrence_after(start).should == next_time
+          Predicate::Equality.new(:day, 9).next_occurrence_after(start).should == next_time
         end
 
         it "should return a time within the next month when value is less than start.day" do
@@ -313,14 +310,14 @@ module ClockworkMango
           next_time = Time.utc(2004, 3, 1)
           start.should < next_time
           start.month.should < next_time.month
-          EqualityPredicate.new(:month, 3).next_occurrence_after(start).should == next_time
+          Predicate::Equality.new(:month, 3).next_occurrence_after(start).should == next_time
         end
 
         it "should return a time within the next year when value is less than start.month" do
           next_time = Time.utc(2005, 1, 1)
           start.should < next_time
           start.month.should > next_time.month
-          EqualityPredicate.new(:month, 1).next_occurrence_after(start).should == next_time
+          Predicate::Equality.new(:month, 1).next_occurrence_after(start).should == next_time
         end
       end
 
@@ -328,13 +325,13 @@ module ClockworkMango
         let(:next_time) { Time.utc(2006, 1, 1, 00, 00, 00) }
 
         it "should return nil when value is less than start.year" do
-          EqualityPredicate.new(:year, 2003).next_occurrence_after(start).should == nil
+          Predicate::Equality.new(:year, 2003).next_occurrence_after(start).should == nil
         end
 
         it "should return the beginning of the asserted year when value is greater than start.year" do
           start.should < next_time
           start.year.should < next_time.year
-          EqualityPredicate.new(:year, 2006).next_occurrence_after(start).should == next_time
+          Predicate::Equality.new(:year, 2006).next_occurrence_after(start).should == next_time
         end
       end
     end

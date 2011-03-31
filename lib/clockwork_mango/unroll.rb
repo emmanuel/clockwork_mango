@@ -11,11 +11,11 @@ module ClockworkMango
     #   a Range bounded at each end by an array of
     #   hour, minute[, second] Integers
     #
-    # @return [ClockworkMango::IntersectionPredicate, ClockworkMango::UnionPredicate]
+    # @return [ClockworkMango::Predicate::Intersection, ClockworkMango::Predicate::Union]
     #   a Predicate that matches the given range of time of day,
     #   at the precision of the +time_range+ endpoints
     # 
-    # Implementation unrolls +time_range+ into UnionPredicate predicates:
+    # Implementation unrolls +time_range+ into Predicate::Unions:
     #   ClockworkMango::Dsl.from([9,15]..[12,45])
     #   # => (hour(9) & min(15..59)) | hour(10..11) | (hour(12) & min (0..45))
     # Or:
@@ -47,16 +47,16 @@ module ClockworkMango
       validate_hhmmss(hh,mm,ss)
 
       if mm.nil?
-        GreaterThanOrEqualPredicate.new(:hour, hh)
+        Predicate::GreaterThanOrEqual.new(:hour, hh)
       elsif ss.nil?
-        GreaterThanPredicate.new(:hour, hh) | (
-          EqualityPredicate.new(:hour, hh) &
-          GreaterThanOrEqualPredicate.new(:min, mm))
+        Predicate::GreaterThan.new(:hour, hh) | (
+          Predicate::Equality.new(:hour, hh) &
+          Predicate::GreaterThanOrEqual.new(:min, mm))
       else
-        GreaterThanPredicate.new(:hour, hh) | (
-          EqualityPredicate.new(:hour, hh) & (
-            GreaterThanPredicate.new(:min, mm) | (
-            EqualityPredicate.new(:min, mm) & GreaterThanOrEqualPredicate.new(:sec, ss))))
+        Predicate::GreaterThan.new(:hour, hh) | (
+          Predicate::Equality.new(:hour, hh) & (
+            Predicate::GreaterThan.new(:min, mm) | (
+            Predicate::Equality.new(:min, mm) & Predicate::GreaterThanOrEqual.new(:sec, ss))))
       end
     end
 
@@ -81,7 +81,7 @@ module ClockworkMango
           beginning = Dsl.hour(begin_hh..end_hh)
           ending    = nil
         end
-      when VALID_MIN_RANGE
+      when Predicate::Comparison::VALID_MIN_RANGE
         beginning = hhmmss_into_partial_hour_predicate(time_range.begin)
         middle    = Dsl.hour((begin_hh + 1)..(end_hh - 1))
         ending    = hhmmss_into_partial_hour_predicate(time_range.end, true)
@@ -179,7 +179,7 @@ module ClockworkMango
           beginning = Dsl.hour(begin_hh..MAX_HH)
           ending    = Dsl.hour(0..end_hh)
         end
-      when VALID_MIN_RANGE
+      when Predicate::Comparison::VALID_MIN_RANGE
         beginning = hhmmss_into_partial_hour_predicate(time_range.begin)
         middle    = Dsl.hour(0..(end_hh - 1)) | Dsl.hour((begin_hh + 1)..MAX_HH)
         ending    = hhmmss_into_partial_hour_predicate(time_range.end, true)
@@ -334,11 +334,11 @@ module ClockworkMango
 
     def self.validate_hhmmss(hh, mm, ss)
       message =
-        if !hh.is_a?(Integer) || !VALID_HOUR_RANGE.include?(hh)
+        if !hh.is_a?(Integer) || !Predicate::Comparison::VALID_HOUR_RANGE.include?(hh)
           "invalid hour specified (#{hh.inspect})"
-        elsif mm && !VALID_MIN_RANGE.include?(mm)
+        elsif mm && !Predicate::Comparison::VALID_MIN_RANGE.include?(mm)
           "invalid minute specified (#{mm.inspect})"
-        elsif ss && !VALID_SEC_RANGE.include?(ss)
+        elsif ss && !Predicate::Comparison::VALID_SEC_RANGE.include?(ss)
           "invalid second specified (#{ss.inspect})"
         end
       raise(ArgumentError, message) if message

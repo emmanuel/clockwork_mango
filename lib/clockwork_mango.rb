@@ -3,9 +3,9 @@ $LOAD_PATH << lib unless $LOAD_PATH.include?(lib)
 
 require "clockwork_mango/version"
 require "clockwork_mango/core_ext"
-require "clockwork_mango/predicate"
-require "clockwork_mango/comparison_predicate"
-require "clockwork_mango/compound_predicate"
+require "clockwork_mango/predicate/base"
+require "clockwork_mango/predicate/comparison"
+require "clockwork_mango/predicate/compound"
 require "clockwork_mango/dsl"
 
 # Shortcut to the ClockworkMango::Dsl.build_predicate dsl. 

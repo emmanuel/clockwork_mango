@@ -1,6 +1,6 @@
-require "clockwork_mango/predicate"
-require "clockwork_mango/comparison_predicate"
-require "clockwork_mango/compound_predicate"
+require "clockwork_mango/predicate/base"
+require "clockwork_mango/predicate/comparison"
+require "clockwork_mango/predicate/compound"
 require "clockwork_mango/unroll"
 
 module ClockworkMango
@@ -21,9 +21,9 @@ module ClockworkMango
       name, attribute = name.to_sym, attribute.to_sym
       define_method(name) do |value|
         if value.respond_to?(:include?)
-          InclusionPredicate.new(attribute, value)
+          Predicate::Inclusion.new(attribute, value)
         else
-          EqualityPredicate.new(attribute, value)
+          Predicate::Equality.new(attribute, value)
         end
       end
       module_function(name)
@@ -38,18 +38,18 @@ module ClockworkMango
       name, attribute = name.to_sym, attribute.to_sym
       if value.respond_to?(:include?)
         define_method(name) do
-          InclusionPredicate.new(attribute, value)
+          Predicate::Inclusion.new(attribute, value)
         end
       else
         define_method(name) do
-          EqualityPredicate.new(attribute, value)
+          Predicate::Equality.new(attribute, value)
         end
       end
 
       module_function(name)
     end
 
-    COMPARABLE_ATTRIBUTES.each do |attribute|
+    Predicate::Comparison::COMPARABLE_ATTRIBUTES.each do |attribute|
       define_arity_one_predicate_builder(attribute, attribute)
     end
 
@@ -59,12 +59,12 @@ module ClockworkMango
     # Build a predicate that matches the named month (and optional month day)
     # 
     # @param [Integer] month_day (optional)
-    #   define intersecting :day EqualityPredicate if provided.
+    #   define intersecting :day Predicate::Equality if provided.
     #   If no month_day value is provided, no :day predicate will be intersected
     # 
-    # @return [ClockworkMango::EqualityPredicate, ClockworkMango::IntersectionPredicate]
-    #   a :month EqualityPredicate (if no month_day provided), or
-    #   an IntersectionPredicate of :month and :day (if month_day provided)
+    # @return [ClockworkMango::Predicate::Equality, ClockworkMango::Predicate::Intersection]
+    #   a :month Predicate::Equality (if no month_day provided), or
+    #   an Predicate::Intersection of :month and :day (if month_day provided)
     MONTHS.each_with_index do |month, index|
       module_eval <<-RUBY, __FILE__, __LINE__
         def #{month}(month_day=nil)
@@ -92,13 +92,13 @@ module ClockworkMango
     # Build a predicate that matches the named weekday.
     # 
     # @param [Integer, Symbol] ordinal (optional)
-    #   define intersecting :wday_in_month EqualityPredicate if provided.
+    #   define intersecting :wday_in_month Predicate::Equality if provided.
     #   Symbols will be used to look up an integer value in ORDINAL_MAP.
     #   If no value is found, no :wday_in_month predicate will be intersected
     # 
-    # @return [ClockworkMango::EqualityPredicate, ClockworkMango::IntersectionPredicate]
-    #   a :wday EqualityPredicate or
-    #   an IntersectionPredicate of :wday & :wday_in_month/:wday_in_year
+    # @return [ClockworkMango::Predicate::Equality, ClockworkMango::Predicate::Intersection]
+    #   a :wday Predicate::Equality or
+    #   an Predicate::Intersection of :wday & :wday_in_month/:wday_in_year
     #   (:wday & :wday_in_month) if ordinal provided and ordinal_scope == :month (default)
     #   (:wday & :wday_in_year) if ordinal provided and ordinal_scope == :year
     WEEKDAYS = %w[sunday monday tuesday wednesday thursday friday saturday]
@@ -135,10 +135,10 @@ module ClockworkMango
     # @param [Integer[, Integer[, Integer]]] time_array
     #   an array of hour[, minute[, second]] Integer values
     # 
-    # @return [ClockworkMango::EqualityPredicate, ClockworkMango::IntersectionPredicate]
+    # @return [ClockworkMango::Predicate::Equality, ClockworkMango::Predicate::Intersection]
     #   a Predicate that matches the given time of day, at the precision of the provided args
     def at(hh, mm = nil, ss = nil)
-      ClockworkMango::Unroll.validate_hhmmss(hh,mm,ss)
+      Unroll.validate_hhmmss(hh,mm,ss)
 
       if mm.nil?
         hour(hh)
@@ -150,45 +150,44 @@ module ClockworkMango
     end
 
     def until(hh, mm = nil, ss = nil)
-      ClockworkMango::Unroll.validate_hhmmss(hh,mm,ss)
+      Unroll.validate_hhmmss(hh,mm,ss)
 
       if mm.nil?
-        LessThanOrEqualPredicate.new(:hour, hh)
+        Predicate::LessThanOrEqual.new(:hour, hh)
       elsif ss.nil?
-        LessThanPredicate.new(:hour, hh) | (
-          EqualityPredicate.new(:hour, hh) &
-          LessThanOrEqualPredicate.new(:min, mm))
+        Predicate::LessThan.new(:hour, hh) | (
+          Predicate::Equality.new(:hour, hh) &
+          Predicate::LessThanOrEqual.new(:min, mm))
       else
-        LessThanPredicate.new(:hour, hh) | (
-          EqualityPredicate.new(:hour, hh) & (
-            LessThanPredicate.new(:min, mm) | (
-            EqualityPredicate.new(:min, mm) & LessThanOrEqualPredicate.new(:sec, ss))))
+        Predicate::LessThan.new(:hour, hh) | (
+          Predicate::Equality.new(:hour, hh) & (
+            Predicate::LessThan.new(:min, mm) | (
+            Predicate::Equality.new(:min, mm) & Predicate::LessThanOrEqual.new(:sec, ss))))
       end
     end
 
     def from(*args)
       if args.length == 1 and args.first.is_a?(Range)
         time_range = args.first
-        ClockworkMango::Unroll.validate_time_range(time_range)
-        ClockworkMango::Unroll.time_range(time_range)
+        Unroll.validate_time_range(time_range)
+        Unroll.time_range(time_range)
       else
         hh, mm, ss = args
-        ClockworkMango::Unroll.validate_hhmmss(hh, mm, ss)
-        ClockworkMango::Unroll.hhmmss(hh, mm, ss)
+        Unroll.validate_hhmmss(hh, mm, ss)
+        Unroll.hhmmss(hh, mm, ss)
       end
     end
-
-    module PredicateExtensions
-      def from(*args)
-        IntersectionPredicate.new(self, Dsl.from(*args))
-      end
-
-      def at(*args)
-        IntersectionPredicate.new(self, Dsl.at(*args))
-      end
-    end
-
-    Predicate.send(:include, PredicateExtensions)
 
   end # module Dsl
+
+  module Predicate
+    def from(*args)
+      Predicate::Intersection.new(self, Dsl.from(*args))
+    end
+
+    def at(*args)
+      Predicate::Intersection.new(self, Dsl.at(*args))
+    end
+  end
+
 end # module ClockworkMango
