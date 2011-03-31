@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/lib/clockwork_mango/version'
 
 spec = Gem::Specification.new do |s|
   s.name = 'clockwork_mango'
-  s.version = ClockworkMango.version
+  s.version = ClockworkMango::VERSION
 
   s.author = "Emmanuel Gomez"
   s.email = "emmanuel.gomez@gmail.com"

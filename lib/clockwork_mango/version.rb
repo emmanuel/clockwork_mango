@@ -1,14 +1,11 @@
 module ClockworkMango
   module VERSION #:nodoc:
     MAJOR = 0
-    MINOR = 1
-    TINY = 7
+    MINOR = 2
+    TINY = 0
 
-    STRING = [MAJOR, MINOR, TINY].join('.')
+    def self.to_s
+      [MAJOR, MINOR, TINY].join('.')
+    end
   end # module VERSION
-
-  def self.version
-    VERSION::STRING
-  end
-
 end # module ClockworkMango
