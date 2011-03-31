@@ -1,3 +1,4 @@
+require "date"
 require "active_support/concern"
 
 module ClockworkMango
