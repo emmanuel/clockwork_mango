@@ -8,7 +8,7 @@ module ClockworkMango
   class Loader < ::ActiveSupport::BasicObject
     include ::Singleton
 
-    def self.load(*args)
+    def self.load_expression(*args)
       instance.__send__(*args)
     end
 
@@ -33,24 +33,24 @@ module ClockworkMango
     end
 
     def |(*expressions)
-      Predicate::Union.new(*expressions.map { |e| Loader.load(*e) })
+      Predicate::Union.new(*expressions.map { |e| Loader.load_expression(*e) })
     end
 
     def &(*expressions)
-      Predicate::Intersection.new(*expressions.map { |e| Loader.load(*e) })
+      Predicate::Intersection.new(*expressions.map { |e| Loader.load_expression(*e) })
     end
 
     def -(*expressions)
-      Predicate::Difference.new(*expressions.map { |e| Loader.load(*e) })
+      Predicate::Difference.new(*expressions.map { |e| Loader.load_expression(*e) })
     end
 
     def >>(expression, unit, value)
-      Predicate::Offset.new(Loader.load(*expression), unit, value)
+      Predicate::Offset.new(Loader.load_expression(*expression), unit, value)
     end
 
     module LoadMethod
-      def load(*args)
-        ::ClockworkMango::Loader.load(*args)
+      def load_expression(*args)
+        ::ClockworkMango::Loader.load_expression(*args)
       end
     end # module LoadMethod
   end # class Loader

@@ -1,18 +1,19 @@
 require "spec_helper"
 require "clockwork_mango/loader"
+require "clockwork_mango/dsl"
 
 module ClockworkMango
   describe Loader do
     context "with simple expressions" do
       describe :== do
-        subject { Loader.load(:==, :month, 11) }
+        subject { Loader.load_expression(:==, :month, 11) }
 
         it { should be_kind_of(Predicate::Equality) }
         it { subject.should express([:==, :month, 11]) }
       end # describe :==
 
       describe :| do
-        subject { Loader.load(:|, [:==, :month, 11], [:==, :wday, 4]) }
+        subject { Loader.load_expression(:|, [:==, :month, 11], [:==, :wday, 4]) }
 
         it { should be_kind_of(Predicate::Union) }
         it "should de-serialize two sub-expressions correctly" do
@@ -20,13 +21,13 @@ module ClockworkMango
         end
 
         it "should de-serialize three sub-expressions correctly" do
-          Loader.load(:|, [:==, :hour, 9], [:==, :min, 15], [:==, :sec, 30]).should ==
+          Loader.load_expression(:|, [:==, :hour, 9], [:==, :min, 15], [:==, :sec, 30]).should ==
             Dsl.hour(9) | Dsl.min(15) | Dsl.sec(30)
         end
       end # describe :|
 
       describe :& do
-        subject { Loader.load(:&, [:==, :month, 11], [:==, :wday, 4]) }
+        subject { Loader.load_expression(:&, [:==, :month, 11], [:==, :wday, 4]) }
 
         it { should be_kind_of(Predicate::Intersection) }
 
@@ -35,12 +36,12 @@ module ClockworkMango
         end
 
         it "should de-serialize three sub-expressions correctly" do
-          Loader.load(:&, [:==, :hour, 9], [:==, :min, 15], [:==, :sec, 30]).should == Dsl.at(9,15,30)
+          Loader.load_expression(:&, [:==, :hour, 9], [:==, :min, 15], [:==, :sec, 30]).should == Dsl.at(9,15,30)
         end
       end # describe :&
 
       describe :>> do
-        subject { Loader.load(:>>, [:==, :month, 11], :wdays, 4) }
+        subject { Loader.load_expression(:>>, [:==, :month, 11], :wdays, 4) }
 
         it { should be_kind_of(Predicate::Offset) }
 
@@ -52,7 +53,7 @@ module ClockworkMango
 
     context "with complex expressions" do
       context "#from(9,15,30)" do
-        subject { Loader.load(:|, [:>, :hour, 9], [:&, [:==, :hour, 9], [:|, [:>, :min, 15], [:&, [:==, :min, 15], [:>=, :sec, 30]]]]) }
+        subject { Loader.load_expression(:|, [:>, :hour, 9], [:&, [:==, :hour, 9], [:|, [:>, :min, 15], [:&, [:==, :min, 15], [:>=, :sec, 30]]]]) }
 
         it "should de-serialize correctly" do
           subject.should express([:|,

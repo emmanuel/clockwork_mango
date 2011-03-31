@@ -1,6 +1,7 @@
 require "spec_helper"
 require "clockwork_mango/predicate/base"
 require "clockwork_mango/predicate/comparison"
+require "clockwork_mango/loader"
 
 module ClockworkMango
   describe Predicate::Base do
@@ -20,14 +21,11 @@ module ClockworkMango
     let(:yweek) { Predicate::Equality.new(:day, 0) }
     let(:wday)  { Predicate::Equality.new(:wday, 3) }
 
-    describe ".load" do
-      context "when initializing with a simple expression" do
-        subject { Predicate.load(:==, :wday, 4) }
-
-        it "should return a Predicate object who's temporal expression is the same as it was initialized with" do
-          subject.should express([:==, :wday, 4])
-          subject.should == Predicate::Equality.new(:wday, 4)
-        end
+    describe ".load_expression" do
+      it "should delegate to ClockworkMango::Loader.load_expression" do
+        expression = yday.to_temporal_sexp
+        Loader.should_receive(:load_expression).with(expression)
+        Predicate.load_expression(expression)
       end
     end
 
