@@ -17,10 +17,6 @@ module ClockworkMango
         predicates.map { |p| p.values }.flatten
       end
 
-      def to_temporal_sexp
-        [operator] + predicates.map { |p| p.to_temporal_sexp }
-      end
-
       # FIXME: implement #next_occurrence_after for Predicate::Compound and subclasses
       def next_occurrence_after(after)
         raise NotImplementedError, "Predicate::Compound::Base#next_occurrence_after not implemented"
