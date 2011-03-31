@@ -37,13 +37,9 @@ module ClockworkMango
     def self.define_arity_zero_predicate_builder(name, attribute, value)
       name, attribute = name.to_sym, attribute.to_sym
       if value.respond_to?(:include?)
-        define_method(name) do
-          Predicate::Inclusion.new(attribute, value)
-        end
+        define_method(name) { Predicate::Inclusion.new(attribute, value) }
       else
-        define_method(name) do
-          Predicate::Equality.new(attribute, value)
-        end
+        define_method(name) { Predicate::Equality.new(attribute, value) }
       end
 
       module_function(name)
