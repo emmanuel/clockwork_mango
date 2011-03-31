@@ -19,16 +19,16 @@ module ClockworkMango
           raise ArgumentError, "expected value to respond to :#{operator}"
         end
 
-        @reverse = false
-        case value
-        when Integer
-          @reverse = true if value < 0
-        when Range
+        @reverse =
+          case value
+          when Integer  ; value < 0
           # TODO: allow ranges to wrap around gracefully
-          @reverse = true if value.begin < 0 and value.end < 0
-        end
-        attribute = @reverse ? "#{attribute}_reverse" : attribute
-        @attribute, @value = attribute.to_sym, value
+          when Range    ; value.begin < 0 and value.end < 0
+          else            false
+          end
+        attribute  = @reverse ? "#{attribute}_reverse" : attribute
+        @attribute = attribute.to_sym
+        @value     = value
         instance_variable_set("@#{@attribute}", @value)
       end
 
