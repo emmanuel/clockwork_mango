@@ -4,8 +4,6 @@ require "clockwork_mango/predicate/base"
 require "clockwork_mango/predicate/comparison"
 require "clockwork_mango/predicate/compound"
 
-fail "no Predicate::Union" unless defined?(ClockworkMango::Predicate::Union)
-
 module ClockworkMango
   class Loader < ::ActiveSupport::BasicObject
     include ::Singleton
@@ -49,5 +47,13 @@ module ClockworkMango
     def >>(expression, unit, value)
       Predicate::Offset.new(Loader.load(*expression), unit, value)
     end
-  end
-end
+
+    module LoadMethod
+      def load(*args)
+        ::ClockworkMango::Loader.load(*args)
+      end
+    end # module LoadMethod
+  end # class Loader
+
+  Predicate.extend(Loader::LoadMethod)
+end # module ClockworkMango

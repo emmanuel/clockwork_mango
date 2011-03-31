@@ -118,12 +118,7 @@ module ClockworkMango
       end
 
     end # class Base
-
-    def self.load(*expression)
-      Loader.load(*expression)
-    end
   end # module Predicate
 end # module ClockworkMango
 
 require "clockwork_mango/predicate/compound"
-require "clockwork_mango/loader"
