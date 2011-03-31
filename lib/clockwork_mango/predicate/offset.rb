@@ -6,6 +6,8 @@ module ClockworkMango
     class Offset < Compound
       @operator = :>>
 
+      attr_reader :unit, :value
+
       def initialize(predicate, unit, value)
         unless predicate.is_a?(Predicate)
           raise ArgumentError, "expected a Predicate, got: #{predicate.inspect}"
