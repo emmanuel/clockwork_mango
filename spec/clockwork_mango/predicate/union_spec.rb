@@ -4,9 +4,9 @@ require "clockwork_mango/predicate/compound"
 
 module ClockworkMango
   describe Predicate::Union do
-    let(:time)     { Time.local(*TIME_ATTRIBUTES.map { |a| VALUES[a] }) }
-    let(:datetime) { DateTime.new(*DATETIME_ATTRS.map { |a| VALUES[a] }) }
-    let(:date)     { Date.new(*DATE_ATTRIBUTES.map { |a| VALUES[a] }) }
+    let(:time)     { Time.local(2008, 9, 24, 18, 30, 15, 500) }
+    let(:datetime) { time.to_datetime }
+    let(:date)     { time.to_date }
     let(:time_in_06) { DateTime.civil(2006, 6, 1, 12, 0, 0) }
 
     let(:year_08) { Predicate::Equality.new(:year, 2008) }

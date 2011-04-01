@@ -10,7 +10,7 @@ module ClockworkMango
         Predicate::Equality.new(:wday_in_month, 4)  # Fourth Thursday of the month
     }
     # 2010-11-25 is the 4th Thursday of November in 2010
-    let(:matching_date) { DateTime.parse("2010-11-25") }
+    let(:matching_date) { DateTime.civil(2010, 11, 25) }
     let(:unit) { :days }
     let(:value) { 1 }
 

@@ -5,9 +5,9 @@ require "clockwork_mango/loader"
 
 module ClockworkMango
   describe Predicate::Base do
-    let(:time)     { Time.local(*TIME_ATTRIBUTES.map { |a| VALUES[a] }) }
-    let(:datetime) { DateTime.new(*DATETIME_ATTRS.map { |a| VALUES[a] }) }
-    let(:date)     { Date.new(*DATE_ATTRIBUTES.map { |a| VALUES[a] }) }
+    let(:time)     { Time.local(2008, 9, 24, 18, 30, 15, 500) }
+    let(:datetime) { time.to_datetime }
+    let(:date)     { time.to_date }
 
     let(:year)  { Predicate::Equality.new(:year, 2008) }
     let(:month) { Predicate::Equality.new(:month, 9) }

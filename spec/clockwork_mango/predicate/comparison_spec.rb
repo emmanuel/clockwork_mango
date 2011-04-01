@@ -3,10 +3,19 @@ require "clockwork_mango/predicate/comparison"
 
 module ClockworkMango
   describe Predicate::Comparison do
-    let(:date)      { Date.new(*DATE_ATTRIBUTES.map { |a| VALUES[a] }) }
-    let(:datetime)  { DateTime.new(*DATETIME_ATTRS.map { |a| VALUES[a] }) }
-    let(:time)      { Time.local(*TIME_ATTRIBUTES.map { |a| VALUES[a] }) }
-    let(:values)    { { Date => date, DateTime => datetime, Time => time } }
+    DATE_ATTRIBUTES = [:year, :month, :day]
+    DATETIME_ATTRS  = DATE_ATTRIBUTES + [:hour, :min, :sec]
+    TIME_ATTRIBUTES = DATETIME_ATTRS + [:usec]
+
+    DERIVED_ATTRS = [:yday, :wday]
+    DAY_PRECISION_UNITS     = DATE_ATTRIBUTES + DERIVED_ATTRS
+    SECOND_PRECISION_UNITS  = DATETIME_ATTRS  + DERIVED_ATTRS
+    USECOND_PRECISION_UNITS = TIME_ATTRIBUTES + DERIVED_ATTRS
+
+    let(:time)     { Time.local(2008, 9, 24, 18, 30, 15, 500) }
+    let(:datetime) { time.to_datetime }
+    let(:date)     { time.to_date }
+    let(:values)   { { Date => date, DateTime => datetime, Time => time } }
 
     describe "DAY_PRECISION_UNITS" do
       DAY_PRECISION_UNITS.each do |attr|
@@ -94,8 +103,8 @@ module ClockworkMango
     end # describe "USECOND_PRECISION_UNITS"
 
     describe "#to_temporal_sexp" do
-      ClockworkMango::Constants::COMPARABLE_ATTRIBUTES.each do |attribute|
-        context ":#{attribute} Predicate::Equalitys" do
+      Constants::COMPARABLE_ATTRIBUTES.each do |attribute|
+        context ":#{attribute} Predicate::Equality's" do
           (0..4).each do |value|
             context "with value #{value}" do
               describe Predicate::Comparison do

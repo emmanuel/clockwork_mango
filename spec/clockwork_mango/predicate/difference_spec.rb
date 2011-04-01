@@ -4,12 +4,16 @@ require "clockwork_mango/predicate/compound"
 
 module ClockworkMango
   describe Predicate::Difference do
-    let(:time)     { Time.local(*TIME_ATTRIBUTES.map { |a| VALUES[a] }) }
-    let(:datetime) { DateTime.new(*DATETIME_ATTRS.map { |a| VALUES[a] }) }
-    let(:date)     { Date.new(*DATE_ATTRIBUTES.map { |a| VALUES[a] }) }
+    let(:time)     { Time.local(2008, 9, 24, 18, 30, 15, 500) }
+    let(:datetime) { time.to_datetime }
+    let(:date)     { time.to_date }
 
     let(:year_08) { Predicate::Equality.new(:year, 2008) }
     let(:year_07) { Predicate::Equality.new(:year, 2007) }
+
+    let(:yday)  { Predicate::Equality.new(:yday, 268) }
+    let(:yweek) { Predicate::Equality.new(:day, 0) }
+    let(:wday)  { Predicate::Equality.new(:wday, 3) }
 
     subject { Predicate::Difference.new(year_08, year_07) }
 
