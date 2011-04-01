@@ -1,9 +1,9 @@
 module ClockworkMango
   module Constants
-    COMPARABLE_ATTRIBUTES = [:year, :month, :day, :hour, :min, :sec, :usec,
+    COMPARABLE_ATTRIBUTES = [:year, :month, :mday, :hour, :min, :sec, :usec,
       :yday, :yweek, :mweek, :wday, :wday_in_month]
 
-    REVERSIBLE_ATTRIBUTES = [:month, :day, :hour, :min, :sec, :usec,
+    REVERSIBLE_ATTRIBUTES = [:month, :mday, :hour, :min, :sec, :usec,
       :yday, :yweek, :mweek, :wday, :wday_in_month]
 
     VALID_ATTR_RANGES = {

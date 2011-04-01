@@ -6,7 +6,7 @@ require "rubygems"
 VALUES = {
   :year  => 2008,
   :month => 9,
-  :day   => 24,
+  :mday  => 24,
   :hour  => 18,
   :min   => 30,
   :sec   => 15,

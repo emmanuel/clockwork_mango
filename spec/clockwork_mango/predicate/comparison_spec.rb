@@ -3,7 +3,7 @@ require "clockwork_mango/predicate/comparison"
 
 module ClockworkMango
   describe Predicate::Comparison do
-    DATE_ATTRIBUTES = [:year, :month, :day]
+    DATE_ATTRIBUTES = [:year, :month, :mday]
     DATETIME_ATTRS  = DATE_ATTRIBUTES + [:hour, :min, :sec]
     TIME_ATTRIBUTES = DATETIME_ATTRS + [:usec]
 
