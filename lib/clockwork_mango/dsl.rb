@@ -20,7 +20,9 @@ end
 
 module ClockworkMango
   module Dsl
-    def self.build_predicate(&block)
+    extend self
+
+    def build_predicate(&block)
       # TODO: why do I get arity -1 with `Clockwork { monday(3) }`?
       # if block.arity.zero?
       if block.arity != 1
@@ -34,7 +36,7 @@ module ClockworkMango
     # 
     # @param name<String, Symbol> the name of the method to create
     # @param attribute<String, Symbol> the attribute that will be asserted
-    def self.define_arity_one_predicate_builder(name, attribute)
+    def define_arity_one_predicate_builder(name, attribute)
       name, attribute = name.to_sym, attribute.to_sym
       define_method(name) do |value|
         if value.respond_to?(:include?)
@@ -43,7 +45,6 @@ module ClockworkMango
           Predicate::Equality.new(attribute, value)
         end
       end
-      module_function(name)
     end
 
     # Adds a method to the Dsl that will not accept an argument
@@ -51,15 +52,13 @@ module ClockworkMango
     # @param name<String, Symbol> the name of the method to create
     # @param attribute<String, Symbol> the attribute that will be asserted
     # @param value<Integer, Range> the value of the attribute predicate
-    def self.define_arity_zero_predicate_builder(name, attribute, value)
+    def define_arity_zero_predicate_builder(name, attribute, value)
       name, attribute = name.to_sym, attribute.to_sym
       if value.respond_to?(:include?)
         define_method(name) { Predicate::Inclusion.new(attribute, value) }
       else
         define_method(name) { Predicate::Equality.new(attribute, value) }
       end
-
-      module_function(name)
     end
 
     Predicate::Comparison::COMPARABLE_ATTRIBUTES.each do |attribute|
@@ -87,8 +86,6 @@ module ClockworkMango
             month(#{index + 1})
           end
         end
-
-        module_function :#{month}
       RUBY
     end
 
@@ -133,10 +130,7 @@ module ClockworkMango
         end
       RUBY
       alias_method :"#{wday}s", :"#{wday}"
-      module_function :"#{wday}", :"#{wday}s"
     end
-
-    module_function
 
     # Builds a Predicate that will match the given time of day, 
     #   at the given precision (hour, minute, or second)
