@@ -110,13 +110,17 @@ module ClockworkMango
         Dumper.dump(self)
       end
 
-      def next_occurrence(after = Time.now.utc)
-        next_occurrence_after(after)
-      end
-
       # Gets the next occurrence of this predicate after +after+, if it recurs
       # after then.
-      def next_occurrence_after(after)
+      def next_occurrence(after = Time.now.utc)
+        require "clockwork_mango/occurrence_solver"
+        OccurrenceSolver.next_occurrence(self, after)
+      end
+
+      def next_occurrences(limit = 1, after = Time.now.utc)
+        Array(1..limit).map do |i|
+          next_occurrence(after.advance(ATTR_RECURRENCE[@attribute] => i))
+        end
       end
     end # class Base
   end # module Predicate

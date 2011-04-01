@@ -1,4 +1,4 @@
-# ClockworkMango::Predicate::Comparison (abstract)
+# ClockworkMango::Predicate::Comparison (abstract),
 # and all subclasses (concrete) are defined in this file
 require "clockwork_mango/core_ext"
 require "clockwork_mango/predicate/base"
@@ -53,41 +53,10 @@ module ClockworkMango
         other.nil? or @value.send(operator, other)
       end
 
-      def next_occurrence_after(after)
-        if recurrence_unit = ATTR_RECURRENCE[@attribute]
-          reset_primacy = ATTR_RESET[@attribute]
-          reset_index = ATTR_PRIMACY.index(reset_primacy) || 0
-          updated_attr = { @attribute => @value }
-          ATTR_PRIMACY.each_with_index do |attr, i|
-            updated_attr[attr] = ATTR_RESET_VALUES[attr] if i <= reset_index
-          end
-          occurrence = after.change(updated_attr)
-          if @attribute == :year and @value < after.year
-            nil
-          elsif after < occurrence
-            occurrence
-          else
-            begin
-              occurrence = occurrence.advance(recurrence_unit => 1)
-            end until self === occurrence
-            occurrence
-          end
-        else
-          nil
-        end
-      end
-
-      def next_occurrences(limit = 1, after = Time.now.utc)
-        Array(1..limit).map do |i|
-          next_occurrence(after.advance(ATTR_RECURRENCE[@attribute] => i))
-        end
-      end
-
       def self.predicate_for(operator)
         Class.new(self) { @operator = operator }
       end
-
-    end
+    end # class Comparison
 
     # Subclasses
     Inclusion          = Comparison.predicate_for(:include?)
@@ -98,5 +67,5 @@ module ClockworkMango
     LessThan           = Comparison.predicate_for(:<)
     LessThanOrEqual    = Comparison.predicate_for(:<=)
 
-  end
-end
+  end # module Predicate
+end # module ClockworkMango
