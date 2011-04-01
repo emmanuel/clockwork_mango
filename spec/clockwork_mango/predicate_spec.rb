@@ -1,10 +1,10 @@
 require "spec_helper"
-require "clockwork_mango/predicate/base"
+require "clockwork_mango/predicate"
 require "clockwork_mango/predicate/comparison"
 require "clockwork_mango/loader"
 
 module ClockworkMango
-  describe Predicate::Base do
+  describe Predicate do
     let(:time)     { Time.local(2008, 9, 24, 18, 30, 15, 500) }
     let(:datetime) { time.to_datetime }
     let(:date)     { time.to_date }

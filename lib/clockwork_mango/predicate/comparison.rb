@@ -1,12 +1,13 @@
 # ClockworkMango::Predicate::Comparison (abstract),
 # and all subclasses (concrete) are defined in this file
 require "clockwork_mango/core_ext"
-require "clockwork_mango/predicate/base"
+require "clockwork_mango/predicate"
 require "clockwork_mango/constants"
 
 module ClockworkMango
   module Predicate
-    class Comparison < Base
+    class Comparison
+      include Predicate
       include Constants
 
       @operator = :===

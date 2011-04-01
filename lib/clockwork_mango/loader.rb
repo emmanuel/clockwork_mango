@@ -1,6 +1,6 @@
 require "singleton"
 require "active_support/basic_object"
-require "clockwork_mango/predicate/base"
+require "clockwork_mango/predicate"
 require "clockwork_mango/predicate/comparison"
 require "clockwork_mango/predicate/compound"
 

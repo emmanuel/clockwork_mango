@@ -1,8 +1,9 @@
-require 'clockwork_mango/predicate/base'
+require 'clockwork_mango/predicate'
 
 module ClockworkMango
   module Predicate
-    class Compound < Base
+    class Compound
+      include Predicate
       attr_reader :predicates
 
       def initialize(*predicates)
