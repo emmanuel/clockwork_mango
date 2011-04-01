@@ -14,13 +14,10 @@ module ClockworkMango
         predicates.map { |p| p.attributes }.flatten
       end
 
+      # FIXME: this just isn't going to cut it.
+      # TODO: maybe a full tree here?
       def values
         predicates.map { |p| p.values }.flatten
-      end
-
-      # FIXME: implement #next_occurrence_after for Predicate::Compound and subclasses
-      def next_occurrence_after(after)
-        raise NotImplementedError, "Predicate::Compound::Base#next_occurrence_after not implemented"
       end
 
     end # class Compound

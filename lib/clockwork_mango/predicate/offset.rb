@@ -23,13 +23,16 @@ module ClockworkMango
       end
 
       def ===(other)
-        if other.respond_to?(:advance) and @predicate === other.advance(@unit => -@value)
+        if other.respond_to?(:advance) and @predicate === offset(other)
           other
         else
           false
         end
       end
 
+      def offset(temporal)
+        temporal.advance(@unit => -@value)
+      end
     end # class Offset
   end # module Predicate
 end # module ClockworkMango
