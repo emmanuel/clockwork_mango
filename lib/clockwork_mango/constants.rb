@@ -20,5 +20,11 @@ module ClockworkMango
     VALID_HOUR_RANGE  = VALID_ATTR_RANGES[:hour]
     VALID_MIN_RANGE   = VALID_ATTR_RANGES[:min]
     VALID_SEC_RANGE   = VALID_ATTR_RANGES[:sec]
+
+    MONTHS = %w[january february march april may june 
+      july august september october november december]
+
+    WEEKDAYS = %w[sunday monday tuesday wednesday thursday friday saturday]
+
   end
 end

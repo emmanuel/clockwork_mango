@@ -61,12 +61,9 @@ module ClockworkMango
       end
     end
 
-    Predicate::Comparison::COMPARABLE_ATTRIBUTES.each do |attribute|
+    Constants::COMPARABLE_ATTRIBUTES.each do |attribute|
       define_arity_one_predicate_builder(attribute, attribute)
     end
-
-    MONTHS = %w[january february march april may june 
-      july august september october november december]
 
     # Build a predicate that matches the named month (and optional month day)
     # 
@@ -77,7 +74,7 @@ module ClockworkMango
     # @return [ClockworkMango::Predicate::Equality, ClockworkMango::Predicate::Intersection]
     #   a :month Predicate::Equality (if no month_day provided), or
     #   an Predicate::Intersection of :month and :day (if month_day provided)
-    MONTHS.each_with_index do |month, index|
+    Constants::MONTHS.each_with_index do |month, index|
       module_eval <<-RUBY, __FILE__, __LINE__
         def #{month}(month_day=nil)
           if month_day
@@ -111,8 +108,7 @@ module ClockworkMango
     #   an Predicate::Intersection of :wday & :wday_in_month/:wday_in_year
     #   (:wday & :wday_in_month) if ordinal provided and ordinal_scope == :month (default)
     #   (:wday & :wday_in_year) if ordinal provided and ordinal_scope == :year
-    WEEKDAYS = %w[sunday monday tuesday wednesday thursday friday saturday]
-    WEEKDAYS.each_with_index do |wday, index|
+    Constants::WEEKDAYS.each_with_index do |wday, index|
       module_eval <<-RUBY, __FILE__, __LINE__
         def #{wday}(ordinal=nil, ordinal_scope=:month)
           ordinal = ORDINAL_MAP[ordinal] if ordinal.is_a?(Symbol)

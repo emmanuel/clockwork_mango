@@ -16,7 +16,7 @@ module ClockworkMango
     end
 
     describe "weekdays shortcuts (WEEKDAYS)" do
-      Dsl::WEEKDAYS.each_with_index do |weekday, index|
+      Constants::WEEKDAYS.each_with_index do |weekday, index|
         value = index
 
         describe "Dsl.#{weekday}[s]" do
@@ -51,7 +51,7 @@ module ClockworkMango
     end
 
     describe "month shortcuts (MONTHS)" do
-      Dsl::MONTHS.each_with_index do |month, index|
+      Constants::MONTHS.each_with_index do |month, index|
         value = index + 1
 
         it "should return a :month Predicate::Equality with value #{value} when Dsl.#{month} is called" do
