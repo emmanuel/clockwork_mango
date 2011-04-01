@@ -13,23 +13,30 @@ module ClockworkMango
 
     subject { Predicate::Difference.new(year_08, year_07) }
 
-    it "should match Times when the 1st expression matches and the 2nd doesn't" do
-      should === time
+    context "when the 1st predicate matches and the 2nd doesn't" do
+      it "should match Times " do
+        subject.should === time
+      end
+
+      it "should match DateTimes" do
+        subject.should === datetime
+      end
+
+      it "should match Dates" do
+        subject.should === date
+      end
     end
 
-    it "should match DateTimes when the 1st expression matches and the 2nd doesn't" do
-      should === datetime
+    context "when the 1st and 2nd predicates both match" do
+      it "should not match Dates " do
+        subject.should_not === (date - 365)
+      end
     end
 
-    it "should match Dates when the 1st expression matches and the 2nd doesn't" do
-      should === date
-    end
-
-    it "should not match Dates when the 1st expression matches and the 2nd does, too"
-
-    it "should not match Dates when the 1st expression doesn't match and the 2nd one does" do
-      should_not === (date - 365)
+    context "when neither the 1st nor the 2nd predicate matches" do
+      it "should not match Dates" do
+        subject.should_not === (date - 365)
+      end
     end
   end # describe Predicate::Difference
-
-end
+end # module ClockworkMango
