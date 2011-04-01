@@ -1,4 +1,6 @@
-Bundler.setup(:default, :test)
+# pick your poison:
+require "rubygems"
+# Bundler.setup(:default, :test)
 
 DATE_ATTRIBUTES = [:year, :month, :day]
 DATETIME_ATTRS  = DATE_ATTRIBUTES + [:hour, :min, :sec]
