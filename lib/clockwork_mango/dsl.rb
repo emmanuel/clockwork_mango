@@ -47,19 +47,7 @@ module ClockworkMango
       end
     end
 
-    # Adds a method to the Dsl that will not accept an argument
-    # 
-    # @param name<String, Symbol> the name of the method to create
-    # @param attribute<String, Symbol> the attribute that will be asserted
-    # @param value<Integer, Range> the value of the attribute predicate
-    def define_arity_zero_predicate_builder(name, attribute, value)
-      name, attribute = name.to_sym, attribute.to_sym
-      if value.respond_to?(:include?)
-        define_method(name) { Predicate::Inclusion.new(attribute, value) }
-      else
-        define_method(name) { Predicate::Equality.new(attribute, value) }
-      end
-    end
+    private :define_arity_one_predicate_builder
 
     Constants::COMPARABLE_ATTRIBUTES.each do |attribute|
       define_arity_one_predicate_builder(attribute, attribute)
