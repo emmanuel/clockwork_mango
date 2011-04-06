@@ -67,7 +67,7 @@ module ClockworkMango
       module_eval <<-RUBY, __FILE__, __LINE__
         def #{month}(month_day=nil)
           if month_day
-            month(#{index + 1}) & day(month_day)
+            month(#{index + 1}) & mday(month_day)
           else
             month(#{index + 1})
           end
