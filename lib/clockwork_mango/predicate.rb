@@ -99,28 +99,33 @@ module ClockworkMango
       "<#{self.class}:#{object_id.to_s(16)} expression=#{to_temporal_sexp.inspect}>"
     end
 
+    # Get the next occurrence of this predicate after +after+, if it recurs
+    # after then.
+    def next_occurrence(after = Time.now.utc)
+      occurrence_solver.next_occurrence(after)
+    end
+
+    # Get the next +limit+ occurrences of this predicate after +after+,
+    # if it recurs +limit+ times following +after+.
+    def next_occurrences(limit = 1, after = Time.now.utc)
+      occurrence_solver.next_occurrences(limit, after)
+    end
+
+    def occurrence_solver
+      OccurrenceSolver.for(self)
+    end
+
     # Get a representation of this Predicate as an s-expression
     # 
     # @return [Array(Symbol, Symbol, Object)]
     #   typically [operator, attribute, value]
     def to_temporal_sexp
-      require "clockwork_mango/dumper"
       Dumper.dump(self)
     end
 
-    # Gets the next occurrence of this predicate after +after+, if it recurs
-    # after then.
-    def next_occurrence(after = Time.now.utc)
-      require "clockwork_mango/occurrence_solver"
-      OccurrenceSolver.next_occurrence(self, after)
-    end
-
-    def next_occurrences(limit = 1, after = Time.now.utc)
-      Array(1..limit).map do |i|
-        next_occurrence(after.advance(ATTR_RECURRENCE[@attribute] => i))
-      end
-    end
   end # module Predicate
 end # module ClockworkMango
 
 require "clockwork_mango/predicate/compound"
+require "clockwork_mango/occurrence_solver"
+require "clockwork_mango/dumper"
