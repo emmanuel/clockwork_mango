@@ -12,8 +12,8 @@ module ClockworkMango
     end
 
     def dumper_for_predicate(predicate)
-      MAPPING.detect { |(k,d)| k === predicate }.try(:last) or
-        fail(ArgumentError, "expected one of #{MAPPING.map { |m| m[0] }.join(', ')}")
+      Dumper.mapping.detect { |(k,d)| k === predicate }.try(:last) or
+        fail(ArgumentError, "expected one of #{Dumper.mapping.map { |m| m[0] }.join(', ')}")
     end
 
     module Comparison
@@ -38,11 +38,13 @@ module ClockworkMango
       end
     end # module Offset
 
-    MAPPING = [
-      [Predicate::Offset,     Dumper::Offset],
-      [Predicate::Compound,   Dumper::Compound],
-      [Predicate::Comparison, Dumper::Comparison],
-    ]
+    def self.mapping
+      [
+        [Predicate::Offset,     Dumper::Offset],
+        [Predicate::Compound,   Dumper::Compound],
+        [Predicate::Comparison, Dumper::Comparison],
+      ]
+    end
 
   end # module Dumper
 end # module ClockworkMango
