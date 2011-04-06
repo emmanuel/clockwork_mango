@@ -6,11 +6,12 @@ require "clockwork_mango/unroll"
 # Shortcut to the ClockworkMango::Dsl.build_predicate dsl. 
 # Lets you use the lib from any context like so:
 #   Clockwork { |c| c.november & c.wday_in_month(1) & c.monday }
-# or without the block variable:
+# or without the block variable (instance_eval'd, so self is switched!):
 #   Clockwork { november & wday_in_month(1) & monday }
-# Both of which will return an expression that matches the 1st Monday in November
+# Both of which will return a ClockworkMango::Predicate object, with a #=== method
+#   which matches objects that represent the 1st Monday in November
 # 
-# @param block <Block> block that will get ClockworkMango::Dsl as a parameter,
+# @param block <Block> will be yielded ClockworkMango::Dsl as a parameter,
 #   or instance_eval'd in the context of ClockworkMango::Dsl if arity zero
 # 
 # @return <ClockworkMango::Predicate> defined by the provided block
@@ -96,6 +97,12 @@ module ClockworkMango
     #   an Predicate::Intersection of :wday & :wday_in_month/:wday_in_year
     #   (:wday & :wday_in_month) if ordinal provided and ordinal_scope == :month (default)
     #   (:wday & :wday_in_year) if ordinal provided and ordinal_scope == :year
+    # 
+    # TODO: make the :wday_in_month/:wday_in_year invocation a bit more explicit, eg:
+    #   monday(:wday_in_month => 3)
+    #   monday(:in_month => 3)        # this is my front-runner so far
+    #   monday(:month => 3)
+    # 
     Constants::WEEKDAYS.each_with_index do |wday, index|
       module_eval <<-RUBY, __FILE__, __LINE__
         def #{wday}(ordinal=nil, ordinal_scope=:month)
