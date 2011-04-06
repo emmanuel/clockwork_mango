@@ -6,13 +6,14 @@ module ClockworkMango
   module CoreExt
     module HumanDateValues
       MONTH_LENGTHS = [nil, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 31, 31]
+
       # how many days are there in the current month?
       # 
       # @return [Integer] count of total days in the current month
       def days_in_month
         (leap_year? and month == 2) ? MONTH_LENGTHS[month] + 1 : MONTH_LENGTHS[month]
       end
-      
+
       # how many days are there in the current year?
       # 
       # @return [Integer] count of total days in the current year
@@ -82,8 +83,8 @@ module ClockworkMango
       end
 
       # how many of this weekday have occurred this month? For example:
-      # If today is Thursday, which Thursday is this (the 1st, 2nd, etc.)?
-      # If Monday, which Monday (the 1st, 2nd, 3rd, 4th, etc.)?
+      # If self is a Thursday, which Thursday of its month is it (the 1st, 2nd, etc.)?
+      # If self is a Monday, which Monday (the 1st of its month, 2nd, 3rd, 4th, etc.)?
       # 
       # considered naming this mwday_ordinal ... is that clearer?
       # 

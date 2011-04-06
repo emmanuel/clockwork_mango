@@ -1,11 +1,8 @@
-require "active_support/concern"
-# more requires at end
+# requires at end
 module ClockworkMango
   module Predicate
-    extend ActiveSupport::Concern
-
-    included do
-      class << self
+    def self.included(base)
+      class << base
         attr_reader :operator
       end
     end
