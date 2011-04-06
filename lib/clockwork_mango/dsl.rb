@@ -11,44 +11,42 @@ require "clockwork_mango/unroll"
 # Both of which will return a ClockworkMango::Predicate object, with a #=== method
 #   which matches objects that represent the 1st Monday in November
 # 
-# @param block <Block> will be yielded ClockworkMango::Dsl as a parameter,
+# @param block [Block] will be yielded ClockworkMango::Dsl as a parameter,
 #   or instance_eval'd in the context of ClockworkMango::Dsl if arity zero
 # 
-# @return <ClockworkMango::Predicate> defined by the provided block
+# @return [ClockworkMango::Predicate] defined by the provided block
 def Clockwork(&block)
   ::ClockworkMango::Dsl.build_predicate(&block)
 end
 
 module ClockworkMango
-  module Dsl
-    extend self
-
-    def build_predicate(&block)
+  class Dsl
+    def self.build_predicate(&block)
+      raise ArgumentError, "expected block arg" unless block_given?
       # TODO: why do I get arity -1 with `Clockwork { monday(3) }`?
       # if block.arity.zero?
-      if block.arity != 1
-        instance_eval(&block)
-      else
-        yield(self)
-      end
+      block.arity == 1 ? yield(new) : new.instance_eval(&block)
     end
 
     # Adds a method to the Dsl that will accept a single argument
     # 
     # @param name<String, Symbol> the name of the method to create
     # @param attribute<String, Symbol> the attribute that will be asserted
-    def define_arity_one_predicate_builder(name, attribute)
-      name, attribute = name.to_sym, attribute.to_sym
-      define_method(name) do |value|
-        if value.respond_to?(:include?)
-          Predicate::Inclusion.new(attribute, value)
-        else
-          Predicate::Equality.new(attribute, value)
+    def self.define_arity_one_predicate_builder(name, attribute)
+      module_eval <<-RUBY, __FILE__, __LINE__
+        def #{name}(value)
+          if value.respond_to?(:include?)
+            Predicate::Inclusion.new(:#{attribute}, value)
+          else
+            Predicate::Equality.new(:#{attribute}, value)
+          end
         end
-      end
-    end
 
-    private :define_arity_one_predicate_builder
+        def self.#{name}(*args)
+          new.#{name}(*args)
+        end
+      RUBY
+    end
 
     Constants::COMPARABLE_ATTRIBUTES.each do |attribute|
       define_arity_one_predicate_builder(attribute, attribute)
@@ -72,6 +70,10 @@ module ClockworkMango
             month(#{index + 1})
           end
         end
+
+        def self.#{month}(*args)
+          new.#{month}(*args)
+        end
       RUBY
     end
 
@@ -85,6 +87,13 @@ module ClockworkMango
       :last   => -1,
       :second_to_last => -2,
     }
+
+    # 
+    # TODO: make the :wday_in_month/:wday_in_year invocation a bit more explicit, eg:
+    #   monday(:wday_in_month => 3)
+    #   monday(:in_month => 3)        # this is my front-runner so far
+    #   monday(:month => 3)
+    # 
     # Build a predicate that matches the named weekday.
     # 
     # @param [Integer, Symbol] ordinal (optional)
@@ -97,11 +106,6 @@ module ClockworkMango
     #   an Predicate::Intersection of :wday & :wday_in_month/:wday_in_year
     #   (:wday & :wday_in_month) if ordinal provided and ordinal_scope == :month (default)
     #   (:wday & :wday_in_year) if ordinal provided and ordinal_scope == :year
-    # 
-    # TODO: make the :wday_in_month/:wday_in_year invocation a bit more explicit, eg:
-    #   monday(:wday_in_month => 3)
-    #   monday(:in_month => 3)        # this is my front-runner so far
-    #   monday(:month => 3)
     # 
     Constants::WEEKDAYS.each_with_index do |wday, index|
       module_eval <<-RUBY, __FILE__, __LINE__
@@ -119,10 +123,22 @@ module ClockworkMango
             wday_assertion
           end
         end
+
+        def self.#{wday}(*args)
+          new.#{wday}(*args)
+        end
+
+        def self.#{wday}s(*args)
+          new.#{wday}(*args)
+        end
       RUBY
       alias_method :"#{wday}s", :"#{wday}"
     end
 
+    # 
+    # TODO: replace #at, #from, #hhmmss_or_later, #until, & #after with PrecisionedTime
+    # 
+    # 
     # Builds a Predicate that will match the given time of day, 
     #   at the given precision (hour, minute, or second)
     # 
@@ -147,6 +163,10 @@ module ClockworkMango
       end
     end
 
+    def self.at(*args)
+      new.at(*args)
+    end
+
     def from(*args)
       if args.length == 1 and args.first.is_a?(Range)
         Unroll.time_range(args.first)
@@ -155,9 +175,10 @@ module ClockworkMango
       end
     end
 
-    # 
-    # TODO: replace this with PrecisionedTime
-    # 
+    def self.from(*args)
+      new.from(*args)
+    end
+
     def hhmmss_or_later(hh, mm = nil, ss = nil)
       Unroll.validate_hhmmss(hh, mm, ss)
 
@@ -194,6 +215,10 @@ module ClockworkMango
       end
     end
 
+    def self.until(*args)
+      new.until(*args)
+    end
+
     def after(hh, mm = nil, ss = nil)
       Unroll.validate_hhmmss(hh,mm,ss)
 
@@ -211,6 +236,11 @@ module ClockworkMango
               Predicate::GreaterThan.new(:sec, ss))))
       end
     end
+
+    def self.after(*args)
+      new.after(*args)
+    end
+
   end # module Dsl
 
   module Predicate
