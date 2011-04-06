@@ -28,28 +28,30 @@ module ClockworkMango
       block.arity == 1 ? yield(new) : new.instance_eval(&block)
     end
 
-    # Adds a method to the Dsl that will accept a single argument
+    # Adds a method that will accept a single argument. If that argument
+    # responds to :include?, a Predicate::Inclusion will be returned,
+    # otherwise a Predicate::Equality.
     # 
     # @param name<String, Symbol> the name of the method to create
     # @param attribute<String, Symbol> the attribute that will be asserted
-    def self.define_arity_one_predicate_builder(name, attribute)
+    def self.define_arity_one_predicate_builder(attribute)
       module_eval <<-RUBY, __FILE__, __LINE__
-        def #{name}(value)
+        def #{attribute}(value)
           if value.respond_to?(:include?)
             Predicate::Inclusion.new(:#{attribute}, value)
           else
             Predicate::Equality.new(:#{attribute}, value)
           end
         end
-    Constants::PREDICABLE_ATTRIBUTES.each do |attribute|
 
-        def self.#{name}(*args)
-          new.#{name}(*args)
+        def self.#{attribute}(*args)
+          new.#{attribute}(*args)
         end
       RUBY
     end
 
-      define_arity_one_predicate_builder(attribute, attribute)
+    Constants::PREDICABLE_ATTRIBUTES.each do |attribute|
+      define_arity_one_predicate_builder(attribute)
     end
 
     # Build a predicate that matches the named month (and optional month day)
