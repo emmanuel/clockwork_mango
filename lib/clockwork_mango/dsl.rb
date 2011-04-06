@@ -147,6 +147,35 @@ module ClockworkMango
       end
     end
 
+    def from(*args)
+      if args.length == 1 and args.first.is_a?(Range)
+        Unroll.time_range(args.first)
+      else
+        hhmmss_or_later(*args)
+      end
+    end
+
+    # 
+    # TODO: replace this with PrecisionedTime
+    # 
+    def hhmmss_or_later(hh, mm = nil, ss = nil)
+      Unroll.validate_hhmmss(hh, mm, ss)
+
+      if mm.nil?
+        Predicate::GreaterThanOrEqual.new(:hour, hh)
+      elsif ss.nil?
+        Predicate::GreaterThan.new(:hour, hh) | (
+          Predicate::Equality.new(:hour, hh) &
+          Predicate::GreaterThanOrEqual.new(:min, mm))
+      else
+        Predicate::GreaterThan.new(:hour, hh) | (
+          Predicate::Equality.new(:hour, hh) & (
+            Predicate::GreaterThan.new(:min, mm) | (
+              Predicate::Equality.new(:min, mm) &
+              Predicate::GreaterThanOrEqual.new(:sec, ss))))
+      end
+    end
+
     def until(hh, mm = nil, ss = nil)
       Unroll.validate_hhmmss(hh,mm,ss)
 
@@ -161,18 +190,6 @@ module ClockworkMango
           Predicate::Equality.new(:hour, hh) & (
             Predicate::LessThan.new(:min, mm) | (
             Predicate::Equality.new(:min, mm) & Predicate::LessThanOrEqual.new(:sec, ss))))
-      end
-    end
-
-    def from(*args)
-      if args.length == 1 and args.first.is_a?(Range)
-        time_range = args.first
-        Unroll.validate_time_range(time_range)
-        Unroll.time_range(time_range)
-      else
-        hh, mm, ss = args
-        Unroll.validate_hhmmss(hh, mm, ss)
-        Unroll.hhmmss(hh, mm, ss)
       end
     end
 

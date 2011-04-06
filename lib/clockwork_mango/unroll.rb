@@ -45,23 +45,6 @@ module ClockworkMango
       end
     end
 
-    def self.hhmmss(hh, mm = nil, ss = nil)
-      validate_hhmmss(hh,mm,ss)
-
-      if mm.nil?
-        Predicate::GreaterThanOrEqual.new(:hour, hh)
-      elsif ss.nil?
-        Predicate::GreaterThan.new(:hour, hh) | (
-          Predicate::Equality.new(:hour, hh) &
-          Predicate::GreaterThanOrEqual.new(:min, mm))
-      else
-        Predicate::GreaterThan.new(:hour, hh) | (
-          Predicate::Equality.new(:hour, hh) & (
-            Predicate::GreaterThan.new(:min, mm) | (
-            Predicate::Equality.new(:min, mm) & Predicate::GreaterThanOrEqual.new(:sec, ss))))
-      end
-    end
-
     def self.multihour_delta(time_range)
       begin_hh, begin_mm, begin_ss = *time_range.begin
       end_hh,   end_mm,   end_ss   = *time_range.end
