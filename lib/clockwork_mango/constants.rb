@@ -1,6 +1,6 @@
 module ClockworkMango
   module Constants
-    COMPARABLE_ATTRIBUTES = [:year, :month, :mday, :hour, :min, :sec, :usec,
+    PREDICABLE_ATTRIBUTES = [:year, :month, :mday, :hour, :min, :sec, :usec,
       :yday, :yweek, :mweek, :wday, :wday_in_month]
 
     REVERSIBLE_ATTRIBUTES = [:month, :mday, :hour, :min, :sec, :usec,

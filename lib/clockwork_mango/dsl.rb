@@ -41,6 +41,7 @@ module ClockworkMango
             Predicate::Equality.new(:#{attribute}, value)
           end
         end
+    Constants::PREDICABLE_ATTRIBUTES.each do |attribute|
 
         def self.#{name}(*args)
           new.#{name}(*args)
@@ -48,7 +49,6 @@ module ClockworkMango
       RUBY
     end
 
-    Constants::COMPARABLE_ATTRIBUTES.each do |attribute|
       define_arity_one_predicate_builder(attribute, attribute)
     end
 

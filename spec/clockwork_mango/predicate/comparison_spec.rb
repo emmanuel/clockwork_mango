@@ -103,7 +103,7 @@ module ClockworkMango
     end # describe "USECOND_PRECISION_UNITS"
 
     describe "#to_temporal_sexp" do
-      Constants::COMPARABLE_ATTRIBUTES.each do |attribute|
+      Constants::PREDICABLE_ATTRIBUTES.each do |attribute|
         context ":#{attribute} Predicate::Equality's" do
           (0..4).each do |value|
             context "with value #{value}" do
@@ -153,7 +153,7 @@ module ClockworkMango
             end
           end
         end
-      end # Constants::COMPARABLE_ATTRIBUTES
+      end # Constants::PREDICABLE_ATTRIBUTES
     end # describe "#to_temporal_sexp"
   end # describe Predicate::Comparison
 end # module ClockworkMango

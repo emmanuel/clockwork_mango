@@ -3,7 +3,7 @@ require "clockwork_mango/dsl"
 
 module ClockworkMango
   describe Dsl do
-    describe "arity one attribute assertions (COMPARABLE_ATTRIBUTES)" do
+    describe "arity one attribute assertions (PREDICABLE_ATTRIBUTES)" do
       VALUES.each do |attribute, value|
         it "should return a[n] :#{attribute} Predicate::Equality when Dsl.#{attribute} is called" do
           subject = Dsl.send(attribute, value)
