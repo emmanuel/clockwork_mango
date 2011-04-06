@@ -12,7 +12,7 @@ module ClockworkMango
     let(:year_07) { Predicate::Equality.new(:year, 2007) }
 
     let(:yday)  { Predicate::Equality.new(:yday, 268) }
-    let(:yweek) { Predicate::Equality.new(:day, 0) }
+    let(:yweek) { Predicate::Equality.new(:yweek, 0) }
     let(:wday)  { Predicate::Equality.new(:wday, 3) }
 
     subject { Predicate::Difference.new(year_08, year_07) }

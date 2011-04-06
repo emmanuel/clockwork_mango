@@ -9,9 +9,9 @@ module ClockworkMango
     let(:date)     { time.to_date }
 
     let(:year_08) { Predicate::Equality.new(:year, 2008) }
-    let(:day)    { Predicate::Equality.new(:day, 24) }
+    let(:mday)    { Predicate::Equality.new(:mday, 24) }
 
-    subject { Predicate::Intersection.new(year_08, day) }
+    subject { Predicate::Intersection.new(year_08, mday) }
 
     it "should match Times when both expressions match" do
       should === time

@@ -57,12 +57,12 @@ module ClockworkMango
     # Build a predicate that matches the named month (and optional month day)
     # 
     # @param [Integer] month_day (optional)
-    #   define intersecting :day Predicate::Equality if provided.
-    #   If no month_day value is provided, no :day predicate will be intersected
+    #   define intersecting :mday Predicate::Equality if provided.
+    #   If no month_day value is provided, no :mday predicate will be intersected
     # 
     # @return [ClockworkMango::Predicate::Equality, ClockworkMango::Predicate::Intersection]
     #   a :month Predicate::Equality (if no month_day provided), or
-    #   an Predicate::Intersection of :month and :day (if month_day provided)
+    #   an Predicate::Intersection of :month and :mday (if month_day provided)
     Constants::MONTHS.each_with_index do |month, index|
       module_eval <<-RUBY, __FILE__, __LINE__
         def #{month}(month_day=nil)
@@ -180,28 +180,54 @@ module ClockworkMango
       Unroll.validate_hhmmss(hh,mm,ss)
 
       if mm.nil?
-        Predicate::LessThanOrEqual.new(:hour, hh)
+        Predicate::LessThan.new(:hour, hh)
       elsif ss.nil?
         Predicate::LessThan.new(:hour, hh) | (
           Predicate::Equality.new(:hour, hh) &
-          Predicate::LessThanOrEqual.new(:min, mm))
+          Predicate::LessThan.new(:min, mm))
       else
         Predicate::LessThan.new(:hour, hh) | (
           Predicate::Equality.new(:hour, hh) & (
             Predicate::LessThan.new(:min, mm) | (
-            Predicate::Equality.new(:min, mm) & Predicate::LessThanOrEqual.new(:sec, ss))))
+              Predicate::Equality.new(:min, mm) &
+              Predicate::LessThan.new(:sec, ss))))
       end
     end
 
+    def after(hh, mm = nil, ss = nil)
+      Unroll.validate_hhmmss(hh,mm,ss)
+
+      if mm.nil?
+        Predicate::GreaterThan.new(:hour, hh)
+      elsif ss.nil?
+        Predicate::GreaterThan.new(:hour, hh) | (
+          Predicate::Equality.new(:hour, hh) &
+          Predicate::GreaterThan.new(:min, mm))
+      else
+        Predicate::GreaterThan.new(:hour, hh) | (
+          Predicate::Equality.new(:hour, hh) & (
+            Predicate::GreaterThan.new(:min, mm) | (
+              Predicate::Equality.new(:min, mm) &
+              Predicate::GreaterThan.new(:sec, ss))))
+      end
+    end
   end # module Dsl
 
   module Predicate
+    def at(*args)
+      Predicate::Intersection.new(self, Dsl.at(*args))
+    end
+
     def from(*args)
       Predicate::Intersection.new(self, Dsl.from(*args))
     end
 
-    def at(*args)
-      Predicate::Intersection.new(self, Dsl.at(*args))
+    def until(*args)
+      Predicate::Intersection.new(self, Dsl.until(*args))
+    end
+
+    def after(*args)
+      Predicate::Intersection.new(self, Dsl.after(*args))
     end
   end
 

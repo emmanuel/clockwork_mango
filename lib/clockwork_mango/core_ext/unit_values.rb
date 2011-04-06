@@ -12,20 +12,13 @@ module ClockworkMango
 
         def unit_value(unit, value)
           case unit
-          when :second
-            value.to_f * SECOND
-          when :minute
-            value.to_f * MINUTE
-          when :hour
-            value.to_f * HOUR
-          when :day
-            value.to_f
-          when :month
-            value.to_f * MONTH
-          when :year
-            value.to_f * YEAR
-          else
-            raise ArgumentError, "invalid unit"
+          when :second  ; value.to_f * SECOND
+          when :minute  ; value.to_f * MINUTE
+          when :hour    ; value.to_f * HOUR
+          when :mday    ; value.to_f
+          when :month   ; value.to_f * MONTH
+          when :year    ; value.to_f * YEAR
+          else raise ArgumentError, "invalid unit"
           end
         end
       end
@@ -40,20 +33,13 @@ module ClockworkMango
         
         def unit_value(unit, value)
           case unit
-          when :second
-            value.to_f
-          when :minute
-            value.to_f * MINUTE
-          when :hour
-            value.to_f * HOUR
-          when :day
-            value.to_f * DAY
-          when :month
-            value.to_f * MONTH
-          when :year
-            value.to_f * YEAR
-          else
-            raise ArgumentError, "invalid unit"
+          when :second  ; value.to_f
+          when :minute  ; value.to_f * MINUTE
+          when :hour    ; value.to_f * HOUR
+          when :mday    ; value.to_f * DAY
+          when :month   ; value.to_f * MONTH
+          when :year    ; value.to_f * YEAR
+          else raise ArgumentError, "invalid unit"
           end
         end
       end

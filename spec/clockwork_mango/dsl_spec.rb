@@ -194,8 +194,8 @@ module ClockworkMango
       context "when given a single arg" do
         it "should return a Predicate::LessThanOrEqual" do
           subject = Dsl.until(9)
-          subject.should be_kind_of(Predicate::LessThanOrEqual)
-          subject.should express([:<=, :hour, 9])
+          subject.should be_kind_of(Predicate::LessThan)
+          subject.should express([:<, :hour, 9])
         end
       end
 
@@ -203,7 +203,7 @@ module ClockworkMango
         it "should return a Predicate::Union of Predicate::Equality and Predicate::LessThan" do
           subject = Dsl.until(9,30)
           subject.should be_kind_of(Predicate::Union)
-          subject.should express([:|, [:<, :hour, 9], [:&, [:==, :hour, 9], [:<=, :min, 30]]])
+          subject.should express([:|, [:<, :hour, 9], [:&, [:==, :hour, 9], [:<, :min, 30]]])
         end
       end
 
@@ -211,7 +211,7 @@ module ClockworkMango
         it "should return a Predicate::Union of Predicate::Equality and Predicate::LessThan" do
           subject = Dsl.until(9,30,15)
           subject.should be_kind_of(Predicate::Union)
-          subject.should express([:|, [:<, :hour, 9], [:&, [:==, :hour, 9], [:|, [:<, :min, 30], [:&, [:==, :min, 30], [:<=, :sec, 15]]]]])
+          subject.should express([:|, [:<, :hour, 9], [:&, [:==, :hour, 9], [:|, [:<, :min, 30], [:&, [:==, :min, 30], [:<, :sec, 15]]]]])
         end
       end
     end # describe "#until"

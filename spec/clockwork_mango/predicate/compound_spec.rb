@@ -10,14 +10,14 @@ module ClockworkMango
 
     let(:year_08) { Predicate::Equality.new(:year, 2008) }
     let(:month)   { Predicate::Equality.new(:month, 9) }
-    let(:day)     { Predicate::Equality.new(:day, 24) }
+    let(:mday)    { Predicate::Equality.new(:mday, 24) }
 
     let(:hour) { Predicate::Equality.new(:hour, 18) }
     let(:min)  { Predicate::Equality.new(:min, 30) }
     let(:sec)  { Predicate::Equality.new(:sec, 15) }
 
     let(:yday)  { Predicate::Equality.new(:yday, 268) }
-    let(:yweek) { Predicate::Equality.new(:day, 0) }
+    let(:yweek) { Predicate::Equality.new(:yweek, 3) }
     let(:wday)  { Predicate::Equality.new(:wday, 3) }
-  end # describe Predicate::Compound::Base
+  end # describe Predicate::Compound
 end # module ClockworkMango

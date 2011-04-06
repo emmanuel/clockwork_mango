@@ -27,7 +27,7 @@ describe ClockworkMango::CoreExt::UnitValues do
     end
 
     it "should convert days as a float multiple of days" do
-      Date.unit_value(:day, 10).should == 10.0
+      Date.unit_value(:mday, 10).should == 10.0
     end
 
     it "should convert months as an integer multiple of 30 days" do
@@ -61,7 +61,7 @@ describe ClockworkMango::CoreExt::UnitValues do
     end
 
     it "should convert days as a float multiple of seconds" do
-      Time.unit_value(:day, 10).should == (10.0 * 24 * 3600)
+      Time.unit_value(:mday, 10).should == (10.0 * 24 * 3600)
     end
 
     it "should convert months as a float multiple of 30 days" do
