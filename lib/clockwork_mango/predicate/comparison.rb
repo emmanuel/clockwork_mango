@@ -13,7 +13,6 @@ module ClockworkMango
       @operator = :===
 
       attr_reader :attribute, :value, :reverse
-      attr_reader *COMPARABLE_ATTRIBUTES
 
       def initialize(attribute, value)
         unless value.respond_to?(operator)
@@ -31,6 +30,15 @@ module ClockworkMango
         @attribute = attribute.to_sym
         @value     = value
         instance_variable_set("@#{@attribute}", @value)
+      end
+
+      # adds constructors like .year, .wday, etc. which predicate the given attribute
+      PREDICABLE_ATTRIBUTES.each do |attribute|
+        module_eval <<-RUBY, __FILE__, __LINE__
+          def #{attribute}(value)
+            new(:#{attribute}, value)
+          end
+        RUBY
       end
 
       def attributes
