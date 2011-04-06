@@ -1,19 +1,21 @@
 module ClockworkMango
   module CoreExt
-    module PrecisionedDate
-      def to_temporal_predicate
-        ClockworkMango::Precisioned::Date.new(self)
+    module Precisioned
+      module Date
+        def to_temporal_predicate(precision = :day)
+          ClockworkMango::Precisioned::Time.new(year, month, mday)
+        end
       end
-    end
 
-    module PrecisionedTime
-      def to_temporal_predicate
-        ClockworkMango::Precisioned::Time.new(self)
+      module Time
+        def to_temporal_predicate(precision = :sec)
+          ClockworkMango::Precisioned::Time.new(year, month, day, hour, min, sec)
+        end
       end
-    end
-  end
-end
+    end # module Precisioned
+  end # module CoreExt
+end # module ClockworkMango
 
-::Date.send(:include, ClockworkMango::CoreExt::PrecisionedDate)
-::DateTime.send(:include, ClockworkMango::CoreExt::PrecisionedTime)
-::Time.send(:include, ClockworkMango::CoreExt::PrecisionedTime)
+::Date.send(:include, ClockworkMango::CoreExt::Precisioned::Date)
+::DateTime.send(:include, ClockworkMango::CoreExt::Precisioned::Time)
+::Time.send(:include, ClockworkMango::CoreExt::Precisioned::Time)
